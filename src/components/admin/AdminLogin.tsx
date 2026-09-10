@@ -299,7 +299,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel, onB
 
         {/* CLERK EMBEDDED AUTH */}
         {authProvider === 'clerk' && (
-          <div className="flex flex-col items-center my-2 w-full">
+          <div className="flex justify-center my-2">
             {activeTab === 'login' ? (
               <SignIn
                 routing="hash"
@@ -327,15 +327,6 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel, onB
                 }}
               />
             )}
-            <div className="mt-3 text-center">
-              <button
-                type="button"
-                onClick={() => setAuthProvider('direct')}
-                className="text-[11px] font-mono-editorial text-[#6E6A62] hover:text-[#EA580C] underline transition-colors cursor-pointer"
-              >
-                Having trouble with Clerk? Click here for Direct Password Login &rarr;
-              </button>
-            </div>
           </div>
         )}
 

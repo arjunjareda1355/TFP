@@ -44,9 +44,9 @@ app.get(['/clerk-js/:file(*)', '/api/clerk-js/:file(*)'], async (req, res) => {
     } catch {}
 
     const urls = [
-      `https://${clerkHost}/npm/@clerk/clerk-js@5.127.2/dist/${safeFilename}`,
       `https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5.127.2/dist/${safeFilename}`,
       `https://unpkg.com/@clerk/clerk-js@5.127.2/dist/${safeFilename}`,
+      `https://${clerkHost}/npm/@clerk/clerk-js@5.127.2/dist/${safeFilename}`,
     ];
 
     let code = '';

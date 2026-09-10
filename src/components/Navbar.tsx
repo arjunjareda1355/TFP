@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Bookmark, Menu, X, ArrowRight, Sparkles, BookOpen, Compass, Flame, TrendingUp, Layers, Mail, Volume2, User, ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
-import { SignedIn, SignedOut, UserButton, useClerk } from '@clerk/clerk-react';
+import { Search, Bookmark, Menu, X, ArrowRight, Sparkles, BookOpen, Compass, Flame, TrendingUp, Layers, Mail, Volume2, User, ShieldCheck } from 'lucide-react';
+import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/clerk-react';
 import { useMagazine } from '../context/MagazineContext';
 import { BrandLogo } from './BrandLogo';
 import { CATEGORIES } from '../data/categories';
@@ -43,100 +43,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   } = useMagazine();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const clerk = useClerk();
-  const [isSigningIn, setIsSigningIn] = useState(false);
-  const [isSigningUp, setIsSigningUp] = useState(false);
-  const [authErrorNotice, setAuthErrorNotice] = useState<string | null>(null);
-
-  const handleSignIn = async () => {
-    setAuthErrorNotice(null);
-    setIsSigningIn(true);
-    try {
-      if (clerk && clerk.loaded) {
-        await clerk.openSignIn();
-        setIsSigningIn(false);
-        return;
-      }
-
-      let timer: any = null;
-      const startTime = Date.now();
-      const interval = setInterval(async () => {
-        if (clerk && clerk.loaded) {
-          clearInterval(interval);
-          clearTimeout(timer);
-          try {
-            await clerk.openSignIn();
-          } catch (e: any) {
-            console.warn('[Clerk] openSignIn error:', e);
-            window.location.hash = '/admin';
-          } finally {
-            setIsSigningIn(false);
-          }
-        } else if (Date.now() - startTime > 2600) {
-          clearInterval(interval);
-          clearTimeout(timer);
-          setIsSigningIn(false);
-          setAuthErrorNotice('Opening direct publisher & member sign-in...');
-          window.location.hash = '/admin';
-        }
-      }, 100);
-
-      timer = setTimeout(() => {
-        clearInterval(interval);
-        setIsSigningIn(false);
-      }, 3200);
-    } catch (err: any) {
-      console.warn('[Clerk] openSignIn caught:', err);
-      setIsSigningIn(false);
-      setAuthErrorNotice('Switching to direct sign-in...');
-      window.location.hash = '/admin';
-    }
-  };
-
-  const handleSignUp = async () => {
-    setAuthErrorNotice(null);
-    setIsSigningUp(true);
-    try {
-      if (clerk && clerk.loaded) {
-        await clerk.openSignUp();
-        setIsSigningUp(false);
-        return;
-      }
-
-      let timer: any = null;
-      const startTime = Date.now();
-      const interval = setInterval(async () => {
-        if (clerk && clerk.loaded) {
-          clearInterval(interval);
-          clearTimeout(timer);
-          try {
-            await clerk.openSignUp();
-          } catch (e: any) {
-            console.warn('[Clerk] openSignUp error:', e);
-            window.location.hash = '/admin';
-          } finally {
-            setIsSigningUp(false);
-          }
-        } else if (Date.now() - startTime > 2600) {
-          clearInterval(interval);
-          clearTimeout(timer);
-          setIsSigningUp(false);
-          setAuthErrorNotice('Opening direct registration...');
-          window.location.hash = '/admin';
-        }
-      }, 100);
-
-      timer = setTimeout(() => {
-        clearInterval(interval);
-        setIsSigningUp(false);
-      }, 3200);
-    } catch (err: any) {
-      console.warn('[Clerk] openSignUp caught:', err);
-      setIsSigningUp(false);
-      setAuthErrorNotice('Switching to direct access...');
-      window.location.hash = '/admin';
-    }
-  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -195,21 +101,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <>
       <header className="sticky top-0 z-40 w-full transition-all duration-300 bg-[#FFFFFF]">
-        {authErrorNotice && (
-          <div className="bg-[#FFF7ED] border-b border-[#FED7AA] px-4 py-2 text-xs text-[#C2410C] flex items-center justify-between font-mono-editorial">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-              <span>{authErrorNotice}</span>
-            </div>
-            <button
-              onClick={() => setAuthErrorNotice(null)}
-              className="text-[#9A3412] hover:text-[#7C2D12] text-xs font-semibold px-2 py-0.5"
-              aria-label="Dismiss notice"
-            >
-              &times;
-            </button>
-          </div>
-        )}
         {/* Top micro-bar for date and editorial tagline (Pure White & Charcoal) */}
         <div className="bg-[#FAFAFA] text-[#55524B] text-[11px] py-1.5 px-4 sm:px-8 border-b border-[#E8E5DF] font-mono-editorial hidden md:flex justify-between items-center tracking-wide">
           <div className="flex items-center gap-4">
@@ -317,42 +208,24 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* Auth Integration: Header Controls */}
               {!isAuthenticated ? (
                 <div className="hidden sm:flex items-center gap-2">
-                  <button
-                    id="navbar-signin-btn"
-                    onClick={handleSignIn}
-                    disabled={isSigningIn}
-                    aria-label="Sign In"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#111110] hover:text-[#EA580C] hover:bg-[#F5F4F0] rounded-xs border border-[#E8E5DF] transition-colors cursor-pointer disabled:opacity-60"
-                  >
-                    {isSigningIn ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin text-[#EA580C]" />
-                        <span>Opening...</span>
-                      </>
-                    ) : (
-                      <>
-                        <User className="w-3.5 h-3.5 text-[#55524B]" />
-                        <span>Sign In</span>
-                      </>
-                    )}
-                  </button>
+                  <SignInButton mode="modal">
+                    <button
+                      id="navbar-signin-btn"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#111110] hover:text-[#EA580C] hover:bg-[#F5F4F0] rounded-xs border border-[#E8E5DF] transition-colors cursor-pointer"
+                    >
+                      <User className="w-3.5 h-3.5 text-[#55524B]" />
+                      <span>Sign In</span>
+                    </button>
+                  </SignInButton>
 
-                  <button
-                    id="navbar-signup-btn"
-                    onClick={handleSignUp}
-                    disabled={isSigningUp}
-                    aria-label="Join Free"
-                    className="hidden md:inline-flex items-center gap-1.5 bg-[#111110] hover:bg-[#EA580C] text-white text-xs font-semibold uppercase tracking-wider px-3.5 py-2 transition-colors duration-150 rounded-xs shadow-xs cursor-pointer disabled:opacity-60"
-                  >
-                    {isSigningUp ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span>Opening...</span>
-                      </>
-                    ) : (
+                  <SignUpButton mode="modal">
+                    <button
+                      id="navbar-signup-btn"
+                      className="hidden md:inline-flex items-center gap-1.5 bg-[#111110] hover:bg-[#EA580C] text-white text-xs font-semibold uppercase tracking-wider px-3.5 py-2 transition-colors duration-150 rounded-xs shadow-xs cursor-pointer"
+                    >
                       <span>Join Free</span>
-                    )}
-                  </button>
+                    </button>
+                  </SignUpButton>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
@@ -528,45 +401,26 @@ export const Navbar: React.FC<NavbarProps> = ({
                       </p>
                     </div>
                     <div className="grid grid-cols-2 gap-2 mt-3">
-                      <button
-                        type="button"
-                        id="menu-signin-btn"
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          handleSignIn();
-                        }}
-                        disabled={isSigningIn}
-                        className="w-full py-2.5 px-3 text-center text-xs font-semibold text-[#111110] bg-[#FFFFFF] border border-[#E8E5DF] hover:bg-[#F5F4F0] rounded-xs transition-colors cursor-pointer shadow-xs inline-flex items-center justify-center gap-1.5 disabled:opacity-60"
-                      >
-                        {isSigningIn ? (
-                          <>
-                            <Loader2 className="w-3.5 h-3.5 animate-spin text-[#EA580C]" />
-                            <span>Opening...</span>
-                          </>
-                        ) : (
-                          <span>Sign In</span>
-                        )}
-                      </button>
-
-                      <button
-                        type="button"
-                        id="menu-signup-btn"
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          handleSignUp();
-                        }}
-                        disabled={isSigningUp}
-                        className="w-full py-2.5 px-3 text-center text-xs font-semibold text-white bg-[#111110] hover:bg-[#EA580C] rounded-xs transition-colors cursor-pointer shadow-xs inline-flex items-center justify-center gap-1.5 disabled:opacity-60"
-                      >
-                        {isSigningUp ? (
-                          <>
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            <span>Opening...</span>
-                          </>
-                        ) : (
-                          <span>Create Account</span>
-                        )}
-                      </button>
+                      <SignInButton mode="modal">
+                        <button
+                          type="button"
+                          id="menu-signin-btn"
+                          onClick={() => setIsMenuOpen(false)}
+                          className="w-full py-2.5 px-3 text-center text-xs font-semibold text-[#111110] bg-[#FFFFFF] border border-[#E8E5DF] hover:bg-[#F5F4F0] rounded-xs transition-colors cursor-pointer shadow-xs"
+                        >
+                          Sign In
+                        </button>
+                      </SignInButton>
+                      <SignUpButton mode="modal">
+                        <button
+                          type="button"
+                          id="menu-signup-btn"
+                          onClick={() => setIsMenuOpen(false)}
+                          className="w-full py-2.5 px-3 text-center text-xs font-semibold text-white bg-[#111110] hover:bg-[#EA580C] rounded-xs transition-colors cursor-pointer shadow-xs"
+                        >
+                          Create Account
+                        </button>
+                      </SignUpButton>
                     </div>
                   </div>
                 ) : (

@@ -28,59 +28,132 @@ export function isValidClerkPublishableKey(key?: string | null): boolean {
   }
 }
 
-const DEFAULT_KEY = 'pk_live_Y2xlcmsuZm9sZGVkcGFnZS5pbiQ';
+export const LIVE_PRODUCTION_KEY = 'pk_live_Y2xlcmsuZm9sZGVkcGFnZS5pbiQ';
+export const DEV_TEST_KEY = 'pk_test_c21vb3RoLXdhaG9vLTExNTEuY2xlcmsuYWNjb3VudHMuZGV2JA';
 
-const ENV_KEY =
-  (typeof import.meta !== 'undefined' &&
-    (import.meta as any).env &&
-    ((import.meta as any).env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
-      (import.meta as any).env.VITE_CLERK_PUBLISHABLE_KEY ||
-      (import.meta as any).env.CLERK_PUBLISHABLE_KEY)) ||
-  '';
+export function isProductionDomain(): boolean {
+  if (typeof window === 'undefined' || !window.location) return false;
+  const hostname = window.location.hostname.toLowerCase();
+  return hostname === 'foldedpage.in' || hostname.endsWith('.foldedpage.in');
+}
+
+export function isKeyAllowedForHost(key?: string | null): boolean {
+  if (!key || typeof key !== 'string') return false;
+  const trimmed = key.trim();
+  if (!isValidClerkPublishableKey(trimmed)) return false;
+
+  // Development keys (pk_test_...) are universally permitted on all hosts (localhost, run.app, preview, etc.)
+  if (trimmed.startsWith('pk_test_')) {
+    return true;
+  }
+
+  // Production keys (pk_live_...) are strictly locked by Clerk to foldedpage.in
+  if (trimmed.startsWith('pk_live_')) {
+    if (typeof window === 'undefined' || !window.location) return true;
+    const hostname = window.location.hostname.toLowerCase();
+    try {
+      const raw = trimmed.replace(/^pk_live_/, '').replace(/\$$/, '');
+      const decoded = atob(raw).replace(/\$$/, '').toLowerCase();
+      const baseDomain = decoded.replace(/^clerk\./, '');
+      return hostname === baseDomain || hostname.endsWith(`.${baseDomain}`);
+    } catch {
+      return false;
+    }
+  }
+
+  return false;
+}
+
+export function resolveInitialKey(): string {
+  const isProd = isProductionDomain();
+
+  // 1. Check local storage
+  try {
+    const stored = localStorage.getItem('clerk_publishable_key');
+    if (stored) {
+      if (isKeyAllowedForHost(stored)) {
+        return stored.trim();
+      } else {
+        // Clear stored key if it is not valid for this hostname (e.g. live key on dev domain)
+        localStorage.removeItem('clerk_publishable_key');
+      }
+    }
+  } catch {}
+
+  const envNextPublic =
+    (typeof import.meta !== 'undefined' &&
+      (import.meta as any).env &&
+      (import.meta as any).env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) ||
+    '';
+  const envVite =
+    (typeof import.meta !== 'undefined' &&
+      (import.meta as any).env &&
+      (import.meta as any).env.VITE_CLERK_PUBLISHABLE_KEY) ||
+    '';
+  const envClerk =
+    (typeof import.meta !== 'undefined' &&
+      (import.meta as any).env &&
+      (import.meta as any).env.CLERK_PUBLISHABLE_KEY) ||
+    '';
+
+  if (isProd) {
+    if (envNextPublic && isKeyAllowedForHost(envNextPublic)) return envNextPublic.trim();
+    if (envVite && isKeyAllowedForHost(envVite)) return envVite.trim();
+    if (envClerk && isKeyAllowedForHost(envClerk)) return envClerk.trim();
+    return LIVE_PRODUCTION_KEY;
+  } else {
+    // Non-production environment (run.app, preview, localhost):
+    // Prioritize dev test keys to prevent "Production Keys are only allowed for domain" error
+    if (envVite && isKeyAllowedForHost(envVite)) return envVite.trim();
+    if (envClerk && isKeyAllowedForHost(envClerk)) return envClerk.trim();
+    if (envNextPublic && isKeyAllowedForHost(envNextPublic)) return envNextPublic.trim();
+    return DEV_TEST_KEY;
+  }
+}
 
 interface ErrorBoundaryProps {
   children: ReactNode;
   onResetKey: () => void;
+  onFallbackToDevKey: () => void;
 }
 
 interface ErrorBoundaryState {
   hasError: boolean;
   errorMessage: string;
-  isBypassed: boolean;
+  isDomainError: boolean;
 }
 
 class ClerkErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  public override state: ErrorBoundaryState = { hasError: false, errorMessage: '', isBypassed: false };
+  public override state: ErrorBoundaryState = {
+    hasError: false,
+    errorMessage: '',
+    isDomainError: false,
+  };
 
-  public static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
-    return { hasError: true, errorMessage: error?.message || 'Clerk initialization notice' };
+  public static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    const msg = error?.message || 'Clerk initialization notice';
+    const isDomain =
+      msg.includes('Production Keys are only allowed for domain') ||
+      msg.includes('HTTP Origin header') ||
+      msg.includes('origin_invalid');
+    return { hasError: true, errorMessage: msg, isDomainError: isDomain };
   }
 
   public override componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('ClerkProvider Error caught:', error, errorInfo);
+    const msg = error?.message || '';
+    if (
+      msg.includes('Production Keys are only allowed for domain') ||
+      msg.includes('HTTP Origin header') ||
+      msg.includes('origin_invalid')
+    ) {
+      console.warn('[Clerk] Domain restriction detected; switching to dev key.');
+      this.props.onFallbackToDevKey();
+      this.setState({ hasError: false, errorMessage: '', isDomainError: false });
+    }
   }
 
   public override render() {
-    if (this.state.isBypassed) {
-      return (
-        <>
-          <div className="bg-[#FFF7ED] border-b border-[#FED7AA] px-4 py-2 text-xs text-[#C2410C] flex items-center justify-between font-mono-editorial">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-              <span>Authentication notice: Magazine running in direct access mode.</span>
-            </div>
-            <a
-              href="#/admin"
-              className="text-[#9A3412] hover:underline font-bold text-[11px] uppercase tracking-wider"
-            >
-              Sign In Directly &rarr;
-            </a>
-          </div>
-          {this.props.children}
-        </>
-      );
-    }
-
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-[#F9F8F6] flex flex-col justify-center items-center px-4 py-12 select-none">
@@ -93,7 +166,7 @@ class ClerkErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBounda
                 Authentication System Notice
               </div>
               <h1 className="font-serif-editorial text-2xl font-bold text-[#111110]">
-                The Folded Page
+                Clerk Authentication Notice
               </h1>
               <p className="font-serif-editorial italic text-xs text-[#DC2626] mt-2">
                 {this.state.errorMessage}
@@ -101,50 +174,55 @@ class ClerkErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBounda
             </div>
 
             <p className="text-xs text-[#55524B] leading-relaxed mb-6">
-              The publication authentication service encountered a connection notice. You can retry the connection, sign in using direct publisher credentials, or continue reading the live publication.
+              {this.state.isDomainError
+                ? 'Production keys are domain-restricted by Clerk to foldedpage.in. In preview or development environments, click below to use the development key.'
+                : 'The publication authentication service encountered a connection notice. You can retry the connection, update the Clerk publishable key, or continue reading the live publication.'}
             </p>
 
             <div className="space-y-2.5">
-              <button
-                onClick={() => {
-                  this.setState({ hasError: false, errorMessage: '' });
-                }}
-                className="w-full py-2.5 bg-[#111110] hover:bg-[#EA580C] text-white text-xs font-mono-editorial uppercase tracking-wider font-semibold rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-                <span>Retry Connection</span>
-              </button>
+              {this.state.isDomainError ? (
+                <button
+                  onClick={() => {
+                    this.setState({ hasError: false, errorMessage: '', isDomainError: false });
+                    this.props.onFallbackToDevKey();
+                  }}
+                  className="w-full py-2.5 bg-[#EA580C] hover:bg-[#C2410C] text-white text-xs font-mono-editorial uppercase tracking-wider font-semibold rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Switch to Development Key</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    this.setState({ hasError: false, errorMessage: '', isDomainError: false });
+                  }}
+                  className="w-full py-2.5 bg-[#111110] hover:bg-[#EA580C] text-white text-xs font-mono-editorial uppercase tracking-wider font-semibold rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Retry Connection</span>
+                </button>
+              )}
 
               <button
                 onClick={() => {
-                  this.setState({ isBypassed: true, hasError: false });
-                  window.location.hash = '/admin';
-                }}
-                className="w-full py-2.5 bg-[#EA580C] hover:bg-[#C2410C] text-white text-xs font-mono-editorial uppercase tracking-wider font-semibold rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-              >
-                <span>Sign In via Direct Publisher Credentials</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-
-              <button
-                onClick={() => {
-                  this.setState({ hasError: false, errorMessage: '' });
+                  this.setState({ hasError: false, errorMessage: '', isDomainError: false });
                   this.props.onResetKey();
                 }}
                 className="w-full py-2 bg-transparent hover:bg-[#F5F4F0] text-[#111110] border border-[#E8E5DF] text-xs font-mono-editorial uppercase tracking-wider font-medium rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Key className="w-3.5 h-3.5" />
-                <span>Configure Clerk Key</span>
+                <span>Update Clerk Key</span>
               </button>
 
               <button
                 onClick={() => {
-                  this.setState({ isBypassed: true, hasError: false });
+                  window.location.hash = '/';
+                  this.setState({ hasError: false, errorMessage: '', isDomainError: false });
                 }}
                 className="w-full py-2 text-[#6E6A62] hover:text-[#111110] text-xs font-mono-editorial inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Continue to Live Magazine as Guest</span>
+                <span>Return to Live Magazine</span>
               </button>
             </div>
           </div>
@@ -156,21 +234,12 @@ class ClerkErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBounda
 }
 
 export const ClerkAuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [activeKey, setActiveKey] = useState<string>(() => {
-    if (ENV_KEY && isValidClerkPublishableKey(ENV_KEY)) return ENV_KEY.trim();
-    try {
-      const stored = localStorage.getItem('clerk_publishable_key');
-      if (stored && isValidClerkPublishableKey(stored)) return stored.trim();
-    } catch {}
-    if (DEFAULT_KEY && isValidClerkPublishableKey(DEFAULT_KEY)) return DEFAULT_KEY.trim();
-    return DEFAULT_KEY;
-  });
-
+  const [activeKey, setActiveKey] = useState<string>(() => resolveInitialKey());
   const [inputKey, setInputKey] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [isUpdatingKey, setIsUpdatingKey] = useState(false);
 
-  // Handle global unhandled errors / promise rejections caused by Clerk script load failures
+  // Handle global unhandled errors / promise rejections caused by Clerk script load or domain restrictions
   React.useEffect(() => {
     const handleScriptError = (event: ErrorEvent | PromiseRejectionEvent) => {
       const reason = 'reason' in event ? event.reason : event.error;
@@ -187,12 +256,27 @@ export const ClerkAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
         message.includes('failed_to_load_clerk_js') ||
         message.includes('Failed to load Clerk') ||
         message.includes('clerk.browser.js') ||
-        message.includes('clerk.accounts.dev')
+        message.includes('clerk.accounts.dev') ||
+        message.includes('Production Keys are only allowed for domain') ||
+        message.includes('HTTP Origin header') ||
+        message.includes('origin_invalid')
       ) {
         if (typeof event.preventDefault === 'function') {
           event.preventDefault();
         }
-        console.warn('[Clerk] Script load timed out or blocked; continuing in standard magazine mode.');
+        console.warn('[Clerk] Notice handled gracefully:', message);
+
+        // If domain error happened, automatically fallback to test key
+        if (
+          message.includes('Production Keys are only allowed for domain') ||
+          message.includes('HTTP Origin header') ||
+          message.includes('origin_invalid')
+        ) {
+          try {
+            localStorage.removeItem('clerk_publishable_key');
+          } catch {}
+          setActiveKey(DEV_TEST_KEY);
+        }
       }
     };
 
@@ -215,6 +299,14 @@ export const ClerkAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
       setErrorMsg('Publishable key must be a valid Clerk key from your dashboard (e.g. pk_live_... or pk_test_...)');
       return;
     }
+
+    if (!isKeyAllowedForHost(cleanKey)) {
+      setErrorMsg(
+        'Notice: Production keys (pk_live_...) can only be used on domain "foldedpage.in". For this development/preview URL, please use your test key (pk_test_...).'
+      );
+      return;
+    }
+
     try {
       localStorage.setItem('clerk_publishable_key', cleanKey);
     } catch {}
@@ -227,8 +319,15 @@ export const ClerkAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
     setIsUpdatingKey(true);
   };
 
+  const handleFallbackToDevKey = () => {
+    try {
+      localStorage.removeItem('clerk_publishable_key');
+    } catch {}
+    setActiveKey(DEV_TEST_KEY);
+  };
+
   // The publishable key used to initialize ClerkProvider
-  const resolvedKey = (activeKey && isValidClerkPublishableKey(activeKey)) ? activeKey : DEFAULT_KEY;
+  const resolvedKey = isKeyAllowedForHost(activeKey) ? activeKey : resolveInitialKey();
 
   // If user requested to explicitly update the Clerk key
   if (isUpdatingKey) {
@@ -306,19 +405,12 @@ export const ClerkAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
     );
   }
 
-  const customClerkJSUrl =
-    (typeof import.meta !== 'undefined' &&
-      (import.meta as any).env &&
-      ((import.meta as any).env.VITE_CLERK_JS_URL ||
-        (import.meta as any).env.CLERK_JS_URL)) ||
-    undefined;
-
-  // Official ClerkProvider instance wrapped in resilient ErrorBoundary
+  // Official ClerkProvider instance wrapped in ErrorBoundary
   return (
-    <ClerkErrorBoundary onResetKey={handleReset}>
+    <ClerkErrorBoundary onResetKey={handleReset} onFallbackToDevKey={handleFallbackToDevKey}>
       <ClerkProvider
         publishableKey={resolvedKey}
-        {...(customClerkJSUrl ? { clerkJSUrl: customClerkJSUrl } : {})}
+        clerkJSUrl="/clerk-js/clerk.browser.js"
         appearance={{
           variables: {
             colorPrimary: '#EA580C',

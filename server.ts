@@ -63,9 +63,9 @@ async function startServer() {
 
   async function fetchClerkChunk(safeFilename: string, clerkHost: string): Promise<string> {
     const urls = [
-      `https://${clerkHost}/npm/@clerk/clerk-js@5.127.2/dist/${safeFilename}`,
       `https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5.127.2/dist/${safeFilename}`,
       `https://unpkg.com/@clerk/clerk-js@5.127.2/dist/${safeFilename}`,
+      `https://${clerkHost}/npm/@clerk/clerk-js@5.127.2/dist/${safeFilename}`,
     ];
 
     for (const url of urls) {
@@ -105,12 +105,17 @@ async function startServer() {
         return res.send(cached.code);
       }
 
-      const clerkKey =
-        process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
-        process.env.CLERK_PUBLISHABLE_KEY ||
-        process.env.VITE_CLERK_PUBLISHABLE_KEY ||
-        'pk_live_Y2xlcmsuZm9sZGVkcGFnZS5pbiQ';
-      let clerkHost = 'clerk.foldedpage.in';
+      const host = req.headers.host || '';
+      const isProdHost = host.includes('foldedpage.in');
+      const clerkKey = isProdHost
+        ? (process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+           process.env.CLERK_PUBLISHABLE_KEY ||
+           process.env.VITE_CLERK_PUBLISHABLE_KEY ||
+           'pk_live_Y2xlcmsuZm9sZGVkcGFnZS5pbiQ')
+        : (process.env.VITE_CLERK_PUBLISHABLE_KEY ||
+           process.env.CLERK_PUBLISHABLE_KEY ||
+           'pk_test_c21vb3RoLXdhaG9vLTExNTEuY2xlcmsuYWNjb3VudHMuZGV2JA');
+      let clerkHost = isProdHost ? 'clerk.foldedpage.in' : 'smooth-wahoo-1151.clerk.accounts.dev';
       try {
         const raw = clerkKey.replace(/^pk_(test|live)_/, '').replace(/\$$/, '');
         const decoded = Buffer.from(raw, 'base64').toString('utf-8').replace(/\$$/, '');
