@@ -63,9 +63,9 @@ async function startServer() {
 
   async function fetchClerkChunk(safeFilename: string, clerkHost: string): Promise<string> {
     const urls = [
+      `https://${clerkHost}/npm/@clerk/clerk-js@5.127.2/dist/${safeFilename}`,
       `https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5.127.2/dist/${safeFilename}`,
       `https://unpkg.com/@clerk/clerk-js@5.127.2/dist/${safeFilename}`,
-      `https://${clerkHost}/npm/@clerk/clerk-js@5.127.2/dist/${safeFilename}`,
     ];
 
     for (const url of urls) {

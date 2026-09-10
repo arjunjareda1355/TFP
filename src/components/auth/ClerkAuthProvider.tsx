@@ -46,12 +46,13 @@ interface ErrorBoundaryProps {
 interface ErrorBoundaryState {
   hasError: boolean;
   errorMessage: string;
+  isBypassed: boolean;
 }
 
 class ClerkErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  public override state: ErrorBoundaryState = { hasError: false, errorMessage: '' };
+  public override state: ErrorBoundaryState = { hasError: false, errorMessage: '', isBypassed: false };
 
-  public static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+  public static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     return { hasError: true, errorMessage: error?.message || 'Clerk initialization notice' };
   }
 
@@ -60,6 +61,26 @@ class ClerkErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBounda
   }
 
   public override render() {
+    if (this.state.isBypassed) {
+      return (
+        <>
+          <div className="bg-[#FFF7ED] border-b border-[#FED7AA] px-4 py-2 text-xs text-[#C2410C] flex items-center justify-between font-mono-editorial">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+              <span>Authentication notice: Magazine running in direct access mode.</span>
+            </div>
+            <a
+              href="#/admin"
+              className="text-[#9A3412] hover:underline font-bold text-[11px] uppercase tracking-wider"
+            >
+              Sign In Directly &rarr;
+            </a>
+          </div>
+          {this.props.children}
+        </>
+      );
+    }
+
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-[#F9F8F6] flex flex-col justify-center items-center px-4 py-12 select-none">
@@ -72,7 +93,7 @@ class ClerkErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBounda
                 Authentication System Notice
               </div>
               <h1 className="font-serif-editorial text-2xl font-bold text-[#111110]">
-                Clerk Authentication Notice
+                The Folded Page
               </h1>
               <p className="font-serif-editorial italic text-xs text-[#DC2626] mt-2">
                 {this.state.errorMessage}
@@ -80,7 +101,7 @@ class ClerkErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBounda
             </div>
 
             <p className="text-xs text-[#55524B] leading-relaxed mb-6">
-              The publication authentication service encountered a connection notice. You can retry the connection, update the Clerk publishable key, or continue reading the live publication.
+              The publication authentication service encountered a connection notice. You can retry the connection, sign in using direct publisher credentials, or continue reading the live publication.
             </p>
 
             <div className="space-y-2.5">
@@ -96,24 +117,34 @@ class ClerkErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBounda
 
               <button
                 onClick={() => {
+                  this.setState({ isBypassed: true, hasError: false });
+                  window.location.hash = '/admin';
+                }}
+                className="w-full py-2.5 bg-[#EA580C] hover:bg-[#C2410C] text-white text-xs font-mono-editorial uppercase tracking-wider font-semibold rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+              >
+                <span>Sign In via Direct Publisher Credentials</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+
+              <button
+                onClick={() => {
                   this.setState({ hasError: false, errorMessage: '' });
                   this.props.onResetKey();
                 }}
                 className="w-full py-2 bg-transparent hover:bg-[#F5F4F0] text-[#111110] border border-[#E8E5DF] text-xs font-mono-editorial uppercase tracking-wider font-medium rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Key className="w-3.5 h-3.5" />
-                <span>Update Clerk Key</span>
+                <span>Configure Clerk Key</span>
               </button>
 
               <button
                 onClick={() => {
-                  window.location.hash = '/';
-                  this.setState({ hasError: false, errorMessage: '' });
+                  this.setState({ isBypassed: true, hasError: false });
                 }}
                 className="w-full py-2 text-[#6E6A62] hover:text-[#111110] text-xs font-mono-editorial inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Return to Live Magazine</span>
+                <span>Continue to Live Magazine as Guest</span>
               </button>
             </div>
           </div>
@@ -275,12 +306,19 @@ export const ClerkAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
     );
   }
 
-  // Official ClerkProvider instance wrapped in ErrorBoundary
+  const customClerkJSUrl =
+    (typeof import.meta !== 'undefined' &&
+      (import.meta as any).env &&
+      ((import.meta as any).env.VITE_CLERK_JS_URL ||
+        (import.meta as any).env.CLERK_JS_URL)) ||
+    undefined;
+
+  // Official ClerkProvider instance wrapped in resilient ErrorBoundary
   return (
     <ClerkErrorBoundary onResetKey={handleReset}>
       <ClerkProvider
         publishableKey={resolvedKey}
-        clerkJSUrl="/clerk-js/clerk.browser.js"
+        {...(customClerkJSUrl ? { clerkJSUrl: customClerkJSUrl } : {})}
         appearance={{
           variables: {
             colorPrimary: '#EA580C',
