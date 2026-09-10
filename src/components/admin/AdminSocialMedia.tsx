@@ -438,22 +438,22 @@ export const AdminSocialMedia: React.FC = () => {
               >
                 <div>
                   {/* Top Bar of Card */}
-                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#E8E5DF]">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xs bg-[#F9F8F6] border border-[#E8E5DF] text-[#111110] flex items-center justify-center">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-[#E8E5DF]">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-xs bg-[#F9F8F6] border border-[#E8E5DF] text-[#111110] flex items-center justify-center shrink-0">
                         <Icon className="w-5 h-5" />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <span className="text-[10px] font-mono-editorial uppercase text-[#8E8A81]">
                           Position #{index + 1}
                         </span>
-                        <div className="font-serif-editorial font-bold text-base text-[#111110]">
+                        <div className="font-serif-editorial font-bold text-base text-[#111110] truncate">
                           {channel.name || 'Unnamed Channel'}
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 self-end sm:self-center shrink-0">
                       {/* Reorder Up */}
                       <button
                         type="button"

@@ -335,8 +335,8 @@ export const AdminSubscribers: React.FC = () => {
                       <td className="py-3.5 px-4 text-[#6E6A62]">
                         {new Date(sub.subscribedAt).toLocaleDateString()}
                       </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <div className="inline-flex items-center gap-1.5 justify-end">
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                        <div className="inline-flex items-center gap-1.5 justify-end whitespace-nowrap">
                           {status !== 'active' && (
                             <button
                               onClick={() => handleStatusChange(sub.id, 'active')}
@@ -384,7 +384,7 @@ export const AdminSubscribers: React.FC = () => {
         <div className="space-y-4">
           {submissions.map((sub) => (
             <div key={sub.id} className="bg-[#FFFFFF] border border-[#E8E5DF] p-5 rounded-xs shadow-xs space-y-3">
-              <div className="flex items-center justify-between border-b border-[#E8E5DF] pb-2 text-xs font-mono-editorial">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#E8E5DF] pb-2 text-xs font-mono-editorial gap-1">
                 <div>
                   <span className="font-bold text-[#111110]">{sub.name}</span>
                   <span className="text-[#6E6A62] ml-2">&lt;{sub.email}&gt;</span>

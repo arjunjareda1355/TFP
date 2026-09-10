@@ -158,7 +158,7 @@ export const AdminTrash: React.FC = () => {
                   key={item.id}
                   className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#FDFCFB] transition-colors"
                 >
-                  <div className="flex items-start gap-3.5">
+                  <div className="flex items-start gap-3.5 min-w-0 flex-1">
                     <div className="w-9 h-9 bg-[#FEF2F2] border border-[#FECACA] flex items-center justify-center text-[#DC2626] rounded-xs shrink-0 mt-0.5">
                       {itemType === 'ARTICLE' ? (
                         <FileText className="w-4 h-4" />
@@ -166,12 +166,12 @@ export const AdminTrash: React.FC = () => {
                         <Layers className="w-4 h-4" />
                       )}
                     </div>
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-serif-editorial font-semibold text-base text-[#111110]">
+                        <span className="font-serif-editorial font-semibold text-base text-[#111110] truncate">
                           {title}
                         </span>
-                        <span className="bg-[#F4F1EA] text-[#6E6A62] text-[10px] font-mono-editorial uppercase px-1.5 py-0.2 rounded-xs border border-[#E8E5DF]">
+                        <span className="bg-[#F4F1EA] text-[#6E6A62] text-[10px] font-mono-editorial uppercase px-1.5 py-0.2 rounded-xs border border-[#E8E5DF] shrink-0">
                           {itemType}
                         </span>
                       </div>
@@ -185,7 +185,7 @@ export const AdminTrash: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
                     <button
                       onClick={() => handleRestore(item.id, title)}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#F0FDF4] border border-[#BBF7D0] hover:bg-[#DCFCE7] text-[#166534] text-xs font-semibold rounded-xs transition-colors"

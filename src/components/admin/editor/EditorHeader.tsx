@@ -156,14 +156,14 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
           {/* Quick utility icons */}
           <button
             onClick={onOpenTemplates}
-            className="p-2 text-stone-300 hover:text-stone-100 hover:bg-stone-800 rounded-xl transition-colors"
+            className="hidden sm:inline-flex p-2 text-stone-300 hover:text-stone-100 hover:bg-stone-800 rounded-xl transition-colors"
             title="Editorial Starter Templates"
           >
             <FileText className="w-4 h-4" />
           </button>
           <button
             onClick={onOpenVault}
-            className="p-2 text-stone-300 hover:text-stone-100 hover:bg-stone-800 rounded-xl transition-colors"
+            className="hidden sm:inline-flex p-2 text-stone-300 hover:text-stone-100 hover:bg-stone-800 rounded-xl transition-colors"
             title="Draft Vault (All Backups)"
           >
             <Archive className="w-4 h-4" />
@@ -177,19 +177,64 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
           </button>
           <button
             onClick={onOpenExport}
-            className="p-2 text-stone-300 hover:text-stone-100 hover:bg-stone-800 rounded-xl transition-colors"
+            className="hidden sm:inline-flex p-2 text-stone-300 hover:text-stone-100 hover:bg-stone-800 rounded-xl transition-colors"
             title="Export / Import"
           >
             <Download className="w-4 h-4" />
           </button>
 
-          <div className="h-5 w-px bg-stone-700 mx-1" />
+          {/* Mobile More Options Dropdown */}
+          <div className="relative sm:hidden">
+            <button
+              onClick={() => setIsActionsOpen(!isActionsOpen)}
+              className="p-2 text-stone-300 hover:text-stone-100 hover:bg-stone-800 rounded-xl transition-colors"
+              title="More Actions"
+            >
+              <ChevronDown className="w-4 h-4" />
+            </button>
+            {isActionsOpen && (
+              <div className="absolute right-0 top-full mt-2 w-48 bg-stone-900 border border-stone-700 rounded-xl shadow-xl py-1 z-50 text-xs">
+                <button
+                  onClick={() => {
+                    setIsActionsOpen(false);
+                    onOpenTemplates();
+                  }}
+                  className="w-full px-3 py-2 text-left hover:bg-stone-800 flex items-center gap-2 text-stone-200"
+                >
+                  <FileText className="w-3.5 h-3.5 text-stone-400" />
+                  <span>Templates</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setIsActionsOpen(false);
+                    onOpenVault();
+                  }}
+                  className="w-full px-3 py-2 text-left hover:bg-stone-800 flex items-center gap-2 text-stone-200"
+                >
+                  <Archive className="w-3.5 h-3.5 text-stone-400" />
+                  <span>Draft Vault</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setIsActionsOpen(false);
+                    onOpenExport();
+                  }}
+                  className="w-full px-3 py-2 text-left hover:bg-stone-800 flex items-center gap-2 text-stone-200"
+                >
+                  <Download className="w-3.5 h-3.5 text-stone-400" />
+                  <span>Export / Import</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="h-5 w-px bg-stone-700 mx-0.5 sm:mx-1" />
 
           {/* Save Draft Button */}
           <button
             onClick={onSaveDraft}
             disabled={isSaving}
-            className="px-3.5 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 hover:text-stone-50 text-xs font-semibold rounded-xl border border-stone-700 transition-all flex items-center gap-1.5"
+            className="px-2.5 sm:px-3.5 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 hover:text-stone-50 text-xs font-semibold rounded-xl border border-stone-700 transition-all flex items-center gap-1.5 shrink-0"
           >
             <Save className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Save Draft</span>
@@ -199,10 +244,10 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
           <button
             onClick={onPublish}
             disabled={isSaving}
-            className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+            className="px-3 sm:px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center gap-1.5 shrink-0"
           >
             <Send className="w-3.5 h-3.5" />
-            <span>{status === 'PUBLISHED' ? 'Update Live' : 'Publish Story'}</span>
+            <span className="truncate">{status === 'PUBLISHED' ? 'Update Live' : 'Publish'}</span>
           </button>
         </div>
       </div>

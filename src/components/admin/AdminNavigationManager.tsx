@@ -213,17 +213,19 @@ export const AdminNavigationManager: React.FC = () => {
               key={item.id}
               className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#FDFCFB]"
             >
-              <div className="flex items-center gap-3 flex-1">
-                <span className="font-mono-editorial text-xs text-[#8C827A] w-6">{idx + 1}.</span>
-                <input
-                  type="text"
-                  value={item.label}
-                  onChange={(e) => {
-                    const label = e.target.value;
-                    setNavItems(navItems.map((n) => (n.id === item.id ? { ...n, label } : n)));
-                  }}
-                  className="bg-[#FAF8F5] border border-[#E8E5DF] px-3 py-1.5 text-xs font-serif-editorial font-semibold text-[#111110] rounded-xs w-44"
-                />
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="font-mono-editorial text-xs text-[#8C827A] w-5 shrink-0">{idx + 1}.</span>
+                  <input
+                    type="text"
+                    value={item.label}
+                    onChange={(e) => {
+                      const label = e.target.value;
+                      setNavItems(navItems.map((n) => (n.id === item.id ? { ...n, label } : n)));
+                    }}
+                    className="bg-[#FAF8F5] border border-[#E8E5DF] px-3 py-1.5 text-xs font-serif-editorial font-semibold text-[#111110] rounded-xs w-full sm:w-44"
+                  />
+                </div>
                 <input
                   type="text"
                   value={item.href}
@@ -231,11 +233,11 @@ export const AdminNavigationManager: React.FC = () => {
                     const href = e.target.value;
                     setNavItems(navItems.map((n) => (n.id === item.id ? { ...n, href } : n)));
                   }}
-                  className="bg-[#FAF8F5] border border-[#E8E5DF] px-3 py-1.5 text-xs font-mono-editorial text-[#6E6A62] rounded-xs flex-1 max-w-xs"
+                  className="bg-[#FAF8F5] border border-[#E8E5DF] px-3 py-1.5 text-xs font-mono-editorial text-[#6E6A62] rounded-xs flex-1 w-full sm:max-w-xs"
                 />
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
                 <button
                   type="button"
                   onClick={() => handleToggleNavActive(item.id)}

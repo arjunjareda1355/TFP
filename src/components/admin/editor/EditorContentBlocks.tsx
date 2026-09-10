@@ -74,7 +74,7 @@ export const EditorContentBlocks: React.FC<EditorContentBlocksProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between pb-2 border-b border-stone-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-stone-200 gap-2">
         <div>
           <h3 className="text-sm font-serif font-bold text-stone-900">Story Content & Narrative Layout</h3>
           <p className="text-xs text-stone-500">
@@ -84,7 +84,7 @@ export const EditorContentBlocks: React.FC<EditorContentBlocksProps> = ({
 
         <button
           onClick={() => onAddBlock('paragraph')}
-          className="px-3 py-1.5 bg-stone-900 hover:bg-stone-800 text-stone-100 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors shadow-2xs"
+          className="self-start sm:self-auto px-3 py-1.5 bg-stone-900 hover:bg-stone-800 text-stone-100 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors shadow-2xs shrink-0"
         >
           <Plus className="w-3.5 h-3.5" />
           <span>Add Block</span>
@@ -99,14 +99,14 @@ export const EditorContentBlocks: React.FC<EditorContentBlocksProps> = ({
             className="group relative p-4 rounded-xl border border-stone-200 hover:border-stone-300 bg-white transition-all shadow-2xs"
           >
             {/* Block Header & Controls */}
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-stone-100 text-xs">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-stone-100 text-xs gap-2 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-mono text-[10px] text-stone-400 font-semibold">#{idx + 1}</span>
                 <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 bg-stone-100 text-stone-700 rounded">
                   {block.type}
                 </span>
                 {block.type === 'paragraph' && (
-                  <label className="flex items-center gap-1.5 ml-2 cursor-pointer text-stone-600 hover:text-stone-900 select-none">
+                  <label className="flex items-center gap-1.5 ml-1 sm:ml-2 cursor-pointer text-stone-600 hover:text-stone-900 select-none">
                     <input
                       type="checkbox"
                       checked={Boolean(block.dropCap)}
@@ -119,7 +119,7 @@ export const EditorContentBlocks: React.FC<EditorContentBlocksProps> = ({
               </div>
 
               {/* Block Action Buttons */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 shrink-0">
                 <button
                   onClick={() => onMoveBlock(idx, 'up')}
                   disabled={idx === 0}

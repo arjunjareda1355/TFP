@@ -279,7 +279,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs font-sans-editorial">
+          <table className="w-full text-left text-xs font-sans-editorial min-w-[680px]">
             <thead className="bg-[#F9F8F6] border-b border-[#E8E5DF] text-[#6E6A62] font-mono-editorial uppercase">
               <tr>
                 <th className="py-3 px-4">Article</th>
@@ -346,8 +346,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <td className="py-3.5 px-4 font-mono-editorial text-[#6E6A62]">
                       {article.publishedDate}
                     </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-2 whitespace-nowrap">
                         <button
                           onClick={() => onEditArticle(article.id)}
                           className="px-2.5 py-1 bg-[#111110] text-white rounded-xs text-[11px] font-semibold uppercase hover:bg-[#EA580C] transition-colors"

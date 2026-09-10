@@ -754,7 +754,7 @@ export const AdminArticleEditor: React.FC<AdminArticleEditorProps> = ({
       )}
 
       {/* 3. Main Workspace */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 md:p-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 md:p-8 min-w-0">
         {viewMode === 'split' ? (
           <EditorSplitPreview
             title={title}
@@ -780,9 +780,9 @@ export const AdminArticleEditor: React.FC<AdminArticleEditorProps> = ({
           />
         ) : (
           /* Studio Layout with Tabbed Sections + Sidebar */
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start min-w-0">
             {/* Left 2 Columns: Main Editing Canvas */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-6 min-w-0">
               {/* Studio Tabs Navigation */}
               <div className="flex items-center border-b border-stone-200 bg-white px-4 rounded-xl border shadow-2xs gap-4 overflow-x-auto">
                 <button
@@ -957,7 +957,7 @@ export const AdminArticleEditor: React.FC<AdminArticleEditorProps> = ({
             </div>
 
             {/* Right Column: Editorial Intelligence & Publishing Sidebar */}
-            <div className="space-y-6">
+            <div className="space-y-6 min-w-0">
               {/* Publication Readiness Checklist Widget */}
               <EditorReadinessWidget
                 title={title}

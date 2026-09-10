@@ -357,7 +357,7 @@ export const AdminUsersRoles: React.FC = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full text-left text-xs border-collapse min-w-[720px]">
             <thead>
               <tr className="bg-[#F9F8F6] border-b border-[#E8E5DF] text-[#6E6A62] font-mono-editorial uppercase">
                 <th className="py-3 px-6">User & Profile</th>
@@ -447,13 +447,13 @@ export const AdminUsersRoles: React.FC = () => {
                       {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}
                     </td>
 
-                    <td className="py-4 px-6 text-right">
+                    <td className="py-4 px-6 text-right whitespace-nowrap">
                       {isPermanent ? (
                         <span className="text-[11px] font-mono-editorial text-[#8C827A] italic">
                           Permanent Owner
                         </span>
                       ) : (
-                        <div className="inline-flex items-center gap-1.5">
+                        <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
                           <button
                             onClick={() => {
                               setEditingUser(user);

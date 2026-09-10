@@ -313,7 +313,7 @@ export const AdminApiKeys: React.FC = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs font-sans-editorial">
+          <table className="w-full text-left text-xs font-sans-editorial min-w-[700px]">
             <thead className="bg-[#F9F8F6] text-[#6E6A62] font-mono-editorial text-[11px] uppercase border-b border-[#E8E5DF]">
               <tr>
                 <th className="py-3 px-4 font-medium">Key Name / Scope</th>
@@ -378,7 +378,7 @@ export const AdminApiKeys: React.FC = () => {
                       {item.lastUsedAt ? new Date(item.lastUsedAt).toLocaleDateString() : 'Never'}
                     </td>
 
-                    <td className="py-3.5 px-4 text-right space-x-1.5">
+                    <td className="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
                       <button
                         onClick={() => handleCopyKey(item.key, item.id)}
                         className="p-1.5 text-[#6E6A62] hover:text-[#111110] hover:bg-[#E8E5DF] rounded-xs transition-colors"

@@ -117,7 +117,7 @@ export const AdminAuditLogs: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
+            <table className="w-full text-left text-xs border-collapse min-w-[720px]">
               <thead>
                 <tr className="bg-[#F9F8F6] border-b border-[#E8E5DF] text-[#6E6A62] font-mono-editorial uppercase">
                   <th className="py-3 px-6">Timestamp</th>

@@ -371,7 +371,7 @@ export const AdminArticlesList: React.FC<AdminArticlesListProps> = ({
       {viewMode === 'list' ? (
         <div className="bg-[#FFFFFF] border border-[#E8E5DF] rounded-xs shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs font-sans-editorial">
+            <table className="w-full text-left text-xs font-sans-editorial min-w-[760px]">
             <thead className="bg-[#F9F8F6] border-b border-[#E8E5DF] text-[#6E6A62] font-mono-editorial uppercase">
               <tr>
                 <th className="py-3 px-4 w-8">
@@ -503,8 +503,8 @@ export const AdminArticlesList: React.FC<AdminArticlesListProps> = ({
                     <td className="py-3 px-4 font-mono-editorial text-[#6E6A62]">
                       {article.publishedDate}
                     </td>
-                    <td className="py-3 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
+                    <td className="py-3 px-4 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-1.5 whitespace-nowrap">
                         <button
                           onClick={() => onEditArticle(article.id)}
                           className="p-1.5 text-[#55524B] hover:text-[#111110] bg-[#F9F8F6] hover:bg-[#E8E5DF] rounded-xs transition-colors"

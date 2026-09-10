@@ -209,7 +209,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
       </header>
 
       {/* Main Publishing Workspace (Sidebar + Content Viewport) */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden min-w-0">
         {/* Desktop Editorial Sidebar */}
         <aside
           className={`hidden lg:flex flex-col bg-[#FFFFFF] border-r border-[#E8E5DF] transition-all duration-200 z-20 shrink-0 ${
@@ -350,7 +350,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
         )}
 
         {/* Content Viewport */}
-        <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl w-full mx-auto min-w-0">
           {children}
         </main>
       </div>
