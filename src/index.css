@@ -1,0 +1,185 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Design Tokens: Typography */
+    --font-serif: "Newsreader", "Playfair Display", Georgia, serif;
+    --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "JetBrains Mono", monospace;
+    
+    /* Design Tokens: Colors (Sophisticated Pure White Editorial Palette) */
+    --paper-bg: #FFFFFF;
+    --paper-surface: #F9F8F6;
+    --paper-card: #FFFFFF;
+    --paper-card-hover: #F6F5F2;
+    --paper-border: #E8E5DF;
+    --paper-border-subtle: #F0EDE8;
+    --paper-border-accent: #D4CEBF;
+    --paper-text: #111110;
+    --paper-text-muted: #55524B;
+    --paper-text-faint: #8E8A81;
+    --editorial-accent: #EA580C; /* Editorial Terracotta Amber */
+    --editorial-accent-hover: #C2410C;
+    --editorial-accent-subtle: rgba(234, 88, 12, 0.08);
+    --editorial-highlight: #FEF08A;
+    --editorial-green: #16A34A;
+
+    /* Design Tokens: Spacing Scale */
+    --space-2xs: 0.25rem;  /* 4px */
+    --space-xs: 0.5rem;    /* 8px */
+    --space-sm: 0.75rem;   /* 12px */
+    --space-md: 1rem;      /* 16px */
+    --space-lg: 1.5rem;    /* 24px */
+    --space-xl: 2rem;      /* 32px */
+    --space-2xl: 3rem;     /* 48px */
+    --space-3xl: 4rem;     /* 64px */
+
+    /* Design Tokens: Borders */
+    --border-width-hairline: 1px;
+    --border-width-medium: 2px;
+    --border-width-thick: 4px;
+    --border-color-default: #E8E5DF;
+    --border-color-subtle: #F0EDE8;
+    --border-color-accent: #EA580C;
+
+    /* Design Tokens: Radius */
+    --radius-none: 0px;
+    --radius-xs: 2px;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-pill: 9999px;
+
+    /* Design Tokens: Transitions */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #FFFFFF;
+    color: #111110;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, .font-editorial {
+    font-family: var(--font-serif);
+  }
+}
+
+.font-serif-editorial {
+  font-family: 'Newsreader', 'Playfair Display', Georgia, serif;
+}
+
+.font-sans-editorial {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.font-mono-editorial {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Custom Editorial Drop Cap in Dark Theme */
+.editorial-drop-cap::first-letter {
+  float: left;
+  font-family: 'Newsreader', serif;
+  font-size: 4.5rem;
+  line-height: 0.82;
+  padding-top: 4px;
+  padding-right: 12px;
+  padding-bottom: 2px;
+  color: #EA580C;
+  font-weight: 500;
+}
+
+/* Subtle paper fold line & dog ear effect in Sophisticated Dark */
+.paper-edge-fold {
+  position: relative;
+}
+
+.paper-edge-fold::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 16px 16px 0;
+  border-color: transparent #2A2824 transparent transparent;
+  transition: all 0.25s ease;
+}
+
+.paper-edge-fold:hover::after {
+  border-width: 0 24px 24px 0;
+  border-color: transparent #EA580C transparent transparent;
+}
+
+/* Hide scrollbar for clean horizontal strips */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Print styles */
+@media print {
+  header, footer, nav, .no-print {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+  }
+  .print-article {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+/* Copy & Long-press touch callout restriction:
+   Protects all buttons, CTA buttons, interactive controls, and logos from text copying, long-press callout, and drag-copy.
+   The editorial article story text itself remains fully readable and selectable for readers. */
+button,
+[role="button"],
+.btn,
+.cta-button,
+.cta-btn,
+.brand-logo,
+.brand-emblem,
+.brand-mark,
+.brand-masthead,
+img[alt*="logo" i],
+img[alt*="brand" i],
+svg.brand-mark,
+.no-copy,
+.no-copy-zone,
+.menu-unselectable {
+  -webkit-touch-callout: none !important; /* Disables iOS long-press callout menu (Copy/Look Up/Share) */
+  -webkit-user-select: none !important;   /* Safari & Chrome on iOS */
+  -khtml-user-select: none !important;
+  -moz-user-select: none !important;      /* Firefox */
+  -ms-user-select: none !important;       /* Windows/IE/Edge */
+  user-select: none !important;           /* Standard CSS3 */
+  -webkit-user-drag: none !important;     /* Disables image and link dragging */
+  user-drag: none !important;
+}
+
+/* Ensure child elements of buttons and logos inherit unselectable and no touch-callout properties */
+button *,
+[role="button"] *,
+.btn *,
+.cta-button *,
+.brand-logo *,
+.brand-emblem * {
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}
+

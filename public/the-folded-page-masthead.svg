@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="100%" height="100%" fill="none">
+  <!-- The Folded Page Official Editorial Masthead SVG -->
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Alex+Brush&amp;family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&amp;family=Plus+Jakarta+Sans:wght@500;600;700&amp;display=swap');
+      .script-the {
+        font-family: 'Alex Brush', 'Great Vibes', 'Italianno', cursive;
+        font-size: 155px;
+        fill: #111110;
+        font-weight: normal;
+      }
+      .serif-main {
+        font-family: 'Playfair Display', 'Newsreader', 'Didot', Georgia, serif;
+        font-size: 148px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        fill: #111110;
+      }
+      .tagline-text {
+        font-family: 'Plus Jakarta Sans', 'Newsreader', -apple-system, sans-serif;
+        font-size: 26px;
+        font-weight: 600;
+        letter-spacing: 0.42em;
+        fill: #2B2824;
+      }
+    </style>
+  </defs>
+
+  <g transform="translate(60, 20)">
+    <!-- Script 'The' -->
+    <text x="50" y="115" class="script-the" transform="rotate(-3 50 115)">The</text>
+
+    <!-- FOLDED PAGE in High-Contrast Didone Serif -->
+    <text x="0" y="235" class="serif-main">
+      FOLDED P<tspan dx="-6">A</tspan><tspan dx="-2">G</tspan><tspan dx="-2">E</tspan>
+    </text>
+
+    <!-- Custom artistic flourish wave on the 'A' crossbar -->
+    <path d="M 750 195 Q 790 170, 840 205 Q 890 238, 930 202" stroke="#111110" stroke-width="5" stroke-linecap="round" fill="none" />
+    <path d="M 770 196 Q 830 180, 880 215" stroke="#111110" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.8" />
+
+    <!-- Tagline with flanking divider lines -->
+    <!-- Left line -->
+    <line x1="80" y1="295" x2="240" y2="295" stroke="#4A4742" stroke-width="2" />
+    
+    <!-- Tagline text -->
+    <text x="275" y="303" class="tagline-text">WHAT'S WORTH KNOWING.</text>
+    
+    <!-- Right line -->
+    <line x1="840" y1="295" x2="1000" y2="295" stroke="#4A4742" stroke-width="2" />
+  </g>
+</svg>
