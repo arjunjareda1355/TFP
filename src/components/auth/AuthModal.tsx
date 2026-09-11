@@ -158,8 +158,6 @@ export const AuthModal: React.FC = () => {
                   elements: {
                     rootBox: 'w-full',
                     card: 'border-0 shadow-none p-0 w-full bg-transparent',
-                    headerTitle: 'hidden',
-                    headerSubtitle: 'hidden',
                     socialButtonsBlockButton:
                       'rounded-xs border border-[#E8E5DF] hover:bg-[#F5F4F0] text-xs transition-colors',
                     formButtonPrimary:
@@ -176,8 +174,6 @@ export const AuthModal: React.FC = () => {
                   elements: {
                     rootBox: 'w-full',
                     card: 'border-0 shadow-none p-0 w-full bg-transparent',
-                    headerTitle: 'hidden',
-                    headerSubtitle: 'hidden',
                     socialButtonsBlockButton:
                       'rounded-xs border border-[#E8E5DF] hover:bg-[#F5F4F0] text-xs transition-colors',
                     formButtonPrimary:

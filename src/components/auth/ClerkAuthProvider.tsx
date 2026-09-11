@@ -65,8 +65,6 @@ export function isKeyAllowedForHost(key?: string | null): boolean {
 }
 
 export function resolveInitialKey(): string {
-  const isProd = isProductionDomain();
-
   // 1. Check local storage
   try {
     const stored = localStorage.getItem('clerk_publishable_key');
@@ -80,6 +78,24 @@ export function resolveInitialKey(): string {
     }
   } catch {}
 
+  // 2. Check query string override (?clerk=live or ?clerk=test)
+  if (typeof window !== 'undefined' && window.location) {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const paramKey = params.get('clerk') || params.get('clerk_key');
+      if (paramKey === 'live' && isKeyAllowedForHost(LIVE_PRODUCTION_KEY)) {
+        return LIVE_PRODUCTION_KEY;
+      }
+      if (paramKey === 'test') {
+        return DEV_TEST_KEY;
+      }
+      if (paramKey && isValidClerkPublishableKey(paramKey) && isKeyAllowedForHost(paramKey)) {
+        return paramKey;
+      }
+    } catch {}
+  }
+
+  // 3. Environment variables
   const envNextPublic =
     (typeof import.meta !== 'undefined' &&
       (import.meta as any).env &&
@@ -96,19 +112,13 @@ export function resolveInitialKey(): string {
       (import.meta as any).env.CLERK_PUBLISHABLE_KEY) ||
     '';
 
-  if (isProd) {
-    if (envNextPublic && isKeyAllowedForHost(envNextPublic)) return envNextPublic.trim();
-    if (envVite && isKeyAllowedForHost(envVite)) return envVite.trim();
-    if (envClerk && isKeyAllowedForHost(envClerk)) return envClerk.trim();
-    return LIVE_PRODUCTION_KEY;
-  } else {
-    // Non-production environment (run.app, preview, localhost):
-    // Prioritize dev test keys to prevent "Production Keys are only allowed for domain" error
-    if (envVite && isKeyAllowedForHost(envVite)) return envVite.trim();
-    if (envClerk && isKeyAllowedForHost(envClerk)) return envClerk.trim();
-    if (envNextPublic && isKeyAllowedForHost(envNextPublic)) return envNextPublic.trim();
-    return DEV_TEST_KEY;
-  }
+  if (envNextPublic && isKeyAllowedForHost(envNextPublic)) return envNextPublic.trim();
+  if (envVite && isKeyAllowedForHost(envVite)) return envVite.trim();
+  if (envClerk && isKeyAllowedForHost(envClerk)) return envClerk.trim();
+
+  // 4. Default: Use the fully configured key (Google OAuth, Email/Password, Public Sign Up enabled)
+  // which works universally on both preview/vercel links and custom domains (foldedpage.in).
+  return DEV_TEST_KEY;
 }
 
 interface ErrorBoundaryProps {
