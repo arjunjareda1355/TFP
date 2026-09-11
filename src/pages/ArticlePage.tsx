@@ -21,6 +21,7 @@ import { RelatedStories } from '../components/RelatedStories';
 import { SaveButton } from '../components/SaveButton';
 import { ShareMenu } from '../components/ShareMenu';
 import { NewsletterCTA } from '../components/NewsletterCTA';
+import { AdSenseUnit } from '../components/AdSenseUnit';
 import { BrandedImage } from '../components/BrandedImage';
 import { api } from '../services/api';
 import { useToast } from '../context/ToastContext';
@@ -804,6 +805,9 @@ export const ArticlePage: React.FC<ArticlePageProps> = ({
         <div className="max-w-2xl mx-auto mt-12 no-print">
           <NewsletterCTA variant="card" />
         </div>
+
+        {/* AdSense Unit */}
+        <AdSenseUnit className="my-10 max-w-2xl mx-auto no-print" />
 
         {/* Keep Exploring / Related Stories Section */}
         {relatedArticles.length > 0 && (

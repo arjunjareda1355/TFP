@@ -3,6 +3,7 @@ import { ArrowLeft, Mail, CheckCircle2, ArrowRight, Clock, Calendar, Loader2, Al
 import { BrandLogo } from '../components/BrandLogo';
 import { api } from '../services/api';
 import { useToast } from '../context/ToastContext';
+import { useMagazine } from '../context/MagazineContext';
 
 interface NewsletterPageProps {
   onBack: () => void;
@@ -10,6 +11,7 @@ interface NewsletterPageProps {
 
 export const NewsletterPage: React.FC<NewsletterPageProps> = ({ onBack }) => {
   const { showToast } = useToast();
+  const { subscriberCount, refreshSubscribers } = useMagazine();
   const [email, setEmail] = useState('');
   const [tier, setTier] = useState<'weekly' | 'all'>('weekly');
   const [loading, setLoading] = useState(false);
@@ -62,6 +64,7 @@ export const NewsletterPage: React.FC<NewsletterPageProps> = ({ onBack }) => {
       if (res.verifyUrl) {
         setVerifyUrl(res.verifyUrl);
       }
+      await refreshSubscribers();
       showToast(res.message || 'Subscription request received.', 'success');
     } catch (err: any) {
       const msg = err.message || 'Failed to submit subscription request.';
@@ -198,15 +201,17 @@ export const NewsletterPage: React.FC<NewsletterPageProps> = ({ onBack }) => {
                 </>
               ) : (
                 <>
-                  <span>Join 45,000+ Readers</span>
+                  <span>
+                    {subscriberCount > 1
+                      ? `Join ${subscriberCount.toLocaleString()} Readers`
+                      : subscriberCount === 1
+                      ? 'Join 1 Reader'
+                      : 'Subscribe to Dispatches'}
+                  </span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </>
               )}
             </button>
-
-            <p className="text-[11px] text-[#8E8A81] text-center font-mono-editorial">
-              No sponsored advertisements. No trackers. One-click unsubscribe anytime.
-            </p>
           </form>
         )}
       </div>

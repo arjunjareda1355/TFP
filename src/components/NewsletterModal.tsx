@@ -6,7 +6,7 @@ import { api } from '../services/api';
 import { useToast } from '../context/ToastContext';
 
 export const NewsletterModal: React.FC = () => {
-  const { isNewsletterOpen, setIsNewsletterOpen } = useMagazine();
+  const { isNewsletterOpen, setIsNewsletterOpen, subscriberCount, refreshSubscribers } = useMagazine();
   const { showToast } = useToast();
   const [email, setEmail] = useState('');
   const [frequency, setFrequency] = useState<'weekly' | 'all'>('weekly');
@@ -64,6 +64,7 @@ export const NewsletterModal: React.FC = () => {
       if (res.verifyUrl) {
         setVerifyUrl(res.verifyUrl);
       }
+      await refreshSubscribers();
       showToast(res.message || 'Subscription request received.', 'success');
     } catch (err: any) {
       const msg = err.message || 'Failed to submit subscription request.';
@@ -115,7 +116,13 @@ export const NewsletterModal: React.FC = () => {
           </h3>
 
           <p className="text-xs sm:text-sm text-[#55524B] font-normal leading-relaxed mb-6">
-            Join over 45,000 discerning readers who receive our curated dispatches on culture, craft, technology, and anomalies every Wednesday.
+            {subscriberCount > 1 ? (
+              <>Join over {subscriberCount.toLocaleString()} discerning readers who receive our curated dispatches on culture, craft, technology, and anomalies every Wednesday.</>
+            ) : subscriberCount === 1 ? (
+              <>Join our discerning reader who receives our curated dispatches on culture, craft, technology, and anomalies every Wednesday.</>
+            ) : (
+              <>Join discerning readers who receive our curated dispatches on culture, craft, technology, and anomalies every Wednesday.</>
+            )}
           </p>
 
           {isSuccess ? (
@@ -238,9 +245,6 @@ export const NewsletterModal: React.FC = () => {
               </button>
 
               <div className="pt-2 flex flex-col items-center gap-1.5">
-                <p className="text-[11px] text-[#8E8A81] text-center font-mono-editorial">
-                  No tracking cookies. Zero spam. Unsubscribe anytime in one click.
-                </p>
                 <button
                   type="button"
                   onClick={() => {

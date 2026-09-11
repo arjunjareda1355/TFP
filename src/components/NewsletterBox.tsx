@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { ArrowRight, CheckCircle2, Mail, Loader2, AlertCircle } from 'lucide-react';
 import { api } from '../services/api';
 import { useToast } from '../context/ToastContext';
+import { useMagazine } from '../context/MagazineContext';
 
 export const NewsletterBox: React.FC = () => {
   const { showToast } = useToast();
+  const { refreshSubscribers } = useMagazine();
   const [email, setEmail] = useState('');
   const [tier, setTier] = useState<'weekly' | 'all'>('weekly');
   const [loading, setLoading] = useState(false);
@@ -33,6 +35,7 @@ export const NewsletterBox: React.FC = () => {
       if (res.verifyUrl) {
         setVerifyUrl(res.verifyUrl);
       }
+      await refreshSubscribers();
       showToast(res.message || 'Subscription request received.', 'success');
     } catch (err: any) {
       const msg = err.message || 'Failed to submit subscription request.';

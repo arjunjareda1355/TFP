@@ -832,7 +832,52 @@ export const api = {
       if (!res.ok) throw new Error('Failed to fetch analytics');
       return await res.json();
     } catch {
-      return { totalViews: 4500, totalSaves: 620, totalShares: 310, topArticles: [] };
+      let cachedArticles: Article[] = [];
+      try {
+        const stored = localStorage.getItem('tfp_cached_articles');
+        if (stored) cachedArticles = JSON.parse(stored);
+      } catch {}
+      if (cachedArticles.length === 0) cachedArticles = ARTICLES;
+
+      let cachedSubscribers: any[] = [];
+      try {
+        const storedSubs = localStorage.getItem('tfp_cached_subscribers');
+        if (storedSubs) cachedSubscribers = JSON.parse(storedSubs);
+      } catch {}
+
+      const totalViews = cachedArticles.reduce((sum, a) => sum + (a.views || 0), 0);
+      const totalSaves = cachedArticles.reduce((sum, a) => sum + (a.saves || 0), 0);
+      const totalShares = cachedArticles.reduce((sum, a) => sum + (a.shares || 0), 0);
+      const totalReadingMinutes = cachedArticles.reduce((sum, a) => sum + (a.readTimeMinutes || 4), 0);
+      const avgReadDurationMinutes = cachedArticles.length > 0
+        ? Math.round((totalReadingMinutes / cachedArticles.length) * 10) / 10
+        : 4.5;
+
+      const topArticles = [...cachedArticles]
+        .sort((a, b) => (b.views || 0) - (a.views || 0))
+        .slice(0, 10)
+        .map((a) => ({
+          id: a.id,
+          title: a.title,
+          slug: a.slug,
+          category: a.category,
+          authorName: a.author?.name || 'Editorial Staff',
+          views: a.views || 0,
+          saves: a.saves || 0,
+          shares: a.shares || 0,
+          readTime: a.readTime || `${a.readTimeMinutes || 4} min read`,
+        }));
+
+      return {
+        totalViews,
+        totalSaves,
+        totalShares,
+        totalSubscribers: cachedSubscribers.length,
+        totalArticles: cachedArticles.length,
+        totalReadingMinutes,
+        avgReadDurationMinutes,
+        topArticles,
+      };
     }
   },
 

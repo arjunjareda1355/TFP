@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Mail, CheckCircle2, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { api } from '../services/api';
 import { useToast } from '../context/ToastContext';
+import { useMagazine } from '../context/MagazineContext';
 
 interface NewsletterCTAProps {
   variant?: 'inline' | 'banner' | 'card';
@@ -17,6 +18,7 @@ export const NewsletterCTA: React.FC<NewsletterCTAProps> = ({
   onSuccess,
 }) => {
   const { showToast } = useToast();
+  const { subscriberCount, refreshSubscribers } = useMagazine();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
@@ -39,6 +41,7 @@ export const NewsletterCTA: React.FC<NewsletterCTAProps> = ({
       const res = await api.subscribeNewsletter(cleanEmail, 'weekly');
       setSubscribed(true);
       setSuccessMessage(res.message || 'Please check your inbox to confirm your subscription.');
+      await refreshSubscribers();
       showToast(res.message || 'Subscription request received.', 'success');
       if (onSuccess) onSuccess();
     } catch (err: any) {
@@ -124,7 +127,13 @@ export const NewsletterCTA: React.FC<NewsletterCTAProps> = ({
         Never miss an inquiry
       </h3>
       <p className="text-xs sm:text-sm text-[#55524B] mb-5 leading-relaxed">
-        Join over 45,000 readers who receive our curated weekly dispatch on culture, rare crafts, and natural anomalies.
+        {subscriberCount > 1 ? (
+          <>Join over {subscriberCount.toLocaleString()} readers who receive our curated weekly dispatch on culture, rare crafts, and natural anomalies.</>
+        ) : subscriberCount === 1 ? (
+          <>Join our reader who receives our curated weekly dispatch on culture, rare crafts, and natural anomalies.</>
+        ) : (
+          <>Receive our curated weekly dispatch on culture, rare crafts, and natural anomalies.</>
+        )}
       </p>
 
       {subscribed ? (

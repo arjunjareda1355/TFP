@@ -72,6 +72,8 @@ interface MagazineContextType {
   setIsNewsletterOpen: (open: boolean) => void;
   shareArticle: Article | null;
   setShareArticle: (article: Article | null) => void;
+  subscriberCount: number;
+  refreshSubscribers: () => Promise<void>;
 
   // Reader Preferences
   fontSize: 'sm' | 'base' | 'lg' | 'xl';
@@ -139,6 +141,30 @@ export const MagazineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [subscriberCount, setSubscriberCount] = useState<number>(() => {
+    try {
+      const cached = localStorage.getItem('tfp_cached_subscribers');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed)) return parsed.length;
+      }
+    } catch {}
+    return 1;
+  });
+
+  const refreshSubscribers = useCallback(async () => {
+    try {
+      const subs = await api.getNewsletterSubscribers();
+      if (Array.isArray(subs)) {
+        setSubscriberCount(subs.length);
+        try {
+          localStorage.setItem('tfp_cached_subscribers', JSON.stringify(subs));
+        } catch {}
+      }
+    } catch (e) {
+      console.warn('Could not load subscribers count:', e);
+    }
+  }, []);
 
   // Clerk Authentication integration
   const { user: clerkUser, isSignedIn } = useUser();
@@ -298,6 +324,7 @@ export const MagazineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           localStorage.setItem('tfp_social_channels', JSON.stringify(socialRes.value));
         } catch {}
       }
+      await refreshSubscribers();
     } catch (err) {
       console.warn('Error loading initial data:', err);
     } finally {
@@ -722,6 +749,8 @@ export const MagazineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         addSocialChannel,
         deleteSocialChannel,
         resetSocialChannels,
+        subscriberCount,
+        refreshSubscribers,
       }}
     >
       {children}

@@ -17,7 +17,7 @@ import { useMagazine } from '../../context/MagazineContext';
 import { AnalyticsStats } from '../../types';
 
 export const AdminAnalytics: React.FC = () => {
-  const { articles } = useMagazine();
+  const { articles, subscriberCount } = useMagazine();
   const [metrics, setMetrics] = useState<AnalyticsStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [timeFilter, setTimeFilter] = useState<'7d' | '30d' | 'all'>('7d');
@@ -181,7 +181,7 @@ export const AdminAnalytics: React.FC = () => {
             <Users className="w-4 h-4 text-[#EA580C]" />
           </div>
           <div className="font-serif-editorial text-3xl font-bold text-[#111110]">
-            {(metrics?.totalSubscribers ?? 0).toLocaleString()}
+            {(metrics?.totalSubscribers ?? subscriberCount).toLocaleString()}
           </div>
           <div className="text-[11px] font-mono-editorial text-[#16A34A]">
             Active dispatch distribution list
