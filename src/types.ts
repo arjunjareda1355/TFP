@@ -233,7 +233,8 @@ export type UserRole =
   | 'OPERATIONS_SPECIALIST'
   | 'MODERATOR'
   | 'ANALYTICS_VIEWER'
-  | 'VIEWER';
+  | 'VIEWER'
+  | 'READER';
 
 export type RoleName = UserRole;
 

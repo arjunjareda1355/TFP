@@ -35,6 +35,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     savedStories,
     setIsSearchOpen,
     setIsNewsletterOpen,
+    openAuthModal,
     isOwner,
     isAuthenticated,
     currentUser,
@@ -208,24 +209,22 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* Auth Integration: Header Controls */}
               {!isAuthenticated ? (
                 <div className="hidden sm:flex items-center gap-2">
-                  <SignInButton mode="modal">
-                    <button
-                      id="navbar-signin-btn"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#111110] hover:text-[#EA580C] hover:bg-[#F5F4F0] rounded-xs border border-[#E8E5DF] transition-colors cursor-pointer"
-                    >
-                      <User className="w-3.5 h-3.5 text-[#55524B]" />
-                      <span>Sign In</span>
-                    </button>
-                  </SignInButton>
+                  <button
+                    id="navbar-signin-btn"
+                    onClick={() => openAuthModal('login')}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#111110] hover:text-[#EA580C] hover:bg-[#F5F4F0] rounded-xs border border-[#E8E5DF] transition-colors cursor-pointer"
+                  >
+                    <User className="w-3.5 h-3.5 text-[#55524B]" />
+                    <span>Sign In</span>
+                  </button>
 
-                  <SignUpButton mode="modal">
-                    <button
-                      id="navbar-signup-btn"
-                      className="hidden md:inline-flex items-center gap-1.5 bg-[#111110] hover:bg-[#EA580C] text-white text-xs font-semibold uppercase tracking-wider px-3.5 py-2 transition-colors duration-150 rounded-xs shadow-xs cursor-pointer"
-                    >
-                      <span>Join Free</span>
-                    </button>
-                  </SignUpButton>
+                  <button
+                    id="navbar-signup-btn"
+                    onClick={() => openAuthModal('signup')}
+                    className="hidden md:inline-flex items-center gap-1.5 bg-[#111110] hover:bg-[#EA580C] text-white text-xs font-semibold uppercase tracking-wider px-3.5 py-2 transition-colors duration-150 rounded-xs shadow-xs cursor-pointer"
+                  >
+                    <span>Join Free</span>
+                  </button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
@@ -401,26 +400,28 @@ export const Navbar: React.FC<NavbarProps> = ({
                       </p>
                     </div>
                     <div className="grid grid-cols-2 gap-2 mt-3">
-                      <SignInButton mode="modal">
-                        <button
-                          type="button"
-                          id="menu-signin-btn"
-                          onClick={() => setIsMenuOpen(false)}
-                          className="w-full py-2.5 px-3 text-center text-xs font-semibold text-[#111110] bg-[#FFFFFF] border border-[#E8E5DF] hover:bg-[#F5F4F0] rounded-xs transition-colors cursor-pointer shadow-xs"
-                        >
-                          Sign In
-                        </button>
-                      </SignInButton>
-                      <SignUpButton mode="modal">
-                        <button
-                          type="button"
-                          id="menu-signup-btn"
-                          onClick={() => setIsMenuOpen(false)}
-                          className="w-full py-2.5 px-3 text-center text-xs font-semibold text-white bg-[#111110] hover:bg-[#EA580C] rounded-xs transition-colors cursor-pointer shadow-xs"
-                        >
-                          Create Account
-                        </button>
-                      </SignUpButton>
+                      <button
+                        type="button"
+                        id="menu-signin-btn"
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          openAuthModal('login');
+                        }}
+                        className="w-full py-2.5 px-3 text-center text-xs font-semibold text-[#111110] bg-[#FFFFFF] border border-[#E8E5DF] hover:bg-[#F5F4F0] rounded-xs transition-colors cursor-pointer shadow-xs"
+                      >
+                        Sign In
+                      </button>
+                      <button
+                        type="button"
+                        id="menu-signup-btn"
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          openAuthModal('signup');
+                        }}
+                        className="w-full py-2.5 px-3 text-center text-xs font-semibold text-white bg-[#111110] hover:bg-[#EA580C] rounded-xs transition-colors cursor-pointer shadow-xs"
+                      >
+                        Create Account
+                      </button>
                     </div>
                   </div>
                 ) : (

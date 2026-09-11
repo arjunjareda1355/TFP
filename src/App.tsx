@@ -27,6 +27,7 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { SubscriptionVerifyPage } from './pages/SubscriptionVerifyPage';
 import { SubscriptionUnsubscribePage } from './pages/SubscriptionUnsubscribePage';
 import { EditorialErrorBoundary } from './components/EditorialErrorBoundary';
+import { AuthModal } from './components/auth/AuthModal';
 
 // Admin CMS Components
 import { AdminLayout, AdminTab } from './components/admin/AdminLayout';
@@ -66,7 +67,7 @@ type ViewType =
   | { type: 'notfound' };
 
 function MainMagazineApp() {
-  const { isAuthenticated, currentUser, isOwner } = useMagazine();
+  const { isAuthenticated, currentUser, isOwner, openAuthModal } = useMagazine();
   const [currentView, setCurrentView] = useState<ViewType>({ type: 'home' });
 
   // Sync with browser route (both hash and pathname) on load or navigation
@@ -85,6 +86,23 @@ function MainMagazineApp() {
       const cleanHash = route;
 
       if (!cleanHash || cleanHash === 'home') {
+        setCurrentView({ type: 'home' });
+      } else if (
+        cleanHash === 'login' ||
+        cleanHash === 'signin' ||
+        cleanHash === 'sign-in'
+      ) {
+        openAuthModal('login');
+        setCurrentView({ type: 'home' });
+      } else if (
+        cleanHash === 'signup' ||
+        cleanHash === 'sign-up' ||
+        cleanHash === 'join'
+      ) {
+        openAuthModal('signup');
+        setCurrentView({ type: 'home' });
+      } else if (cleanHash === 'auth') {
+        openAuthModal('login');
         setCurrentView({ type: 'home' });
       } else if (cleanHash.startsWith('story/')) {
         const slug = cleanHash.replace('story/', '');
@@ -403,6 +421,7 @@ function MainMagazineApp() {
       />
       <SavedStoriesDrawer onSelectStory={navigateToStory} />
       <NewsletterModal />
+      <AuthModal />
       <ShareModal />
       <AudioPlayerBar />
     </div>

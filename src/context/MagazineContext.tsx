@@ -70,6 +70,12 @@ interface MagazineContextType {
   setIsSavedDrawerOpen: (open: boolean) => void;
   isNewsletterOpen: boolean;
   setIsNewsletterOpen: (open: boolean) => void;
+  isAuthModalOpen: boolean;
+  setIsAuthModalOpen: (open: boolean) => void;
+  authModalMode: 'login' | 'signup';
+  setAuthModalMode: (mode: 'login' | 'signup') => void;
+  openAuthModal: (mode?: 'login' | 'signup') => void;
+  closeAuthModal: () => void;
   shareArticle: Article | null;
   setShareArticle: (article: Article | null) => void;
   subscriberCount: number;
@@ -245,7 +251,18 @@ export const MagazineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isSavedDrawerOpen, setIsSavedDrawerOpen] = useState(false);
   const [isNewsletterOpen, setIsNewsletterOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
   const [shareArticle, setShareArticle] = useState<Article | null>(null);
+
+  const openAuthModal = useCallback((mode: 'login' | 'signup' = 'login') => {
+    setAuthModalMode(mode);
+    setIsAuthModalOpen(true);
+  }, []);
+
+  const closeAuthModal = useCallback(() => {
+    setIsAuthModalOpen(false);
+  }, []);
 
   const [fontSize, setFontSize] = useState<'sm' | 'base' | 'lg' | 'xl'>('base');
   const [readerTheme, setReaderTheme] = useState<'paper' | 'white' | 'dark'>('white');
@@ -714,6 +731,12 @@ export const MagazineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setIsSavedDrawerOpen,
         isNewsletterOpen,
         setIsNewsletterOpen,
+        isAuthModalOpen,
+        setIsAuthModalOpen,
+        authModalMode,
+        setAuthModalMode,
+        openAuthModal,
+        closeAuthModal,
         shareArticle,
         setShareArticle,
         fontSize,

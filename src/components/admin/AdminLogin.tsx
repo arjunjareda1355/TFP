@@ -302,27 +302,23 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel, onB
           <div className="flex justify-center my-2">
             {activeTab === 'login' ? (
               <SignIn
-                routing="hash"
+                routing="virtual"
                 fallbackRedirectUrl="/#admin"
                 appearance={{
                   elements: {
                     rootBox: 'w-full',
                     card: 'border-0 shadow-none p-0 w-full',
-                    headerTitle: 'hidden',
-                    headerSubtitle: 'hidden',
                   },
                 }}
               />
             ) : (
               <SignUp
-                routing="hash"
+                routing="virtual"
                 fallbackRedirectUrl="/#admin"
                 appearance={{
                   elements: {
                     rootBox: 'w-full',
                     card: 'border-0 shadow-none p-0 w-full',
-                    headerTitle: 'hidden',
-                    headerSubtitle: 'hidden',
                   },
                 }}
               />

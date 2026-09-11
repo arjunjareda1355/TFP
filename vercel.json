@@ -8,10 +8,6 @@
       "destination": "/api"
     },
     {
-      "source": "/clerk-js/(.*)",
-      "destination": "/api"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
