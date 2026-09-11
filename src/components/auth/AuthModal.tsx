@@ -113,24 +113,13 @@ export const AuthModal: React.FC = () => {
         </button>
 
         {/* Modal Header */}
-        <div className="pt-8 pb-5 px-6 sm:px-8 text-center bg-[#FAF9F6] border-b border-[#E8E5DF]">
-          <div className="flex justify-center mb-3">
+        <div className="pt-7 pb-4 px-6 sm:px-8 text-center bg-[#FAF9F6] border-b border-[#E8E5DF]">
+          <div className="flex justify-center mb-4">
             <BrandLogo />
           </div>
-          <div className="text-[10px] font-mono-editorial uppercase text-[#EA580C] tracking-widest font-semibold mb-1">
-            The Folded Page Access
-          </div>
-          <h2 className="font-serif-editorial text-2xl font-bold text-[#111110]">
-            {authModalMode === 'login' ? 'Sign In to Your Account' : 'Create Your Reader Account'}
-          </h2>
-          <p className="font-serif-editorial italic text-xs text-[#6E6A62] mt-1 max-w-xs mx-auto">
-            {authModalMode === 'login'
-              ? 'Access saved reading lists, personalized edition preferences, and editorial management.'
-              : 'Join The Folded Page for ad-free reading, bookmarks, and exclusive print dispatches.'}
-          </p>
 
           {/* Mode Switcher Tabs */}
-          <div className="flex mt-5 bg-[#EFECE6] p-0.5 rounded-xs">
+          <div className="flex bg-[#EFECE6] p-0.5 rounded-xs max-w-xs mx-auto">
             <button
               type="button"
               id="auth-tab-login"

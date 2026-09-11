@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Bookmark, Menu, X, ArrowRight, Sparkles, BookOpen, Compass, Flame, TrendingUp, Layers, Mail, Volume2, User, ShieldCheck } from 'lucide-react';
+import { Search, Bookmark, Menu, X, ArrowRight, Sparkles, BookOpen, Compass, Flame, TrendingUp, Layers, Mail, Volume2, ShieldCheck } from 'lucide-react';
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/clerk-react';
 import { useMagazine } from '../context/MagazineContext';
 import { BrandLogo } from './BrandLogo';
@@ -209,26 +209,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* Auth Integration: Header Controls */}
               {!isAuthenticated ? (
                 <>
-                  {/* Mobile Quick Sign-in Button */}
-                  <button
-                    id="mobile-auth-trigger-btn"
-                    onClick={() => openAuthModal('login')}
-                    className="sm:hidden p-2 text-[#55524B] hover:text-[#111110] hover:bg-[#F5F4F0] transition-colors rounded border border-[#E8E5DF]"
-                    title="Sign In / Create Account"
-                    aria-label="Sign In or Create Account"
-                  >
-                    <User className="w-4 h-4" />
-                  </button>
-
                   {/* Desktop Auth Buttons */}
                   <div className="hidden sm:flex items-center gap-2">
                     <button
                       id="navbar-signin-btn"
                       onClick={() => openAuthModal('login')}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#111110] hover:text-[#EA580C] hover:bg-[#F5F4F0] rounded-xs border border-[#E8E5DF] transition-colors cursor-pointer"
+                      className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-[#111110] hover:text-[#EA580C] hover:bg-[#F5F4F0] rounded-xs border border-[#E8E5DF] transition-colors cursor-pointer"
                       title="Sign in to your account"
                     >
-                      <User className="w-3.5 h-3.5 text-[#55524B]" />
                       <span>Sign In</span>
                     </button>
 
