@@ -121,13 +121,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
   return (
     <div className="min-h-screen bg-[#F9F8F6] text-[#111110] flex flex-col font-sans-editorial select-none">
       {/* Top Publisher Masthead Bar */}
-      <header className="sticky top-0 z-40 bg-[#111110] text-[#FFFFFF] border-b border-[#2A2824] px-4 sm:px-6 py-2.5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      <header className="sticky top-0 z-40 bg-[#111110] text-[#FFFFFF] border-b border-[#2A2824] px-3 sm:px-6 py-2.5">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             {/* Mobile menu toggle */}
             <button
               onClick={() => setIsMobileDrawerOpen(!isMobileDrawerOpen)}
-              className="lg:hidden p-1.5 text-[#A8A29E] hover:text-white transition-colors"
+              className="lg:hidden p-1.5 text-[#A8A29E] hover:text-white transition-colors shrink-0"
               aria-label="Toggle navigation drawer"
             >
               {isMobileDrawerOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -136,52 +136,55 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
             {/* Brand Logo & Studio Mark */}
             <div
               onClick={() => onSelectTab('overview')}
-              className="cursor-pointer flex items-center gap-3 group"
+              className="cursor-pointer flex items-center gap-2.5 sm:gap-3 group min-w-0"
             >
-              <BrandLogo variant="emblem" size={28} theme="dark" />
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                  <span className="font-serif-editorial font-bold text-base tracking-wider uppercase text-[#FFFFFF] group-hover:text-[#EA580C] transition-colors">
+              <div className="shrink-0">
+                <BrandLogo variant="emblem" size={28} theme="dark" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                  <span className="font-serif-editorial font-bold text-sm sm:text-base tracking-wider uppercase text-[#FFFFFF] group-hover:text-[#EA580C] transition-colors truncate">
                     The Folded Page
                   </span>
-                  <span className="bg-[#EA580C] text-[9px] font-mono-editorial font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-xs text-white">
-                    Publisher Desk
+                  <span className="bg-[#EA580C] text-[8px] sm:text-[9px] font-mono-editorial font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-xs text-white shrink-0">
+                    Desk
                   </span>
                 </div>
-                <span className="text-[10px] font-mono-editorial text-[#8E8A81] hidden sm:block">
+                <span className="text-[10px] font-mono-editorial text-[#8E8A81] hidden md:block truncate">
                   Verified Publication Control System
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 sm:gap-4 text-xs font-mono-editorial">
+          <div className="flex items-center gap-2 sm:gap-3 text-xs font-mono-editorial shrink-0">
             {/* Quick action: Write New Dispatch */}
             <button
               onClick={() => onSelectTab('editor')}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#EA580C] hover:bg-[#C2410C] text-white text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors shadow-xs"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#EA580C] hover:bg-[#C2410C] text-white text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors shadow-xs shrink-0 whitespace-nowrap"
             >
-              <PlusCircle className="w-3.5 h-3.5" />
+              <PlusCircle className="w-3.5 h-3.5 shrink-0" />
               <span>New Dispatch</span>
             </button>
 
             {/* View Live Site */}
             <button
               onClick={onNavigateHome}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xs bg-[#24221E] hover:bg-[#33302B] text-[#E8E5DF] transition-colors border border-[#3E3A33]"
+              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xs bg-[#24221E] hover:bg-[#33302B] text-[#E8E5DF] transition-colors border border-[#3E3A33] shrink-0 whitespace-nowrap"
               title="Return to the live public magazine"
             >
-              <ExternalLink className="w-3.5 h-3.5 text-[#EA580C]" />
+              <ExternalLink className="w-3.5 h-3.5 text-[#EA580C] shrink-0" />
               <span className="hidden md:inline">Live Magazine</span>
+              <span className="md:hidden text-[11px]">Live</span>
             </button>
 
             {/* Owner Identity Badge & Clerk UserButton */}
-            <div className="flex items-center gap-3 border-l border-[#2C2A26] pl-3 sm:pl-4">
+            <div className="flex items-center gap-2 sm:gap-3 border-l border-[#2C2A26] pl-2 sm:pl-3 shrink-0">
               <div className="hidden lg:block text-right">
                 <div className="font-bold text-white flex items-center justify-end gap-1.5 leading-tight text-xs">
                   <span>{currentUser?.name || 'Publisher'}</span>
                   {isOwner && (
-                    <span title="Verified Publication Owner" className="inline-flex items-center text-[#F59E0B]">
+                    <span title="Verified Publication Owner" className="inline-flex items-center text-[#F59E0B] shrink-0">
                       <ShieldCheck className="w-3.5 h-3.5" />
                     </span>
                   )}
@@ -195,14 +198,16 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
                 </div>
               </div>
 
-              <UserButton
-                afterSignOutUrl="/"
-                appearance={{
-                  elements: {
-                    userButtonAvatarBox: 'w-7 h-7 ring-2 ring-[#EA580C]',
-                  },
-                }}
-              />
+              <div className="shrink-0 flex items-center">
+                <UserButton
+                  afterSignOutUrl="/"
+                  appearance={{
+                    elements: {
+                      userButtonAvatarBox: 'w-7 h-7 ring-2 ring-[#EA580C]',
+                    },
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -70,19 +70,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 flex-wrap">
           <button
             onClick={() => onNavigateTab('editor')}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#EA580C] text-white text-xs font-semibold uppercase tracking-wider rounded-xs hover:bg-[#C2410C] transition-colors shadow-xs"
+            className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-[#EA580C] text-white text-xs font-semibold uppercase tracking-wider rounded-xs hover:bg-[#C2410C] transition-colors shadow-xs shrink-0 whitespace-nowrap"
           >
-            <PlusCircle className="w-4 h-4" />
+            <PlusCircle className="w-4 h-4 shrink-0" />
             <span>New Dispatch</span>
           </button>
           <button
             onClick={() => onNavigateTab('media')}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#111110] text-white text-xs font-semibold uppercase tracking-wider rounded-xs hover:bg-[#2C2A26] transition-colors"
+            className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-[#111110] text-white text-xs font-semibold uppercase tracking-wider rounded-xs hover:bg-[#2C2A26] transition-colors shrink-0 whitespace-nowrap"
           >
-            <ImageIcon className="w-4 h-4" />
+            <ImageIcon className="w-4 h-4 shrink-0" />
             <span>Media Library</span>
           </button>
         </div>
@@ -347,10 +347,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       {article.publishedDate}
                     </td>
                     <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-2 whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-2 whitespace-nowrap shrink-0">
                         <button
                           onClick={() => onEditArticle(article.id)}
-                          className="px-2.5 py-1 bg-[#111110] text-white rounded-xs text-[11px] font-semibold uppercase hover:bg-[#EA580C] transition-colors"
+                          className="px-2.5 py-1 bg-[#111110] text-white rounded-xs text-[11px] font-semibold uppercase hover:bg-[#EA580C] transition-colors shrink-0 whitespace-nowrap"
                         >
                           Edit
                         </button>
@@ -362,7 +362,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               window.location.hash = `/story/${article.slug}`;
                             }
                           }}
-                          className="p-1 text-[#6E6A62] hover:text-[#111110] transition-colors"
+                          className="p-1 text-[#6E6A62] hover:text-[#111110] transition-colors shrink-0"
                           title="Preview live"
                         >
                           <ExternalLink className="w-4 h-4" />

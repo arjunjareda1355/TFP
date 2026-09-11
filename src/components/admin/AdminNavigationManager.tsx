@@ -166,9 +166,9 @@ export const AdminNavigationManager: React.FC = () => {
         <button
           onClick={handleSaveNav}
           disabled={isLoading}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#EA580C] hover:bg-[#C2410C] text-white text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors shadow-xs"
+          className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-[#EA580C] hover:bg-[#C2410C] text-white text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors shadow-xs shrink-0 whitespace-nowrap self-start sm:self-center"
         >
-          <Save className="w-4 h-4" />
+          <Save className="w-4 h-4 shrink-0" />
           <span>Save Navigation</span>
         </button>
       </div>
@@ -237,44 +237,44 @@ export const AdminNavigationManager: React.FC = () => {
                 />
               </div>
 
-              <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 self-end sm:self-center shrink-0">
                 <button
                   type="button"
                   onClick={() => handleToggleNavActive(item.id)}
-                  className={`p-1.5 rounded-xs transition-colors ${
+                  className={`p-1.5 rounded-xs transition-colors shrink-0 ${
                     item.isActive === false
                       ? 'text-[#8C827A] hover:text-[#111110] bg-[#F4F1EA]'
                       : 'text-[#16A34A] hover:bg-[#F0FDF4]'
                   }`}
                   title={item.isActive === false ? 'Hidden' : 'Visible'}
                 >
-                  {item.isActive === false ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {item.isActive === false ? <EyeOff className="w-4 h-4 shrink-0" /> : <Eye className="w-4 h-4 shrink-0" />}
                 </button>
                 <button
                   type="button"
                   disabled={idx === 0}
                   onClick={() => handleMoveNavItem(idx, 'up')}
-                  className="p-1.5 text-[#6E6A62] hover:text-[#111110] disabled:opacity-30"
+                  className="p-1.5 text-[#6E6A62] hover:text-[#111110] disabled:opacity-30 shrink-0"
                   title="Move Up"
                 >
-                  <ArrowUp className="w-4 h-4" />
+                  <ArrowUp className="w-4 h-4 shrink-0" />
                 </button>
                 <button
                   type="button"
                   disabled={idx === navItems.length - 1}
                   onClick={() => handleMoveNavItem(idx, 'down')}
-                  className="p-1.5 text-[#6E6A62] hover:text-[#111110] disabled:opacity-30"
+                  className="p-1.5 text-[#6E6A62] hover:text-[#111110] disabled:opacity-30 shrink-0"
                   title="Move Down"
                 >
-                  <ArrowDown className="w-4 h-4" />
+                  <ArrowDown className="w-4 h-4 shrink-0" />
                 </button>
                 <button
                   type="button"
                   onClick={() => handleRemoveNavItem(item.id)}
-                  className="p-1.5 text-[#DC2626] hover:bg-[#FEF2F2] rounded-xs"
+                  className="p-1.5 text-[#DC2626] hover:bg-[#FEF2F2] rounded-xs shrink-0"
                   title="Delete Item"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4 shrink-0" />
                 </button>
               </div>
             </div>

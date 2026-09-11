@@ -214,25 +214,25 @@ export const AdminArticlesList: React.FC<AdminArticlesListProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0 flex-wrap">
+        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 flex-wrap">
           {/* Studio Features link button */}
           <a
             href="https://ais-pre-cgynibd2vuyveurtgk7rds-119232530641.asia-southeast1.run.app/"
             target="_self"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-3.5 py-2.5 border border-[#FED7AA] bg-[#FFF7ED] text-[#C2410C] hover:bg-[#FFEDD5] text-xs font-mono-editorial font-semibold uppercase tracking-wider rounded-xs transition-colors shadow-xs"
+            className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-2 sm:py-2.5 border border-[#FED7AA] bg-[#FFF7ED] text-[#C2410C] hover:bg-[#FFEDD5] text-xs font-mono-editorial font-semibold uppercase tracking-wider rounded-xs transition-colors shadow-xs shrink-0 whitespace-nowrap"
             title="Open The Folded Studio to design articles and images (opens in same tab)"
           >
-            <Sparkles className="w-4 h-4 text-[#EA580C]" />
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#EA580C] shrink-0" />
             <span>Studio Features</span>
           </a>
 
           {/* New Article button */}
           <button
             onClick={handleCreate}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#EA580C] text-white text-xs font-semibold uppercase tracking-wider rounded-xs hover:bg-[#C2410C] transition-colors shadow-xs shrink-0"
+            className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-[#EA580C] text-white text-xs font-semibold uppercase tracking-wider rounded-xs hover:bg-[#C2410C] transition-colors shadow-xs shrink-0 whitespace-nowrap"
           >
-            <PlusCircle className="w-4 h-4" />
+            <PlusCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
             <span>New Article</span>
           </button>
         </div>
@@ -336,29 +336,29 @@ export const AdminArticlesList: React.FC<AdminArticlesListProps> = ({
 
         {/* Bulk Action Controls if items are selected */}
         {selectedIds.length > 0 && (
-          <div className="flex items-center justify-between bg-[#FFF7ED] border border-[#FED7AA] p-2.5 rounded-xs text-xs">
-            <span className="font-mono-editorial font-bold text-[#9A3412]">
-              {selectedIds.length} dispatches selected
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-[#FFF7ED] border border-[#FED7AA] p-2.5 sm:p-3 rounded-xs text-xs">
+            <span className="font-mono-editorial font-bold text-[#9A3412] shrink-0">
+              {selectedIds.length} dispatch{selectedIds.length > 1 ? 'es' : ''} selected
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap shrink-0">
               <button
                 onClick={handleBulkPublish}
                 disabled={isProcessing}
-                className="px-2.5 py-1 bg-[#16A34A] text-white rounded-xs text-xs font-semibold hover:bg-[#15803D]"
+                className="px-2.5 py-1.5 bg-[#16A34A] text-white rounded-xs text-xs font-semibold hover:bg-[#15803D] shrink-0 whitespace-nowrap transition-colors"
               >
                 Publish Selected
               </button>
               <button
                 onClick={handleBulkArchive}
                 disabled={isProcessing}
-                className="px-2.5 py-1 bg-[#4B5563] text-white rounded-xs text-xs font-semibold hover:bg-[#374151]"
+                className="px-2.5 py-1.5 bg-[#4B5563] text-white rounded-xs text-xs font-semibold hover:bg-[#374151] shrink-0 whitespace-nowrap transition-colors"
               >
                 Archive Selected
               </button>
               <button
                 onClick={handleBulkDelete}
                 disabled={isProcessing}
-                className="px-2.5 py-1 bg-[#DC2626] text-white rounded-xs text-xs font-semibold hover:bg-[#B91C1C]"
+                className="px-2.5 py-1.5 bg-[#DC2626] text-white rounded-xs text-xs font-semibold hover:bg-[#B91C1C] shrink-0 whitespace-nowrap transition-colors"
               >
                 Delete Selected
               </button>
@@ -504,10 +504,10 @@ export const AdminArticlesList: React.FC<AdminArticlesListProps> = ({
                       {article.publishedDate}
                     </td>
                     <td className="py-3 px-4 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-1.5 whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-1.5 whitespace-nowrap shrink-0">
                         <button
                           onClick={() => onEditArticle(article.id)}
-                          className="p-1.5 text-[#55524B] hover:text-[#111110] bg-[#F9F8F6] hover:bg-[#E8E5DF] rounded-xs transition-colors"
+                          className="p-1.5 text-[#55524B] hover:text-[#111110] bg-[#F9F8F6] hover:bg-[#E8E5DF] rounded-xs transition-colors shrink-0"
                           title="Edit article"
                         >
                           <Edit className="w-3.5 h-3.5" />
@@ -515,7 +515,7 @@ export const AdminArticlesList: React.FC<AdminArticlesListProps> = ({
 
                         <button
                           onClick={() => handleTogglePublish(article)}
-                          className={`p-1.5 rounded-xs transition-colors ${
+                          className={`p-1.5 rounded-xs transition-colors shrink-0 ${
                             status === 'PUBLISHED'
                               ? 'text-[#166534] bg-[#DCFCE7] hover:bg-[#BBF7D0]'
                               : 'text-[#EA580C] bg-[#FFF7ED] hover:bg-[#FFEDD5]'
@@ -527,7 +527,7 @@ export const AdminArticlesList: React.FC<AdminArticlesListProps> = ({
 
                         <button
                           onClick={() => handleDuplicate(article.id)}
-                          className="p-1.5 text-[#55524B] hover:text-[#111110] bg-[#F9F8F6] hover:bg-[#E8E5DF] rounded-xs transition-colors"
+                          className="p-1.5 text-[#55524B] hover:text-[#111110] bg-[#F9F8F6] hover:bg-[#E8E5DF] rounded-xs transition-colors shrink-0"
                           title="Duplicate article"
                         >
                           <Copy className="w-3.5 h-3.5" />
@@ -542,7 +542,7 @@ export const AdminArticlesList: React.FC<AdminArticlesListProps> = ({
                             } catch {}
                             onPreviewArticle(article.slug || article.id);
                           }}
-                          className="p-1.5 text-[#55524B] hover:text-[#111110] bg-[#F9F8F6] hover:bg-[#E8E5DF] rounded-xs transition-colors"
+                          className="p-1.5 text-[#55524B] hover:text-[#111110] bg-[#F9F8F6] hover:bg-[#E8E5DF] rounded-xs transition-colors shrink-0"
                           title="Preview in magazine"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
@@ -550,7 +550,7 @@ export const AdminArticlesList: React.FC<AdminArticlesListProps> = ({
 
                         <button
                           onClick={() => handleDelete(article.id, article.title)}
-                          className="p-1.5 text-[#DC2626] hover:text-white hover:bg-[#DC2626] bg-[#FEE2E2] rounded-xs transition-colors"
+                          className="p-1.5 text-[#DC2626] hover:text-white hover:bg-[#DC2626] bg-[#FEE2E2] rounded-xs transition-colors shrink-0"
                           title="Delete dispatch"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -633,17 +633,17 @@ export const AdminArticlesList: React.FC<AdminArticlesListProps> = ({
                     By {article.author.name}
                   </div>
 
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 shrink-0">
                     <button
                       onClick={() => onEditArticle(article.id)}
-                      className="p-1.5 text-[#55524B] hover:text-[#111110] bg-[#F9F8F6] hover:bg-[#E8E5DF] rounded-xs transition-colors"
+                      className="p-1.5 text-[#55524B] hover:text-[#111110] bg-[#F9F8F6] hover:bg-[#E8E5DF] rounded-xs transition-colors shrink-0"
                       title="Edit article"
                     >
                       <Edit className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => handleTogglePublish(article)}
-                      className={`p-1.5 rounded-xs transition-colors ${
+                      className={`p-1.5 rounded-xs transition-colors shrink-0 ${
                         status === 'PUBLISHED'
                           ? 'text-[#166534] bg-[#DCFCE7] hover:bg-[#BBF7D0]'
                           : 'text-[#EA580C] bg-[#FFF7ED] hover:bg-[#FFEDD5]'
@@ -654,7 +654,7 @@ export const AdminArticlesList: React.FC<AdminArticlesListProps> = ({
                     </button>
                     <button
                       onClick={() => handleDelete(article.id, article.title)}
-                      className="p-1.5 text-[#DC2626] hover:text-white hover:bg-[#DC2626] bg-[#FEE2E2] rounded-xs transition-colors"
+                      className="p-1.5 text-[#DC2626] hover:text-white hover:bg-[#DC2626] bg-[#FEE2E2] rounded-xs transition-colors shrink-0"
                       title="Delete dispatch"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

@@ -220,16 +220,16 @@ export const EditorDraftVaultModal: React.FC<EditorDraftVaultModalProps> = ({
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                     <button
                       onClick={(e) => handleDeleteDraft(d.id, e)}
                       title="Delete draft from vault"
-                      className="p-2 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                      className="p-1.5 sm:p-2 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100 shrink-0"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4 shrink-0" />
                     </button>
-                    <div className="px-3 py-1.5 bg-stone-900 text-stone-100 rounded-lg text-xs font-medium flex items-center gap-1.5 group-hover:bg-amber-900 transition-colors">
-                      <RotateCcw className="w-3.5 h-3.5" />
+                    <div className="px-2.5 sm:px-3 py-1.5 bg-stone-900 text-stone-100 rounded-lg text-xs font-medium flex items-center gap-1.5 group-hover:bg-amber-900 transition-colors shrink-0 whitespace-nowrap">
+                      <RotateCcw className="w-3.5 h-3.5 shrink-0" />
                       <span>Open Draft</span>
                     </div>
                   </div>

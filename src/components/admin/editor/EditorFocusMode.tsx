@@ -161,10 +161,10 @@ export const EditorFocusMode: React.FC<EditorFocusModeProps> = ({
               )}
 
               {/* Hover Block Toolbar */}
-              <div className="absolute -right-12 top-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center gap-1 bg-white/80 p-1 rounded-lg border border-stone-200/80 shadow-2xs">
+              <div className="absolute right-1 top-1 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 bg-white/90 backdrop-blur-xs p-1 rounded-lg border border-stone-200/90 shadow-xs z-10">
                 <button
                   onClick={() => onDeleteBlock(idx)}
-                  className="p-1 text-stone-400 hover:text-rose-600 rounded"
+                  className="p-1 text-stone-400 hover:text-rose-600 rounded transition-colors shrink-0"
                   title="Remove block"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -175,24 +175,24 @@ export const EditorFocusMode: React.FC<EditorFocusModeProps> = ({
         </div>
 
         {/* Quick Append Controls */}
-        <div className="pt-8 flex items-center justify-center gap-3 border-t border-stone-200/60">
+        <div className="pt-8 flex items-center justify-center gap-2 sm:gap-3 flex-wrap border-t border-stone-200/60">
           <button
             onClick={() => onAddBlock('paragraph')}
-            className="px-3.5 py-1.5 rounded-full bg-white hover:bg-stone-100 border border-stone-200 text-xs font-medium text-stone-700 flex items-center gap-1.5 transition-colors shadow-2xs"
+            className="px-3.5 py-1.5 rounded-full bg-white hover:bg-stone-100 border border-stone-200 text-xs font-medium text-stone-700 flex items-center gap-1.5 transition-colors shadow-2xs shrink-0"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Paragraph</span>
           </button>
           <button
             onClick={() => onAddBlock('heading2')}
-            className="px-3.5 py-1.5 rounded-full bg-white hover:bg-stone-100 border border-stone-200 text-xs font-medium text-stone-700 flex items-center gap-1.5 transition-colors shadow-2xs"
+            className="px-3.5 py-1.5 rounded-full bg-white hover:bg-stone-100 border border-stone-200 text-xs font-medium text-stone-700 flex items-center gap-1.5 transition-colors shadow-2xs shrink-0"
           >
             <Heading2 className="w-3.5 h-3.5" />
             <span>Heading</span>
           </button>
           <button
             onClick={() => onAddBlock('blockquote')}
-            className="px-3.5 py-1.5 rounded-full bg-white hover:bg-stone-100 border border-stone-200 text-xs font-medium text-stone-700 flex items-center gap-1.5 transition-colors shadow-2xs"
+            className="px-3.5 py-1.5 rounded-full bg-white hover:bg-stone-100 border border-stone-200 text-xs font-medium text-stone-700 flex items-center gap-1.5 transition-colors shadow-2xs shrink-0"
           >
             <Quote className="w-3.5 h-3.5" />
             <span>Quote</span>
@@ -201,22 +201,22 @@ export const EditorFocusMode: React.FC<EditorFocusModeProps> = ({
       </div>
 
       {/* Floating Bottom Telemetry Bar */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-stone-900/90 backdrop-blur-md text-stone-200 px-5 py-2.5 rounded-full shadow-lg border border-stone-700 flex items-center gap-4 text-xs font-sans">
-        <span className="font-serif font-bold text-stone-100">The Folded Page Focus</span>
+      <div className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-40 bg-stone-900/95 backdrop-blur-md text-stone-200 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full shadow-lg border border-stone-700 flex items-center gap-2 sm:gap-4 text-xs font-sans max-w-[95vw] shrink-0">
+        <span className="font-serif font-bold text-stone-100 hidden sm:inline">The Folded Page Focus</span>
+        <span className="text-stone-600 hidden sm:inline">•</span>
+        <span className="shrink-0">{totalWords} words</span>
         <span className="text-stone-600">•</span>
-        <span>{totalWords} words</span>
-        <span className="text-stone-600">•</span>
-        <span>{readTime}</span>
-        <span className="text-stone-600">•</span>
-        <span className="text-emerald-400 flex items-center gap-1">
+        <span className="shrink-0">{readTime}</span>
+        <span className="text-stone-600 hidden sm:inline">•</span>
+        <span className="text-emerald-400 hidden sm:flex items-center gap-1 shrink-0">
           <Clock className="w-3.5 h-3.5" />
           Auto-Saving
         </span>
         <button
           onClick={onSaveDraft}
-          className="ml-2 px-3 py-1 bg-stone-100 hover:bg-white text-stone-900 rounded-full font-semibold transition-colors flex items-center gap-1"
+          className="ml-1 sm:ml-2 px-3 py-1 bg-stone-100 hover:bg-white text-stone-900 rounded-full font-semibold transition-colors flex items-center gap-1 shrink-0 whitespace-nowrap"
         >
-          <Save className="w-3 h-3" />
+          <Save className="w-3 h-3 shrink-0" />
           <span>Save</span>
         </button>
       </div>

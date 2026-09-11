@@ -123,7 +123,7 @@ export const EditorContentBlocks: React.FC<EditorContentBlocksProps> = ({
                 <button
                   onClick={() => onMoveBlock(idx, 'up')}
                   disabled={idx === 0}
-                  className="p-1 text-stone-400 hover:text-stone-800 disabled:opacity-30 rounded hover:bg-stone-100"
+                  className="p-1 text-stone-400 hover:text-stone-800 disabled:opacity-30 rounded hover:bg-stone-100 shrink-0"
                   title="Move Up"
                 >
                   <MoveUp className="w-3.5 h-3.5" />
@@ -131,21 +131,21 @@ export const EditorContentBlocks: React.FC<EditorContentBlocksProps> = ({
                 <button
                   onClick={() => onMoveBlock(idx, 'down')}
                   disabled={idx === blocks.length - 1}
-                  className="p-1 text-stone-400 hover:text-stone-800 disabled:opacity-30 rounded hover:bg-stone-100"
+                  className="p-1 text-stone-400 hover:text-stone-800 disabled:opacity-30 rounded hover:bg-stone-100 shrink-0"
                   title="Move Down"
                 >
                   <MoveDown className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={() => onDuplicateBlock(idx)}
-                  className="p-1 text-stone-400 hover:text-stone-800 rounded hover:bg-stone-100"
+                  className="p-1 text-stone-400 hover:text-stone-800 rounded hover:bg-stone-100 shrink-0"
                   title="Duplicate Block"
                 >
                   <Copy className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={() => onDeleteBlock(idx)}
-                  className="p-1 text-stone-400 hover:text-rose-600 rounded hover:bg-rose-50"
+                  className="p-1 text-stone-400 hover:text-rose-600 rounded hover:bg-rose-50 shrink-0"
                   title="Delete Block"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -408,9 +408,9 @@ export const EditorContentBlocks: React.FC<EditorContentBlocksProps> = ({
               <button
                 key={opt.type}
                 onClick={() => onAddBlock(opt.type)}
-                className="px-3 py-1.5 bg-white hover:bg-stone-900 text-stone-700 hover:text-stone-50 border border-stone-200 text-xs font-medium rounded-lg flex items-center gap-1.5 transition-colors shadow-2xs cursor-pointer"
+                className="px-2.5 sm:px-3 py-1.5 bg-white hover:bg-stone-900 text-stone-700 hover:text-stone-50 border border-stone-200 text-xs font-medium rounded-lg flex items-center gap-1.5 transition-colors shadow-2xs cursor-pointer shrink-0 whitespace-nowrap"
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-3.5 h-3.5 shrink-0" />
                 <span>{opt.label}</span>
               </button>
             );
