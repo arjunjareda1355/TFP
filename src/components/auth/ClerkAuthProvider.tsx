@@ -216,17 +216,6 @@ class ClerkErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBounda
 
               <button
                 onClick={() => {
-                  window.location.hash = '/admin';
-                  this.setState({ hasError: false, errorMessage: '', isDomainError: false });
-                  this.props.onFallbackToDevKey();
-                }}
-                className="w-full py-2 bg-[#111110] hover:bg-[#EA580C] text-white text-xs font-mono-editorial uppercase tracking-wider font-semibold rounded-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
-              >
-                <span>Continue with Direct Login</span>
-              </button>
-
-              <button
-                onClick={() => {
                   window.location.hash = '/';
                   this.setState({ hasError: false, errorMessage: '', isDomainError: false });
                 }}
