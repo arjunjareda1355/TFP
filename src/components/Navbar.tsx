@@ -208,24 +208,40 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               {/* Auth Integration: Header Controls */}
               {!isAuthenticated ? (
-                <div className="hidden sm:flex items-center gap-2">
+                <>
+                  {/* Mobile Quick Sign-in Button */}
                   <button
-                    id="navbar-signin-btn"
+                    id="mobile-auth-trigger-btn"
                     onClick={() => openAuthModal('login')}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#111110] hover:text-[#EA580C] hover:bg-[#F5F4F0] rounded-xs border border-[#E8E5DF] transition-colors cursor-pointer"
+                    className="sm:hidden p-2 text-[#55524B] hover:text-[#111110] hover:bg-[#F5F4F0] transition-colors rounded border border-[#E8E5DF]"
+                    title="Sign In / Create Account"
+                    aria-label="Sign In or Create Account"
                   >
-                    <User className="w-3.5 h-3.5 text-[#55524B]" />
-                    <span>Sign In</span>
+                    <User className="w-4 h-4" />
                   </button>
 
-                  <button
-                    id="navbar-signup-btn"
-                    onClick={() => openAuthModal('signup')}
-                    className="hidden md:inline-flex items-center gap-1.5 bg-[#111110] hover:bg-[#EA580C] text-white text-xs font-semibold uppercase tracking-wider px-3.5 py-2 transition-colors duration-150 rounded-xs shadow-xs cursor-pointer"
-                  >
-                    <span>Join Free</span>
-                  </button>
-                </div>
+                  {/* Desktop Auth Buttons */}
+                  <div className="hidden sm:flex items-center gap-2">
+                    <button
+                      id="navbar-signin-btn"
+                      onClick={() => openAuthModal('login')}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#111110] hover:text-[#EA580C] hover:bg-[#F5F4F0] rounded-xs border border-[#E8E5DF] transition-colors cursor-pointer"
+                      title="Sign in to your account"
+                    >
+                      <User className="w-3.5 h-3.5 text-[#55524B]" />
+                      <span>Sign In</span>
+                    </button>
+
+                    <button
+                      id="navbar-signup-btn"
+                      onClick={() => openAuthModal('signup')}
+                      className="inline-flex items-center gap-1.5 bg-[#111110] hover:bg-[#EA580C] text-white text-xs font-semibold uppercase tracking-wider px-3 py-1.5 transition-colors duration-150 rounded-xs shadow-xs cursor-pointer"
+                      title="Create a free reader account"
+                    >
+                      <span>Create Account</span>
+                    </button>
+                  </div>
+                </>
               ) : (
                 <div className="flex items-center gap-2">
                   <SignedIn>

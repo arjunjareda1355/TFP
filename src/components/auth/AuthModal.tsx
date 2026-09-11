@@ -1,14 +1,67 @@
-import React, { useState, useEffect } from 'react';
-import { X, Lock, Mail, User as UserIcon, ArrowRight, Loader2, Sparkles, CheckCircle, ShieldCheck } from 'lucide-react';
-import { SignIn, SignUp, useClerk } from '@clerk/clerk-react';
+import React, { useState, useEffect, Component, ErrorInfo, ReactNode } from 'react';
+import { X, Lock, Mail, User as UserIcon, ArrowRight, Loader2, Sparkles, CheckCircle, ShieldCheck, AlertCircle } from 'lucide-react';
+import { SignIn, SignUp } from '@clerk/clerk-react';
 import { useMagazine } from '../../context/MagazineContext';
 import { useToast } from '../../context/ToastContext';
 import { BrandLogo } from '../BrandLogo';
 
+interface ClerkModalErrorBoundaryProps {
+  children: ReactNode;
+  onFallback: () => void;
+}
+
+interface ClerkModalErrorBoundaryState {
+  hasError: boolean;
+  errorMessage: string;
+}
+
+class ClerkModalErrorBoundary extends Component<ClerkModalErrorBoundaryProps, ClerkModalErrorBoundaryState> {
+  public override state: ClerkModalErrorBoundaryState = {
+    hasError: false,
+    errorMessage: '',
+  };
+
+  public static getDerivedStateFromError(error: Error): ClerkModalErrorBoundaryState {
+    return {
+      hasError: true,
+      errorMessage: error?.message || 'Clerk SSO is unavailable on this domain.',
+    };
+  }
+
+  public override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.warn('[AuthModal] Clerk component notice:', error, errorInfo);
+  }
+
+  public override render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-4 bg-[#FAF9F6] border border-[#E8E5DF] rounded-xs text-center space-y-3">
+          <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#FFF7ED] text-[#EA580C] mb-1">
+            <AlertCircle className="w-4 h-4" />
+          </div>
+          <p className="text-xs font-serif-editorial text-[#55524B] leading-relaxed">
+            Clerk SSO is currently restricted to the primary production domain. Please use direct Email & Password authentication below.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              this.setState({ hasError: false, errorMessage: '' });
+              this.props.onFallback();
+            }}
+            className="px-3 py-1.5 bg-[#111110] hover:bg-[#EA580C] text-white text-xs font-mono-editorial uppercase tracking-wider font-semibold rounded-xs transition-colors cursor-pointer"
+          >
+            Continue with Email & Password
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export const AuthModal: React.FC = () => {
   const { isAuthModalOpen, closeAuthModal, authModalMode, setAuthModalMode, loginAsAdmin, registerUser, currentUser } = useMagazine();
   const { showToast } = useToast();
-  const clerk = useClerk();
 
   const [authMethod, setAuthMethod] = useState<'clerk' | 'direct'>('direct');
   const [email, setEmail] = useState('');
@@ -23,7 +76,7 @@ export const AuthModal: React.FC = () => {
     if (currentUser && isAuthModalOpen) {
       const timer = setTimeout(() => {
         closeAuthModal();
-      }, 1200);
+      }, 1000);
       return () => clearTimeout(timer);
     }
   }, [currentUser, isAuthModalOpen, closeAuthModal]);
@@ -53,7 +106,7 @@ export const AuthModal: React.FC = () => {
 
     const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail) {
-      setErrorMessage('Please enter an email address.');
+      setErrorMessage('Please enter a valid email address.');
       return;
     }
 
@@ -65,17 +118,17 @@ export const AuthModal: React.FC = () => {
         showToast(`Signed in successfully as ${user.name || user.email}`, 'success');
         setTimeout(() => {
           closeAuthModal();
-          if (user.isPermanentOwner || user.role.includes('OWNER') || user.role.includes('ADMIN')) {
+          if (user.isPermanentOwner || user.role?.includes('OWNER') || user.role?.includes('ADMIN')) {
             window.location.hash = '/admin';
           }
-        }, 800);
+        }, 700);
       } else {
         const user = await registerUser({ email: cleanEmail, name: name.trim() || undefined, password });
         setSuccessMessage(`Account created! Welcome, ${user.name || user.email}.`);
         showToast(`Account created successfully!`, 'success');
         setTimeout(() => {
           closeAuthModal();
-        }, 800);
+        }, 700);
       }
     } catch (err: any) {
       setErrorMessage(err.message || 'Authentication failed. Please check your credentials and try again.');
@@ -86,7 +139,7 @@ export const AuthModal: React.FC = () => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#111110]/60 backdrop-blur-xs animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#111110]/60 backdrop-blur-xs animate-in fade-in duration-200"
       onClick={(e) => {
         if (e.target === e.currentTarget) closeAuthModal();
       }}
@@ -95,6 +148,7 @@ export const AuthModal: React.FC = () => {
         className="relative w-full max-w-md bg-[#FFFFFF] border border-[#E8E5DF] rounded-xs shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
         role="dialog"
         aria-modal="true"
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
         <button
@@ -127,6 +181,7 @@ export const AuthModal: React.FC = () => {
           <div className="flex mt-5 bg-[#EFECE6] p-0.5 rounded-xs">
             <button
               type="button"
+              id="auth-tab-login"
               onClick={() => {
                 setAuthModalMode('login');
                 setErrorMessage('');
@@ -142,6 +197,7 @@ export const AuthModal: React.FC = () => {
             </button>
             <button
               type="button"
+              id="auth-tab-signup"
               onClick={() => {
                 setAuthModalMode('signup');
                 setErrorMessage('');
@@ -153,7 +209,7 @@ export const AuthModal: React.FC = () => {
                   : 'text-[#6E6A62] hover:text-[#111110]'
               }`}
             >
-              Join Free
+              Create Account
             </button>
           </div>
         </div>
@@ -168,6 +224,7 @@ export const AuthModal: React.FC = () => {
             <div className="flex items-center gap-1.5">
               <button
                 type="button"
+                id="auth-method-direct"
                 onClick={() => setAuthMethod('direct')}
                 className={`px-2 py-1 text-[10px] font-mono-editorial uppercase tracking-wider rounded-xs cursor-pointer transition-colors ${
                   authMethod === 'direct'
@@ -179,6 +236,7 @@ export const AuthModal: React.FC = () => {
               </button>
               <button
                 type="button"
+                id="auth-method-clerk"
                 onClick={() => setAuthMethod('clerk')}
                 className={`px-2 py-1 text-[10px] font-mono-editorial uppercase tracking-wider rounded-xs cursor-pointer transition-colors flex items-center gap-1 ${
                   authMethod === 'clerk'
@@ -208,52 +266,54 @@ export const AuthModal: React.FC = () => {
 
           {/* CLERK EMBEDDED AUTH */}
           {authMethod === 'clerk' ? (
-            <div className="space-y-4">
-              <div className="flex justify-center min-h-[220px]">
-                {authModalMode === 'login' ? (
-                  <SignIn
-                    routing="virtual"
-                    fallbackRedirectUrl="/#home"
-                    appearance={{
-                      elements: {
-                        rootBox: 'w-full',
-                        card: 'border-0 shadow-none p-0 w-full bg-transparent',
-                        headerTitle: 'hidden',
-                        headerSubtitle: 'hidden',
-                        socialButtonsBlockButton: 'rounded-xs border border-[#E8E5DF] hover:bg-[#F5F4F0] text-xs',
-                        formButtonPrimary: 'bg-[#111110] hover:bg-[#EA580C] text-xs font-semibold rounded-xs shadow-xs',
-                      },
-                    }}
-                  />
-                ) : (
-                  <SignUp
-                    routing="virtual"
-                    fallbackRedirectUrl="/#home"
-                    appearance={{
-                      elements: {
-                        rootBox: 'w-full',
-                        card: 'border-0 shadow-none p-0 w-full bg-transparent',
-                        headerTitle: 'hidden',
-                        headerSubtitle: 'hidden',
-                        socialButtonsBlockButton: 'rounded-xs border border-[#E8E5DF] hover:bg-[#F5F4F0] text-xs',
-                        formButtonPrimary: 'bg-[#111110] hover:bg-[#EA580C] text-xs font-semibold rounded-xs shadow-xs',
-                      },
-                    }}
-                  />
-                )}
-              </div>
+            <ClerkModalErrorBoundary onFallback={() => setAuthMethod('direct')}>
+              <div className="space-y-4">
+                <div className="flex justify-center min-h-[220px]">
+                  {authModalMode === 'login' ? (
+                    <SignIn
+                      routing="virtual"
+                      fallbackRedirectUrl="/#home"
+                      appearance={{
+                        elements: {
+                          rootBox: 'w-full',
+                          card: 'border-0 shadow-none p-0 w-full bg-transparent',
+                          headerTitle: 'hidden',
+                          headerSubtitle: 'hidden',
+                          socialButtonsBlockButton: 'rounded-xs border border-[#E8E5DF] hover:bg-[#F5F4F0] text-xs',
+                          formButtonPrimary: 'bg-[#111110] hover:bg-[#EA580C] text-xs font-semibold rounded-xs shadow-xs',
+                        },
+                      }}
+                    />
+                  ) : (
+                    <SignUp
+                      routing="virtual"
+                      fallbackRedirectUrl="/#home"
+                      appearance={{
+                        elements: {
+                          rootBox: 'w-full',
+                          card: 'border-0 shadow-none p-0 w-full bg-transparent',
+                          headerTitle: 'hidden',
+                          headerSubtitle: 'hidden',
+                          socialButtonsBlockButton: 'rounded-xs border border-[#E8E5DF] hover:bg-[#F5F4F0] text-xs',
+                          formButtonPrimary: 'bg-[#111110] hover:bg-[#EA580C] text-xs font-semibold rounded-xs shadow-xs',
+                        },
+                      }}
+                    />
+                  )}
+                </div>
 
-              <div className="text-center pt-2">
-                <button
-                  type="button"
-                  onClick={() => setAuthMethod('direct')}
-                  className="text-xs text-[#6E6A62] hover:text-[#111110] hover:underline font-mono-editorial inline-flex items-center gap-1 cursor-pointer"
-                >
-                  <span>Or use Email & Password directly</span>
-                  <ArrowRight className="w-3 h-3" />
-                </button>
+                <div className="text-center pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setAuthMethod('direct')}
+                    className="text-xs text-[#6E6A62] hover:text-[#111110] hover:underline font-mono-editorial inline-flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Or use Email & Password directly</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
               </div>
-            </div>
+            </ClerkModalErrorBoundary>
           ) : (
             /* DIRECT EMAIL / PASSWORD AUTH */
             <form onSubmit={handleDirectSubmit} className="space-y-3.5">
@@ -318,6 +378,7 @@ export const AuthModal: React.FC = () => {
 
               <button
                 type="submit"
+                id="auth-direct-submit-btn"
                 disabled={loading}
                 className="w-full py-2.5 bg-[#111110] hover:bg-[#EA580C] disabled:bg-[#8E8A81] text-white text-xs font-mono-editorial uppercase tracking-wider font-semibold rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs mt-2"
               >
@@ -328,11 +389,42 @@ export const AuthModal: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <span>{authModalMode === 'login' ? 'Sign In to Magazine' : 'Complete Registration'}</span>
+                    <span>{authModalMode === 'login' ? 'Sign In to Magazine' : 'Create Account'}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </>
                 )}
               </button>
+
+              {/* Mode switch helper link */}
+              <div className="text-center pt-1">
+                {authModalMode === 'login' ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthModalMode('signup');
+                      setErrorMessage('');
+                      setSuccessMessage('');
+                    }}
+                    className="text-xs text-[#55524B] hover:text-[#EA580C] transition-colors font-mono-editorial inline-flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Don't have an account yet?</span>
+                    <span className="font-semibold underline">Create Account</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthModalMode('login');
+                      setErrorMessage('');
+                      setSuccessMessage('');
+                    }}
+                    className="text-xs text-[#55524B] hover:text-[#EA580C] transition-colors font-mono-editorial inline-flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Already have an account?</span>
+                    <span className="font-semibold underline">Sign In</span>
+                  </button>
+                )}
+              </div>
 
               {/* Publisher quick hint */}
               <div className="pt-2 text-center border-t border-[#F0EFEB] flex items-center justify-center gap-1.5 text-[11px] text-[#6E6A62]">

@@ -46,7 +46,7 @@ export const Footer: React.FC<FooterProps> = ({
   onNavigateNewsletter,
   onNavigateSaved,
 }) => {
-  const { setIsNewsletterOpen, series, issues, socialChannels, isAuthenticated, isOwner } = useMagazine();
+  const { setIsNewsletterOpen, series, issues, socialChannels, isAuthenticated, isOwner, openAuthModal } = useMagazine();
   const { showToast } = useToast();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -457,15 +457,36 @@ export const Footer: React.FC<FooterProps> = ({
                   Membership & Audio
                 </button>
               </li>
-              {isAuthenticated && isOwner && (
-                <li>
-                  <button
-                    onClick={() => handleNav({ type: 'admin', subview: 'overview' })}
-                    className="hover:text-[#EA580C] text-[#8E8A81] hover:underline transition-colors text-left font-mono-editorial text-[11px] pt-1 block"
-                  >
-                    Publisher CMS Desk &rarr;
-                  </button>
-                </li>
+              {!isAuthenticated ? (
+                <>
+                  <li>
+                    <button
+                      onClick={() => openAuthModal('login')}
+                      className="hover:text-[#EA580C] text-[#55524B] transition-colors text-left"
+                    >
+                      Sign In to Account
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => openAuthModal('signup')}
+                      className="hover:text-[#EA580C] text-[#EA580C] font-semibold transition-colors text-left"
+                    >
+                      Create Reader Account
+                    </button>
+                  </li>
+                </>
+              ) : (
+                isOwner && (
+                  <li>
+                    <button
+                      onClick={() => handleNav({ type: 'admin', subview: 'overview' })}
+                      className="hover:text-[#EA580C] text-[#8E8A81] hover:underline transition-colors text-left font-mono-editorial text-[11px] pt-1 block"
+                    >
+                      Publisher CMS Desk &rarr;
+                    </button>
+                  </li>
+                )
               )}
             </ul>
           </div>
