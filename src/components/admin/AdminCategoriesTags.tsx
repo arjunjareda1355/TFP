@@ -13,6 +13,7 @@ import { useMagazine } from '../../context/MagazineContext';
 import { useToast } from '../../context/ToastContext';
 import { api } from '../../services/api';
 import { CategoryInfo } from '../../types';
+import { AdminConfirmDialog } from './AdminConfirmDialog';
 
 export const AdminCategoriesTags: React.FC = () => {
   const { categories, refreshAll } = useMagazine();
@@ -30,6 +31,10 @@ export const AdminCategoriesTags: React.FC = () => {
   // Tag Merge/Rename State
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [newTagName, setNewTagName] = useState('');
+
+  // Confirm delete dialog state
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'category' | 'tag'; id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const loadTags = async () => {
     try {
@@ -76,14 +81,25 @@ export const AdminCategoriesTags: React.FC = () => {
     }
   };
 
-  const handleDeleteCategory = async (id: string, catName: string) => {
-    if (!window.confirm(`Delete category "${catName}"?`)) return;
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
     try {
-      await api.deleteCategory(id);
-      await refreshAll();
-      toast.success(`Category "${catName}" deleted.`);
+      if (deleteTarget.type === 'category') {
+        await api.deleteCategory(deleteTarget.id);
+        await refreshAll();
+        toast.success(`Category "${deleteTarget.name}" deleted.`);
+      } else {
+        await api.deleteTag(deleteTarget.id);
+        setTagsList((prev) => prev.filter((t) => t.name !== deleteTarget.id));
+        await refreshAll();
+        toast.success(`Tag #${deleteTarget.name} deleted.`);
+      }
+      setDeleteTarget(null);
     } catch (err: any) {
-      toast.error('Delete failed: ' + err.message);
+      toast.error('Delete failed: ' + (err.message || 'Server error'));
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -98,18 +114,6 @@ export const AdminCategoriesTags: React.FC = () => {
       toast.success(`Tag updated to #${newTagName.trim()}`);
     } catch (err: any) {
       toast.error('Failed to rename tag: ' + err.message);
-    }
-  };
-
-  const handleDeleteTag = async (tagName: string) => {
-    if (!window.confirm(`Delete tag #${tagName} from all articles?`)) return;
-    try {
-      await api.deleteTag(tagName);
-      setTagsList((prev) => prev.filter((t) => t.name !== tagName));
-      await refreshAll();
-      toast.success(`Tag #${tagName} deleted.`);
-    } catch (err: any) {
-      toast.error('Failed to delete tag: ' + err.message);
     }
   };
 
@@ -243,9 +247,11 @@ export const AdminCategoriesTags: React.FC = () => {
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                     <button
-                      onClick={() => handleDeleteCategory(c.id, c.name)}
-                      className="p-1.5 text-[#DC2626] hover:bg-[#FEE2E2] rounded-xs"
+                      type="button"
+                      onClick={() => setDeleteTarget({ type: 'category', id: c.id, name: c.name })}
+                      className="p-1.5 text-[#DC2626] hover:bg-[#FEE2E2] rounded-xs cursor-pointer transition-colors"
                       title="Delete Category"
+                      aria-label={`Delete category ${c.name}`}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -308,8 +314,11 @@ export const AdminCategoriesTags: React.FC = () => {
                     #{tag.name} <span className="text-[#8E8A81]">({tag.count})</span>
                   </span>
                   <button
-                    onClick={() => handleDeleteTag(tag.name)}
-                    className="text-[#8E8A81] hover:text-[#DC2626] ml-1"
+                    type="button"
+                    onClick={() => setDeleteTarget({ type: 'tag', id: tag.name, name: tag.name })}
+                    className="text-[#8E8A81] hover:text-[#DC2626] ml-1 cursor-pointer"
+                    title={`Delete tag #${tag.name}`}
+                    aria-label={`Delete tag #${tag.name}`}
                   >
                     ×
                   </button>
@@ -325,6 +334,24 @@ export const AdminCategoriesTags: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <AdminConfirmDialog
+        isOpen={Boolean(deleteTarget)}
+        title={deleteTarget?.type === 'category' ? 'Delete Category' : 'Delete Article Tag'}
+        message={
+          deleteTarget
+            ? deleteTarget.type === 'category'
+              ? `Are you sure you want to delete category "${deleteTarget.name}"? Articles in this category will remain, but the category section will be removed.`
+              : `Are you sure you want to delete tag #${deleteTarget.name} from all articles?`
+            : ''
+        }
+        confirmLabel={deleteTarget?.type === 'category' ? 'Delete Category' : 'Delete Tag'}
+        cancelLabel="Cancel"
+        variant="danger"
+        isLoading={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeleteTarget(null)}
+      />
     </div>
   );
 };

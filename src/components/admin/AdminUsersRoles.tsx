@@ -24,6 +24,7 @@ import {
 import { useMagazine } from '../../context/MagazineContext';
 import { api } from '../../services/api';
 import { User, RoleName } from '../../types';
+import { AdminConfirmDialog } from './AdminConfirmDialog';
 
 export const AdminUsersRoles: React.FC = () => {
   const { currentUser, isOwner } = useMagazine();
@@ -31,6 +32,12 @@ export const AdminUsersRoles: React.FC = () => {
   const [invitations, setInvitations] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  // In-app Action Confirmations (replaces blocked browser confirm)
+  const [invitationToRevoke, setInvitationToRevoke] = useState<{ id: string; email: string } | null>(null);
+  const [userToSuspend, setUserToSuspend] = useState<{ user: User; willSuspend: boolean } | null>(null);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [isProcessingAction, setIsProcessingAction] = useState(false);
 
   // Invite modal state
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -104,45 +111,65 @@ export const AdminUsersRoles: React.FC = () => {
     }
   };
 
-  const handleRevokeInvitation = async (id: string) => {
-    if (!window.confirm('Are you sure you want to revoke this invitation token?')) return;
+  const handleRevokeInvitation = (id: string, email: string) => {
+    setInvitationToRevoke({ id, email });
+  };
+
+  const handleConfirmRevokeInvitation = async () => {
+    if (!invitationToRevoke) return;
+    setIsProcessingAction(true);
     try {
-      await api.revokeInvitation(id);
-      setFeedback({ type: 'success', message: 'Invitation token revoked.' });
+      await api.revokeInvitation(invitationToRevoke.id);
+      setFeedback({ type: 'success', message: `Invitation token for ${invitationToRevoke.email} revoked.` });
+      setInvitationToRevoke(null);
       loadUsersAndInvitations();
     } catch (err: any) {
       setFeedback({ type: 'error', message: err.message || 'Failed to revoke invitation.' });
+    } finally {
+      setIsProcessingAction(false);
     }
   };
 
-  const handleToggleSuspend = async (user: User) => {
+  const handleToggleSuspend = (user: User) => {
     const willSuspend = user.status !== 'SUSPENDED';
-    const actionName = willSuspend ? 'suspend' : 'restore access for';
-    if (!window.confirm(`Are you sure you want to ${actionName} ${user.name} (${user.email})?`)) return;
+    setUserToSuspend({ user, willSuspend });
+  };
 
+  const handleConfirmToggleSuspend = async () => {
+    if (!userToSuspend) return;
+    setIsProcessingAction(true);
+    const { user, willSuspend } = userToSuspend;
     try {
       await api.suspendUser(user.id, willSuspend);
       setFeedback({
         type: 'success',
         message: `User ${user.name} is now ${willSuspend ? 'suspended' : 'active'}.`,
       });
+      setUserToSuspend(null);
       loadUsersAndInvitations();
     } catch (err: any) {
       setFeedback({ type: 'error', message: err.message || 'Action failed.' });
+    } finally {
+      setIsProcessingAction(false);
     }
   };
 
-  const handleDeleteUser = async (user: User) => {
-    if (!window.confirm(`Are you sure you want to permanently remove access for ${user.name}? This will revoke their editorial credentials.`)) {
-      return;
-    }
+  const handleDeleteUser = (user: User) => {
+    setUserToDelete(user);
+  };
 
+  const handleConfirmDeleteUser = async () => {
+    if (!userToDelete) return;
+    setIsProcessingAction(true);
     try {
-      await api.deleteUser(user.id);
-      setFeedback({ type: 'success', message: `User ${user.name} has been removed.` });
+      await api.deleteUser(userToDelete.id);
+      setFeedback({ type: 'success', message: `User ${userToDelete.name} has been removed.` });
+      setUserToDelete(null);
       loadUsersAndInvitations();
     } catch (err: any) {
       setFeedback({ type: 'error', message: err.message || 'Failed to delete user.' });
+    } finally {
+      setIsProcessingAction(false);
     }
   };
 
@@ -559,7 +586,7 @@ export const AdminUsersRoles: React.FC = () => {
                     <span>Copy Link</span>
                   </button>
                   <button
-                    onClick={() => handleRevokeInvitation(inv.id)}
+                    onClick={() => handleRevokeInvitation(inv.id, inv.email)}
                     className="p-1.5 text-[#DC2626] hover:bg-[#FEF2F2] rounded-xs transition-colors"
                     title="Revoke Token"
                   >
@@ -804,6 +831,61 @@ export const AdminUsersRoles: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Revoke Invitation Confirmation Dialog */}
+      <AdminConfirmDialog
+        isOpen={Boolean(invitationToRevoke)}
+        title="Revoke Invitation Token"
+        message={
+          invitationToRevoke
+            ? `Are you sure you want to revoke the invitation token for "${invitationToRevoke.email}"? The invitation link will immediately become invalid.`
+            : ''
+        }
+        confirmLabel="Revoke Invitation"
+        cancelLabel="Cancel"
+        variant="danger"
+        isLoading={isProcessingAction}
+        onConfirm={handleConfirmRevokeInvitation}
+        onClose={() => setInvitationToRevoke(null)}
+      />
+
+      {/* Toggle Suspend Confirmation Dialog */}
+      <AdminConfirmDialog
+        isOpen={Boolean(userToSuspend)}
+        title={userToSuspend?.willSuspend ? 'Suspend User Access' : 'Restore User Access'}
+        message={
+          userToSuspend
+            ? `Are you sure you want to ${
+                userToSuspend.willSuspend
+                  ? 'suspend editorial and admin access for'
+                  : 'reactivate access for'
+              } ${userToSuspend.user.name} (${userToSuspend.user.email})?`
+            : ''
+        }
+        confirmLabel={userToSuspend?.willSuspend ? 'Suspend User' : 'Restore Access'}
+        cancelLabel="Cancel"
+        variant={userToSuspend?.willSuspend ? 'warning' : 'primary'}
+        isLoading={isProcessingAction}
+        onConfirm={handleConfirmToggleSuspend}
+        onClose={() => setUserToSuspend(null)}
+      />
+
+      {/* Delete User Confirmation Dialog */}
+      <AdminConfirmDialog
+        isOpen={Boolean(userToDelete)}
+        title="Remove User Account"
+        message={
+          userToDelete
+            ? `Are you sure you want to permanently remove access for ${userToDelete.name} (${userToDelete.email})? Their editorial credentials will be completely revoked.`
+            : ''
+        }
+        confirmLabel="Remove User"
+        cancelLabel="Cancel"
+        variant="danger"
+        isLoading={isProcessingAction}
+        onConfirm={handleConfirmDeleteUser}
+        onClose={() => setUserToDelete(null)}
+      />
     </div>
   );
 };

@@ -12,6 +12,7 @@ import { useMagazine } from '../../context/MagazineContext';
 import { useToast } from '../../context/ToastContext';
 import { api } from '../../services/api';
 import { EditorialSeries, MagazineIssue } from '../../types';
+import { AdminConfirmDialog } from './AdminConfirmDialog';
 
 export const AdminSeriesIssues: React.FC = () => {
   const { series, issues, refreshAll } = useMagazine();
@@ -33,6 +34,30 @@ export const AdminSeriesIssues: React.FC = () => {
   const [iDate, setIDate] = useState('');
   const [iCoverImage, setICoverImage] = useState('');
   const [iCuratorNote, setICuratorNote] = useState('');
+
+  // Delete modal state
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'series' | 'issue'; id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      if (deleteTarget.type === 'series') {
+        await api.deleteSeries(deleteTarget.id);
+        toast.success(`Series "${deleteTarget.name}" deleted.`);
+      } else {
+        await api.deleteIssue(deleteTarget.id);
+        toast.success(`Issue "${deleteTarget.name}" deleted.`);
+      }
+      await refreshAll();
+      setDeleteTarget(null);
+    } catch (err: any) {
+      toast.error(`Failed to delete: ${err.message || 'Server error'}`);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const handleSaveSeries = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,13 +212,11 @@ export const AdminSeriesIssues: React.FC = () => {
                     <Edit2 className="w-3.5 h-3.5" />
                   </button>
                   <button
-                    onClick={async () => {
-                      if (window.confirm(`Delete series "${s.name}"?`)) {
-                        await api.deleteSeries(s.id);
-                        await refreshAll();
-                      }
-                    }}
-                    className="p-1 text-[#DC2626]"
+                    type="button"
+                    onClick={() => setDeleteTarget({ type: 'series', id: s.id, name: s.name })}
+                    className="p-1 text-[#DC2626] hover:bg-[#FEE2E2] rounded-xs cursor-pointer transition-colors"
+                    title="Delete Series"
+                    aria-label={`Delete series ${s.name}`}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -309,13 +332,11 @@ export const AdminSeriesIssues: React.FC = () => {
                     <Edit2 className="w-3.5 h-3.5" />
                   </button>
                   <button
-                    onClick={async () => {
-                      if (window.confirm(`Delete issue "${iss.title}"?`)) {
-                        await api.deleteIssue(iss.id);
-                        await refreshAll();
-                      }
-                    }}
-                    className="p-1 text-[#DC2626]"
+                    type="button"
+                    onClick={() => setDeleteTarget({ type: 'issue', id: iss.id, name: iss.title })}
+                    className="p-1 text-[#DC2626] hover:bg-[#FEE2E2] rounded-xs cursor-pointer transition-colors"
+                    title="Delete Issue"
+                    aria-label={`Delete issue ${iss.title}`}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -325,6 +346,22 @@ export const AdminSeriesIssues: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <AdminConfirmDialog
+        isOpen={Boolean(deleteTarget)}
+        title={deleteTarget?.type === 'series' ? 'Delete Editorial Series' : 'Delete Periodical Issue'}
+        message={
+          deleteTarget
+            ? `Are you sure you want to delete ${deleteTarget.type === 'series' ? 'series' : 'issue'} "${deleteTarget.name}"? This action cannot be undone.`
+            : ''
+        }
+        confirmLabel={deleteTarget?.type === 'series' ? 'Delete Series' : 'Delete Issue'}
+        cancelLabel="Cancel"
+        variant="danger"
+        isLoading={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeleteTarget(null)}
+      />
     </div>
   );
 };

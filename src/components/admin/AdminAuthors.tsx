@@ -15,9 +15,10 @@ import { useMagazine } from '../../context/MagazineContext';
 import { useToast } from '../../context/ToastContext';
 import { api } from '../../services/api';
 import { Author } from '../../types';
+import { AdminConfirmDialog } from './AdminConfirmDialog';
 
 export const AdminAuthors: React.FC = () => {
-  const { authors, refreshAll } = useMagazine();
+  const { authors, refreshAll, deleteAuthor } = useMagazine();
   const toast = useToast();
 
   const [editingAuthor, setEditingAuthor] = useState<Author | null>(null);
@@ -29,6 +30,8 @@ export const AdminAuthors: React.FC = () => {
   const [twitter, setTwitter] = useState('');
   const [website, setWebsite] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [authorToDelete, setAuthorToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,14 +72,25 @@ export const AdminAuthors: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string, authorName: string) => {
-    if (!window.confirm(`Remove author "${authorName}"?`)) return;
+  const handleConfirmDelete = async () => {
+    if (!authorToDelete) return;
+    setIsDeleting(true);
+    const targetName = authorToDelete.name;
+    const targetId = authorToDelete.id;
+
     try {
-      await api.deleteAuthor(id);
-      await refreshAll();
-      toast.success(`Author "${authorName}" removed.`);
+      if (deleteAuthor) {
+        await deleteAuthor(targetId);
+      } else {
+        await api.deleteAuthor(targetId);
+        await refreshAll();
+      }
+      toast.success(`Author "${targetName}" removed from masthead.`);
+      setAuthorToDelete(null);
     } catch (err: any) {
-      toast.error('Failed to delete author: ' + err.message);
+      toast.error('Failed to delete author: ' + (err.message || 'Server error'));
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -241,9 +255,11 @@ export const AdminAuthors: React.FC = () => {
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                     <button
-                      onClick={() => handleDelete(a.id, a.name)}
-                      className="p-1 text-[#DC2626] hover:bg-[#FEE2E2] rounded-xs"
+                      type="button"
+                      onClick={() => setAuthorToDelete({ id: a.id, name: a.name })}
+                      className="p-1 text-[#DC2626] hover:bg-[#FEE2E2] rounded-xs cursor-pointer transition-colors"
                       title="Delete Author"
+                      aria-label={`Delete author ${a.name}`}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -254,6 +270,22 @@ export const AdminAuthors: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <AdminConfirmDialog
+        isOpen={Boolean(authorToDelete)}
+        title="Remove Editorial Contributor"
+        message={
+          authorToDelete
+            ? `Are you sure you want to delete author "${authorToDelete.name}"? This author will be removed from the editorial masthead and contributor directory.`
+            : ''
+        }
+        confirmLabel="Remove Author"
+        cancelLabel="Cancel"
+        variant="danger"
+        isLoading={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onClose={() => setAuthorToDelete(null)}
+      />
     </div>
   );
 };

@@ -16,6 +16,7 @@ import {
 import { api } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import { MediaItem } from '../../types';
+import { AdminConfirmDialog } from './AdminConfirmDialog';
 
 interface AdminMediaLibraryProps {
   onSelectMedia?: (url: string) => void;
@@ -27,6 +28,8 @@ export const AdminMediaLibrary: React.FC<AdminMediaLibraryProps> = ({ onSelectMe
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [mediaToDelete, setMediaToDelete] = useState<MediaItem | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Upload modal / form state
   const [isUploading, setIsUploading] = useState(false);
@@ -109,17 +112,22 @@ export const AdminMediaLibrary: React.FC<AdminMediaLibraryProps> = ({ onSelectMe
     setTimeout(() => setCopiedId(null), 2500);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Delete this media item permanently?')) return;
+  const handleConfirmDelete = async () => {
+    if (!mediaToDelete) return;
+    setIsDeleting(true);
+    const targetId = mediaToDelete.id;
     try {
-      await api.deleteMedia(id);
-      setMediaList((prev) => prev.filter((m) => m.id !== id));
-      if (selectedMediaForEdit?.id === id) {
+      await api.deleteMedia(targetId);
+      setMediaList((prev) => prev.filter((m) => m.id !== targetId));
+      if (selectedMediaForEdit?.id === targetId) {
         setSelectedMediaForEdit(null);
       }
       toast.success('Media asset deleted.');
+      setMediaToDelete(null);
     } catch (err: any) {
-      toast.error('Delete failed: ' + err.message);
+      toast.error('Delete failed: ' + (err.message || 'Server error'));
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -345,9 +353,11 @@ export const AdminMediaLibrary: React.FC<AdminMediaLibraryProps> = ({ onSelectMe
                   </button>
 
                   <button
-                    onClick={() => handleDelete(item.id)}
-                    className="p-1.5 bg-white text-[#DC2626] rounded-xs hover:bg-[#DC2626] hover:text-white transition-colors"
+                    type="button"
+                    onClick={() => setMediaToDelete(item)}
+                    className="p-1.5 bg-white text-[#DC2626] rounded-xs hover:bg-[#DC2626] hover:text-white transition-colors cursor-pointer"
                     title="Delete Asset"
+                    aria-label={`Delete media asset ${item.filename}`}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -458,6 +468,22 @@ export const AdminMediaLibrary: React.FC<AdminMediaLibraryProps> = ({ onSelectMe
           </div>
         </div>
       )}
+
+      <AdminConfirmDialog
+        isOpen={Boolean(mediaToDelete)}
+        title="Delete Media Asset"
+        message={
+          mediaToDelete
+            ? `Are you sure you want to permanently delete media asset "${mediaToDelete.filename}"? This action cannot be undone.`
+            : ''
+        }
+        confirmLabel="Delete Asset"
+        cancelLabel="Cancel"
+        variant="danger"
+        isLoading={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onClose={() => setMediaToDelete(null)}
+      />
     </div>
   );
 };

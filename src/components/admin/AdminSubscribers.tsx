@@ -17,6 +17,7 @@ import {
 import { api } from '../../services/api';
 import { NewsletterSubscriber, ContactSubmission } from '../../types';
 import { useToast } from '../../context/ToastContext';
+import { AdminConfirmDialog } from './AdminConfirmDialog';
 
 export const AdminSubscribers: React.FC = () => {
   const { showToast } = useToast();
@@ -27,6 +28,9 @@ export const AdminSubscribers: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [broadcasting, setBroadcasting] = useState(false);
+  const [subscriberToDelete, setSubscriberToDelete] = useState<{ id: string; email: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showBroadcastConfirm, setShowBroadcastConfirm] = useState(false);
 
   const loadData = async () => {
     setLoading(true);
@@ -78,34 +82,36 @@ export const AdminSubscribers: React.FC = () => {
     }
   };
 
-  const handleDeleteSubscriber = async (id: string, email: string) => {
-    if (!window.confirm(`Are you sure you want to remove ${email} from the subscriber ledger?`)) {
-      return;
-    }
+  const handleDeleteSubscriber = (id: string, email: string) => {
+    setSubscriberToDelete({ id, email });
+  };
+
+  const handleConfirmDeleteSubscriber = async () => {
+    if (!subscriberToDelete) return;
+    setIsDeleting(true);
+    const targetId = subscriberToDelete.id;
     try {
-      await api.deleteSubscriber(id);
-      setSubscribers((prev) => prev.filter((s) => s.id !== id));
-      showToast('Subscriber deleted', 'success');
+      await api.deleteSubscriber(targetId);
+      setSubscribers((prev) => prev.filter((s) => s.id !== targetId));
+      showToast('Subscriber removed from ledger', 'success');
+      setSubscriberToDelete(null);
     } catch (err: any) {
       showToast(err.message || 'Failed to delete subscriber', 'error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
-  const handleBroadcast = async () => {
+  const handleBroadcast = () => {
     const activeCount = subscribers.filter((s) => (s.status || 'active') === 'active').length;
     if (activeCount === 0) {
       showToast('No active verified subscribers to broadcast to.', 'warning');
       return;
     }
+    setShowBroadcastConfirm(true);
+  };
 
-    if (
-      !window.confirm(
-        `Send a newsletter dispatch with your latest published story to ${activeCount} active subscriber(s)?`
-      )
-    ) {
-      return;
-    }
-
+  const handleConfirmBroadcast = async () => {
     setBroadcasting(true);
     try {
       const res = await api.broadcastLatestNewsletter();
@@ -113,6 +119,7 @@ export const AdminSubscribers: React.FC = () => {
         `Broadcast completed: Sent to ${res.recipientCount} active readers via Resend.`,
         'success'
       );
+      setShowBroadcastConfirm(false);
     } catch (err: any) {
       showToast(err.message || 'Broadcast failed', 'error');
     } finally {
@@ -427,6 +434,38 @@ export const AdminSubscribers: React.FC = () => {
           )}
         </div>
       )}
+
+      {/* Delete Subscriber Confirmation Dialog */}
+      <AdminConfirmDialog
+        isOpen={Boolean(subscriberToDelete)}
+        title="Remove Subscriber"
+        message={
+          subscriberToDelete
+            ? `Are you sure you want to remove ${subscriberToDelete.email} from the subscriber ledger? They will no longer receive weekly editorial dispatches.`
+            : ''
+        }
+        confirmLabel="Remove Subscriber"
+        cancelLabel="Cancel"
+        variant="danger"
+        isLoading={isDeleting}
+        onConfirm={handleConfirmDeleteSubscriber}
+        onClose={() => setSubscriberToDelete(null)}
+      />
+
+      {/* Broadcast Newsletter Confirmation Dialog */}
+      <AdminConfirmDialog
+        isOpen={showBroadcastConfirm}
+        title="Broadcast Latest Dispatch"
+        message={`Send a newsletter dispatch with your latest published story to ${
+          subscribers.filter((s) => (s.status || 'active') === 'active').length
+        } active subscriber(s)?`}
+        confirmLabel="Send Broadcast"
+        cancelLabel="Cancel"
+        variant="warning"
+        isLoading={broadcasting}
+        onConfirm={handleConfirmBroadcast}
+        onClose={() => setShowBroadcastConfirm(false)}
+      />
     </div>
   );
 };

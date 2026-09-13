@@ -1236,7 +1236,15 @@ class DatabaseService {
   }
 
   public deleteMedia(id: string): boolean {
-    const idx = this.data.media.findIndex((m) => m.id === id);
+    const cleanId = (id || '').trim();
+    const decoded = decodeURIComponent(cleanId).toLowerCase();
+    const idx = this.data.media.findIndex(
+      (m) =>
+        m.id === cleanId ||
+        m.id.toLowerCase() === decoded ||
+        (m.filename && m.filename.toLowerCase() === decoded) ||
+        (m.url && m.url.toLowerCase() === decoded)
+    );
     if (idx === -1) return false;
     this.data.media.splice(idx, 1);
     this.save();
@@ -1269,7 +1277,15 @@ class DatabaseService {
   }
 
   public deleteCategory(id: string): boolean {
-    const idx = this.data.categories.findIndex((c) => c.id === id);
+    const cleanId = (id || '').trim();
+    const decoded = decodeURIComponent(cleanId).toLowerCase();
+    const idx = this.data.categories.findIndex(
+      (c) =>
+        c.id === cleanId ||
+        c.id.toLowerCase() === decoded ||
+        (c.slug && c.slug.toLowerCase() === decoded) ||
+        (c.name && slugify(c.name).toLowerCase() === decoded)
+    );
     if (idx === -1) return false;
     this.data.categories.splice(idx, 1);
     this.save();
@@ -1380,7 +1396,16 @@ class DatabaseService {
   }
 
   public deleteAuthor(id: string): boolean {
-    const idx = this.data.authors.findIndex((a) => a.id === id);
+    const cleanId = (id || '').trim();
+    const decoded = decodeURIComponent(cleanId).toLowerCase();
+    const idx = this.data.authors.findIndex(
+      (a) =>
+        a.id === cleanId ||
+        a.id.toLowerCase() === decoded ||
+        (a.slug && a.slug.toLowerCase() === decoded) ||
+        (a.name && slugify(a.name).toLowerCase() === decoded) ||
+        (a.name && a.name.toLowerCase() === decoded)
+    );
     if (idx === -1) return false;
     this.data.authors.splice(idx, 1);
     this.save();
@@ -1404,7 +1429,14 @@ class DatabaseService {
   }
 
   public updateSeries(id: string, updates: Partial<EditorialSeries>): EditorialSeries | null {
-    const idx = this.data.series.findIndex((s) => s.id === id);
+    const cleanId = (id || '').trim();
+    const decoded = decodeURIComponent(cleanId).toLowerCase();
+    const idx = this.data.series.findIndex(
+      (s) =>
+        s.id === cleanId ||
+        s.id.toLowerCase() === decoded ||
+        (s.slug && s.slug.toLowerCase() === decoded)
+    );
     if (idx === -1) return null;
     this.data.series[idx] = { ...this.data.series[idx], ...updates };
     this.save();
@@ -1412,7 +1444,15 @@ class DatabaseService {
   }
 
   public deleteSeries(id: string): boolean {
-    const idx = this.data.series.findIndex((s) => s.id === id);
+    const cleanId = (id || '').trim();
+    const decoded = decodeURIComponent(cleanId).toLowerCase();
+    const idx = this.data.series.findIndex(
+      (s) =>
+        s.id === cleanId ||
+        s.id.toLowerCase() === decoded ||
+        (s.slug && s.slug.toLowerCase() === decoded) ||
+        (s.name && slugify(s.name).toLowerCase() === decoded)
+    );
     if (idx === -1) return false;
     this.data.series.splice(idx, 1);
     this.save();
@@ -1437,7 +1477,14 @@ class DatabaseService {
   }
 
   public updateIssue(id: string, updates: Partial<MagazineIssue>): MagazineIssue | null {
-    const idx = this.data.issues.findIndex((i) => i.id === id);
+    const cleanId = (id || '').trim();
+    const decoded = decodeURIComponent(cleanId).toLowerCase();
+    const idx = this.data.issues.findIndex(
+      (i) =>
+        i.id === cleanId ||
+        i.id.toLowerCase() === decoded ||
+        (i.slug && i.slug.toLowerCase() === decoded)
+    );
     if (idx === -1) return null;
     this.data.issues[idx] = { ...this.data.issues[idx], ...updates };
     this.save();
@@ -1445,7 +1492,15 @@ class DatabaseService {
   }
 
   public deleteIssue(id: string): boolean {
-    const idx = this.data.issues.findIndex((i) => i.id === id);
+    const cleanId = (id || '').trim();
+    const decoded = decodeURIComponent(cleanId).toLowerCase();
+    const idx = this.data.issues.findIndex(
+      (i) =>
+        i.id === cleanId ||
+        i.id.toLowerCase() === decoded ||
+        (i.slug && i.slug.toLowerCase() === decoded) ||
+        (i.title && slugify(i.title).toLowerCase() === decoded)
+    );
     if (idx === -1) return false;
     this.data.issues.splice(idx, 1);
     this.save();
@@ -1649,7 +1704,11 @@ class DatabaseService {
   }
 
   public deleteSubscriber(id: string): boolean {
-    const idx = this.data.subscribers.findIndex((s) => s.id === id);
+    const cleanId = (id || '').trim();
+    const decoded = decodeURIComponent(cleanId).toLowerCase();
+    const idx = this.data.subscribers.findIndex(
+      (s) => s.id === cleanId || s.id.toLowerCase() === decoded || s.email.toLowerCase() === decoded
+    );
     if (idx === -1) return false;
     this.data.subscribers.splice(idx, 1);
     this.save();
@@ -1830,7 +1889,16 @@ class DatabaseService {
   }
 
   public getUserById(id: string): User | null {
-    return this.data.users.find((u) => u.id === id) || null;
+    const clean = (id || '').trim();
+    const decoded = decodeURIComponent(clean).toLowerCase();
+    return (
+      this.data.users.find(
+        (u) =>
+          u.id === clean ||
+          u.id.toLowerCase() === decoded ||
+          u.email.toLowerCase() === decoded
+      ) || null
+    );
   }
 
   public getUsers(): User[] {
@@ -1945,7 +2013,11 @@ class DatabaseService {
 
   public revokeInvitation(invitationId: string, actor: User): boolean {
     if (!this.data.invitations) return false;
-    const inv = this.data.invitations.find((i) => i.id === invitationId);
+    const clean = (invitationId || '').trim();
+    const decoded = decodeURIComponent(clean).toLowerCase();
+    const inv = this.data.invitations.find(
+      (i) => i.id === clean || i.id.toLowerCase() === decoded || (i.token && i.token === clean)
+    );
     if (!inv) return false;
     inv.status = 'REVOKED';
 

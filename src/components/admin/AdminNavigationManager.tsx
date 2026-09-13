@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { useMagazine } from '../../context/MagazineContext';
+import { AdminConfirmDialog } from './AdminConfirmDialog';
 
 interface NavItem {
   id: string;
@@ -33,6 +34,8 @@ export const AdminNavigationManager: React.FC = () => {
   const [webItems, setWebItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [widgetToDelete, setWidgetToDelete] = useState<{ id: string; title: string } | null>(null);
+  const [isDeletingWidget, setIsDeletingWidget] = useState(false);
 
   // New nav item draft
   const [newLabel, setNewLabel] = useState('');
@@ -135,14 +138,22 @@ export const AdminNavigationManager: React.FC = () => {
     }
   };
 
-  const handleDeleteWidget = async (id: string) => {
-    if (!window.confirm('Move widget to trash?')) return;
+  const handleDeleteWidget = (id: string, title?: string) => {
+    setWidgetToDelete({ id, title: title || 'this widget' });
+  };
+
+  const handleConfirmDeleteWidget = async () => {
+    if (!widgetToDelete) return;
+    setIsDeletingWidget(true);
     try {
-      await api.deleteWebItem(id);
-      setWebItems(webItems.filter((w) => w.id !== id));
+      await api.deleteWebItem(widgetToDelete.id);
+      setWebItems(webItems.filter((w) => w.id !== widgetToDelete.id));
       setFeedback({ type: 'success', message: 'Widget moved to trash.' });
+      setWidgetToDelete(null);
     } catch (err: any) {
       setFeedback({ type: 'error', message: err.message || 'Failed to delete widget.' });
+    } finally {
+      setIsDeletingWidget(false);
     }
   };
 
@@ -327,9 +338,11 @@ export const AdminNavigationManager: React.FC = () => {
                     {widget.placement}
                   </span>
                   <button
-                    onClick={() => handleDeleteWidget(widget.id)}
-                    className="text-[#DC2626] hover:bg-[#FEF2F2] p-1 rounded-xs"
+                    type="button"
+                    onClick={() => handleDeleteWidget(widget.id, widget.title)}
+                    className="text-[#DC2626] hover:bg-[#FEF2F2] p-1 rounded-xs cursor-pointer"
                     title="Delete Widget"
+                    aria-label={`Delete widget ${widget.title}`}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -384,6 +397,22 @@ export const AdminNavigationManager: React.FC = () => {
           </button>
         </form>
       </div>
+
+      <AdminConfirmDialog
+        isOpen={Boolean(widgetToDelete)}
+        title="Move Widget to Trash"
+        message={
+          widgetToDelete
+            ? `Are you sure you want to move widget "${widgetToDelete.title}" to trash? You can restore it later from Trash Management.`
+            : ''
+        }
+        confirmLabel="Move to Trash"
+        cancelLabel="Cancel"
+        variant="danger"
+        isLoading={isDeletingWidget}
+        onConfirm={handleConfirmDeleteWidget}
+        onClose={() => setWidgetToDelete(null)}
+      />
     </div>
   );
 };

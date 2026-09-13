@@ -23,6 +23,7 @@ import { useMagazine } from '../../context/MagazineContext';
 import { useToast } from '../../context/ToastContext';
 import { api } from '../../services/api';
 import { Article, ArticleStatus } from '../../types';
+import { AdminConfirmDialog } from './AdminConfirmDialog';
 
 interface AdminArticlesListProps {
   onNewArticle?: () => void;
@@ -48,6 +49,8 @@ export const AdminArticlesList: React.FC<AdminArticlesListProps> = ({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
 
   useEffect(() => {
     refreshArticles();
@@ -125,14 +128,21 @@ export const AdminArticlesList: React.FC<AdminArticlesListProps> = ({
     }
   };
 
-  const handleDelete = async (id: string, title: string) => {
-    if (!window.confirm(`Are you sure you want to permanently delete "${title}"?`)) return;
+  const handleDelete = (id: string, title: string) => {
+    setDeleteTarget({ id, title });
+  };
+
+  const handleConfirmDeleteSingle = async () => {
+    if (!deleteTarget) return;
     setIsProcessing(true);
+    const targetTitle = deleteTarget.title;
+    const targetId = deleteTarget.id;
     try {
-      await api.deleteArticle(id);
+      await api.deleteArticle(targetId);
       await refreshArticles();
-      setSelectedIds((prev) => prev.filter((itemId) => itemId !== id));
-      toast.success(`"${title}" deleted successfully.`);
+      setSelectedIds((prev) => prev.filter((itemId) => itemId !== targetId));
+      toast.success(`"${targetTitle}" deleted successfully.`);
+      setDeleteTarget(null);
     } catch (err: any) {
       toast.error(err.message || 'Failed to delete article');
     } finally {
@@ -185,15 +195,21 @@ export const AdminArticlesList: React.FC<AdminArticlesListProps> = ({
     }
   };
 
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = () => {
     if (selectedIds.length === 0) return;
-    if (!window.confirm(`Permanently delete ${selectedIds.length} dispatches?`)) return;
+    setIsBulkDeleteOpen(true);
+  };
+
+  const handleConfirmDeleteBulk = async () => {
+    if (selectedIds.length === 0) return;
     setIsProcessing(true);
+    const count = selectedIds.length;
     try {
       await Promise.all(selectedIds.map((id) => api.deleteArticle(id)));
       await refreshArticles();
-      toast.success(`Deleted ${selectedIds.length} dispatches.`);
+      toast.success(`Deleted ${count} dispatches.`);
       setSelectedIds([]);
+      setIsBulkDeleteOpen(false);
     } catch (err: any) {
       toast.error(err.message || 'Bulk delete error');
     } finally {
@@ -676,6 +692,36 @@ export const AdminArticlesList: React.FC<AdminArticlesListProps> = ({
           )}
         </div>
       )}
+
+      {/* Single Article Delete Dialog */}
+      <AdminConfirmDialog
+        isOpen={Boolean(deleteTarget)}
+        title="Delete Editorial Dispatch"
+        message={
+          deleteTarget
+            ? `Are you sure you want to permanently delete "${deleteTarget.title}"? This action removes the article from the publication and cannot be undone.`
+            : ''
+        }
+        confirmLabel="Delete Article"
+        cancelLabel="Cancel"
+        variant="danger"
+        isLoading={isProcessing}
+        onConfirm={handleConfirmDeleteSingle}
+        onClose={() => setDeleteTarget(null)}
+      />
+
+      {/* Bulk Delete Dialog */}
+      <AdminConfirmDialog
+        isOpen={isBulkDeleteOpen}
+        title="Permanently Delete Dispatches"
+        message={`Are you sure you want to permanently delete ${selectedIds.length} selected dispatches? This action cannot be undone.`}
+        confirmLabel={`Delete ${selectedIds.length} Dispatches`}
+        cancelLabel="Cancel"
+        variant="danger"
+        isLoading={isProcessing}
+        onConfirm={handleConfirmDeleteBulk}
+        onClose={() => setIsBulkDeleteOpen(false)}
+      />
     </div>
   );
 };

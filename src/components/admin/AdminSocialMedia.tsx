@@ -28,6 +28,7 @@ import { useMagazine } from '../../context/MagazineContext';
 import { useToast } from '../../context/ToastContext';
 import { SocialChannel } from '../../types';
 import { DEFAULT_SOCIAL_CHANNELS } from '../../data/social';
+import { AdminConfirmDialog } from './AdminConfirmDialog';
 
 export const getIconPreview = (iconName?: string, id?: string) => {
   const normalized = (iconName || id || '').toLowerCase();
@@ -58,6 +59,8 @@ export const AdminSocialMedia: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [channelToDelete, setChannelToDelete] = useState<SocialChannel | null>(null);
+  const [isResetDefaultsConfirmOpen, setIsResetDefaultsConfirmOpen] = useState(false);
 
   // New channel draft state
   const [newChannel, setNewChannel] = useState<Partial<SocialChannel>>({
@@ -91,10 +94,15 @@ export const AdminSocialMedia: React.FC = () => {
     );
   };
 
-  const handleDeleteChannel = (id: string) => {
-    if (window.confirm('Are you sure you want to remove this channel?')) {
-      setChannels((prev) => prev.filter((c) => c.id !== id));
-    }
+  const handleDeleteChannel = (channel: SocialChannel) => {
+    setChannelToDelete(channel);
+  };
+
+  const handleConfirmDeleteChannel = () => {
+    if (!channelToDelete) return;
+    setChannels((prev) => prev.filter((c) => c.id !== channelToDelete.id));
+    setChannelToDelete(null);
+    toast.success('Channel removed from active draft. Click Save to persist.');
   };
 
   const handleMove = (index: number, direction: 'up' | 'down') => {
@@ -124,21 +132,20 @@ export const AdminSocialMedia: React.FC = () => {
     }
   };
 
-  const handleResetToDefaults = async () => {
-    if (
-      window.confirm(
-        'Reset all channels and feeds to original editorial defaults? Any custom links will be restored.'
-      )
-    ) {
-      setIsSaving(true);
-      try {
-        await resetSocialChannels();
-        setChannels(DEFAULT_SOCIAL_CHANNELS);
-        setSaveMessage('Social channels restored to editorial defaults.');
-        setTimeout(() => setSaveMessage(null), 4000);
-      } finally {
-        setIsSaving(false);
-      }
+  const handleResetToDefaults = () => {
+    setIsResetDefaultsConfirmOpen(true);
+  };
+
+  const handleConfirmResetToDefaults = async () => {
+    setIsSaving(true);
+    try {
+      await resetSocialChannels();
+      setChannels(DEFAULT_SOCIAL_CHANNELS);
+      setSaveMessage('Social channels restored to editorial defaults.');
+      setIsResetDefaultsConfirmOpen(false);
+      setTimeout(() => setSaveMessage(null), 4000);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -493,9 +500,10 @@ export const AdminSocialMedia: React.FC = () => {
                       {/* Delete */}
                       <button
                         type="button"
-                        onClick={() => handleDeleteChannel(channel.id)}
-                        className="p-1.5 text-[#8E8A81] hover:text-[#DC2626] hover:bg-[#FEF2F2] rounded-xs"
+                        onClick={() => handleDeleteChannel(channel)}
+                        className="p-1.5 text-[#8E8A81] hover:text-[#DC2626] hover:bg-[#FEF2F2] rounded-xs cursor-pointer"
                         title="Delete Channel"
+                        aria-label={`Delete ${channel.name} channel`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -669,6 +677,36 @@ export const AdminSocialMedia: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Delete Channel Confirmation */}
+      <AdminConfirmDialog
+        isOpen={Boolean(channelToDelete)}
+        title="Remove Social Channel"
+        message={
+          channelToDelete
+            ? `Are you sure you want to remove the "${channelToDelete.name}" (${channelToDelete.handle}) channel from the publication? Click "Save All Channels" afterwards to persist.`
+            : ''
+        }
+        confirmLabel="Remove Channel"
+        cancelLabel="Cancel"
+        variant="danger"
+        isLoading={false}
+        onConfirm={handleConfirmDeleteChannel}
+        onClose={() => setChannelToDelete(null)}
+      />
+
+      {/* Reset Channels Confirmation */}
+      <AdminConfirmDialog
+        isOpen={isResetDefaultsConfirmOpen}
+        title="Reset to Editorial Defaults"
+        message="Are you sure you want to reset all social channels and feeds to the original editorial defaults? Any custom links will be replaced with standard presets."
+        confirmLabel="Reset to Defaults"
+        cancelLabel="Cancel"
+        variant="warning"
+        isLoading={isSaving}
+        onConfirm={handleConfirmResetToDefaults}
+        onClose={() => setIsResetDefaultsConfirmOpen(false)}
+      />
     </div>
   );
 };

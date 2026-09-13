@@ -13,12 +13,17 @@ import {
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { useMagazine } from '../../context/MagazineContext';
+import { AdminConfirmDialog } from './AdminConfirmDialog';
 
 export const AdminTrash: React.FC = () => {
   const { refreshArticles } = useMagazine();
   const [trashItems, setTrashItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [itemToPurge, setItemToPurge] = useState<{ id: string; title: string } | null>(null);
+  const [isPurging, setIsPurging] = useState(false);
+  const [isEmptyTrashConfirmOpen, setIsEmptyTrashConfirmOpen] = useState(false);
+  const [isEmptying, setIsEmptying] = useState(false);
 
   const loadTrash = async () => {
     setIsLoading(true);
@@ -50,29 +55,40 @@ export const AdminTrash: React.FC = () => {
     }
   };
 
-  const handlePurge = async (id: string, title?: string) => {
-    if (!window.confirm(`Permanently destroy "${title || 'this item'}"? This action CANNOT be undone.`)) {
-      return;
-    }
+  const handlePurge = (id: string, title?: string) => {
+    setItemToPurge({ id, title: title || 'this item' });
+  };
+
+  const handleConfirmPurge = async () => {
+    if (!itemToPurge) return;
+    setIsPurging(true);
     try {
-      await api.purgeTrashItem(id);
+      await api.purgeTrashItem(itemToPurge.id);
       setFeedback({ type: 'success', message: 'Item permanently purged from database.' });
+      setItemToPurge(null);
       loadTrash();
     } catch (err: any) {
       setFeedback({ type: 'error', message: err.message || 'Purge failed.' });
+    } finally {
+      setIsPurging(false);
     }
   };
 
-  const handleEmptyTrash = async () => {
-    if (!window.confirm('Empty entire Trash? All deleted dispatches and web items will be permanently erased.')) {
-      return;
-    }
+  const handleEmptyTrash = () => {
+    setIsEmptyTrashConfirmOpen(true);
+  };
+
+  const handleConfirmEmptyTrash = async () => {
+    setIsEmptying(true);
     try {
       const res = await api.emptyTrash();
       setFeedback({ type: 'success', message: res.message || 'Trash emptied successfully.' });
+      setIsEmptyTrashConfirmOpen(false);
       loadTrash();
     } catch (err: any) {
       setFeedback({ type: 'error', message: err.message || 'Failed to empty trash.' });
+    } finally {
+      setIsEmptying(false);
     }
   };
 
@@ -207,6 +223,36 @@ export const AdminTrash: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Purge Single Item Dialog */}
+      <AdminConfirmDialog
+        isOpen={Boolean(itemToPurge)}
+        title="Permanently Purge Item"
+        message={
+          itemToPurge
+            ? `Permanently destroy "${itemToPurge.title}"? This item will be removed from the database and cannot be recovered.`
+            : ''
+        }
+        confirmLabel="Permanently Purge"
+        cancelLabel="Cancel"
+        variant="danger"
+        isLoading={isPurging}
+        onConfirm={handleConfirmPurge}
+        onClose={() => setItemToPurge(null)}
+      />
+
+      {/* Empty Entire Trash Dialog */}
+      <AdminConfirmDialog
+        isOpen={isEmptyTrashConfirmOpen}
+        title="Empty Entire Trash Vault"
+        message="Are you sure you want to empty the entire trash vault? All soft-deleted editorial dispatches, web widgets, and layouts will be permanently erased. This action cannot be undone."
+        confirmLabel="Empty Entire Trash"
+        cancelLabel="Cancel"
+        variant="danger"
+        isLoading={isEmptying}
+        onConfirm={handleConfirmEmptyTrash}
+        onClose={() => setIsEmptyTrashConfirmOpen(false)}
+      />
     </div>
   );
 };

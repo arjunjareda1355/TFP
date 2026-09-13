@@ -36,6 +36,7 @@ interface MagazineContextType {
   articles: Article[];
   categories: CategoryInfo[];
   authors: Author[];
+  deleteAuthor: (id: string) => Promise<void>;
   series: EditorialSeries[];
   issues: MagazineIssue[];
   homepageLayout: HomepageLayoutConfig | null;
@@ -346,22 +347,22 @@ export const MagazineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           return merged;
         });
       }
-      if (catRes.status === 'fulfilled' && catRes.value.length > 0) {
+      if (catRes.status === 'fulfilled' && Array.isArray(catRes.value)) {
         setCategories(catRes.value);
       }
-      if (auRes.status === 'fulfilled' && auRes.value.length > 0) {
+      if (auRes.status === 'fulfilled' && Array.isArray(auRes.value)) {
         setAuthors(auRes.value);
       }
-      if (serRes.status === 'fulfilled' && serRes.value.length > 0) {
+      if (serRes.status === 'fulfilled' && Array.isArray(serRes.value)) {
         setSeries(serRes.value);
       }
-      if (issRes.status === 'fulfilled' && issRes.value.length > 0) {
+      if (issRes.status === 'fulfilled' && Array.isArray(issRes.value)) {
         setIssues(issRes.value);
       }
       if (layoutRes.status === 'fulfilled') {
         setHomepageLayout(layoutRes.value);
       }
-      if (socialRes.status === 'fulfilled' && socialRes.value.length > 0) {
+      if (socialRes.status === 'fulfilled' && Array.isArray(socialRes.value)) {
         setSocialChannels(socialRes.value);
         try {
           localStorage.setItem('tfp_social_channels', JSON.stringify(socialRes.value));
@@ -374,6 +375,18 @@ export const MagazineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setIsLoading(false);
     }
   }, []);
+
+  const deleteAuthor = useCallback(async (id: string) => {
+    const cleanId = (id || '').trim();
+    // Optimistic local state removal
+    setAuthors((prev) => prev.filter((a) => a.id !== cleanId && a.slug !== cleanId));
+    try {
+      await api.deleteAuthor(cleanId);
+    } catch (err) {
+      console.error('Failed to delete author via API, falling back to local deletion:', err);
+    }
+    await refreshAll();
+  }, [refreshAll]);
 
   useEffect(() => {
     refreshAll();
@@ -729,6 +742,7 @@ export const MagazineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         articles,
         categories,
         authors,
+        deleteAuthor,
         series,
         issues,
         homepageLayout,
