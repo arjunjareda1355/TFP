@@ -78,17 +78,42 @@ function isOwnerUser(user: User | null): boolean {
 function getAuthUser(req: express.Request): User | null {
   let rawToken: string | null = null;
   const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    rawToken = authHeader.replace('Bearer ', '').trim();
-  } else if (req.headers['x-api-key']) {
+  if (authHeader) {
+    if (authHeader.startsWith('Bearer ')) {
+      rawToken = authHeader.substring(7).trim();
+    } else if (authHeader.startsWith('bearer ')) {
+      rawToken = authHeader.substring(7).trim();
+    } else if (!authHeader.includes(' ')) {
+      rawToken = authHeader.trim();
+    }
+  }
+  if (!rawToken && req.headers['x-api-key']) {
     rawToken = String(req.headers['x-api-key']).trim();
-  } else if (req.headers['x-auth-token']) {
+  }
+  if (!rawToken && req.headers['api-key']) {
+    rawToken = String(req.headers['api-key']).trim();
+  }
+  if (!rawToken && req.headers['x-auth-token']) {
     rawToken = String(req.headers['x-auth-token']).trim();
-  } else if (req.headers['x-user-email']) {
+  }
+  if (!rawToken && req.headers['x-user-email']) {
     rawToken = String(req.headers['x-user-email']).trim();
+  }
+  // Query param support (?apiKey=... or ?api_key=...)
+  if (!rawToken && req.query) {
+    if (req.query.apiKey) rawToken = String(req.query.apiKey).trim();
+    else if (req.query.api_key) rawToken = String(req.query.api_key).trim();
+  }
+  // Body support
+  if (!rawToken && req.body && typeof req.body === 'object') {
+    if (req.body.apiKey) rawToken = String(req.body.apiKey).trim();
+    else if (req.body.api_key) rawToken = String(req.body.api_key).trim();
   }
 
   if (!rawToken) return null;
+
+  // Clean accidental enclosing quotes
+  rawToken = rawToken.replace(/^["']|["']$/g, '');
 
   // 1. API Key Authentication (e.g. tfp_live_...)
   const apiKey = db.getApiKeyByKey(rawToken);
@@ -1464,6 +1489,39 @@ router.delete('/api-keys/:id', requireOwner(), (req, res) => {
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// Test / Verify API Key endpoint (Accessible via x-api-key, Authorization: Bearer, or query ?apiKey=...)
+router.all('/api-keys/test', (req, res) => {
+  const user = getAuthUser(req);
+  if (!user) {
+    return res.status(401).json({
+      valid: false,
+      status: 'UNAUTHORIZED',
+      error: 'Invalid, revoked, or missing API key.',
+      message: 'Please provide a valid active API key in headers (x-api-key or Authorization: Bearer) or as query parameter ?apiKey=...',
+      help: 'Generate or retrieve your key from the Admin Dashboard > API Keys & Integrations.',
+    });
+  }
+
+  return res.json({
+    valid: true,
+    status: 'ACTIVE',
+    authenticatedAs: user.name,
+    role: user.role,
+    email: user.email,
+    scopes: user.customPermissions || ['*'],
+    message: 'API key is valid, authorized, and active. Ready for programmatic publishing and dispatches.',
+    timestamp: new Date().toISOString(),
+    endpointsAvailable: [
+      { method: 'GET', path: '/api/articles', description: 'Fetch dispatches and stories' },
+      { method: 'POST', path: '/api/articles', description: 'Create a new dispatch draft or published article' },
+      { method: 'PUT', path: '/api/articles/:id', description: 'Update an existing dispatch' },
+      { method: 'POST', path: '/api/articles/:id/publish', description: 'Publish an article' },
+      { method: 'POST', path: '/api/articles/:id/unpublish', description: 'Unpublish an article' },
+      { method: 'DELETE', path: '/api/articles/:id', description: 'Delete an article' },
+    ],
+  });
 });
 
 // ====================== WEB ITEMS ======================

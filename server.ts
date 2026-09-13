@@ -22,7 +22,7 @@ async function startServer() {
     );
     res.setHeader(
       'Access-Control-Allow-Headers',
-      'Content-Type, Authorization, x-api-key, X-API-KEY, x-auth-token, Accept'
+      'Content-Type, Authorization, x-api-key, X-API-KEY, api-key, API-KEY, x-auth-token, x-user-email, Accept, Origin, X-Requested-With'
     );
     if (req.method === 'OPTIONS') {
       return res.sendStatus(204);

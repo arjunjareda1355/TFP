@@ -1250,4 +1250,41 @@ export const api = {
     });
     return res.ok;
   },
+
+  async testApiKey(keyString: string): Promise<{
+    valid: boolean;
+    status?: string;
+    authenticatedAs?: string;
+    role?: string;
+    email?: string;
+    scopes?: string[];
+    message?: string;
+    error?: string;
+    latencyMs: number;
+  }> {
+    const startTime = performance.now();
+    try {
+      const res = await fetch(`${API_BASE}/api-keys/test`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': keyString.trim(),
+        },
+      });
+      const latencyMs = Math.round(performance.now() - startTime);
+      const data = await res.json().catch(() => ({}));
+      return {
+        ...data,
+        valid: res.ok && Boolean(data.valid),
+        latencyMs,
+      };
+    } catch (err: any) {
+      const latencyMs = Math.round(performance.now() - startTime);
+      return {
+        valid: false,
+        error: err.message || 'Connection failed',
+        latencyMs,
+      };
+    }
+  },
 };

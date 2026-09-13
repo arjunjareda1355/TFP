@@ -228,13 +228,39 @@ export const MagazineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }
       : localAdminUser;
 
-  // Saved & Reading History state
+  // Saved & Reading History state (only articles explicitly saved by the user are stored)
   const [savedStories, setSavedStories] = useState<SavedStoryItem[]>(() => {
     try {
       const saved = localStorage.getItem('tfp_saved_stories');
-      return saved ? JSON.parse(saved) : [{ articleId: 'story-01', savedAt: new Date().toISOString() }];
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      if (!Array.isArray(parsed)) return [];
+
+      const normalized: SavedStoryItem[] = parsed
+        .map((item: any) => {
+          if (typeof item === 'string') {
+            return { articleId: item, savedAt: new Date().toISOString() };
+          }
+          if (item && typeof item === 'object' && item.articleId) {
+            return { articleId: String(item.articleId), savedAt: item.savedAt || new Date().toISOString() };
+          }
+          return null;
+        })
+        .filter((item): item is SavedStoryItem => Boolean(item));
+
+      // One-time cleanup for users who had the old automatic dummy placeholder 'story-01' injected
+      const hasCleanedLegacy = localStorage.getItem('tfp_saved_cleaned_v2');
+      if (!hasCleanedLegacy) {
+        localStorage.setItem('tfp_saved_cleaned_v2', 'true');
+        if (normalized.length === 1 && normalized[0].articleId === 'story-01') {
+          localStorage.setItem('tfp_saved_stories', JSON.stringify([]));
+          return [];
+        }
+      }
+
+      return normalized;
     } catch {
-      return [{ articleId: 'story-01', savedAt: new Date().toISOString() }];
+      return [];
     }
   });
 
