@@ -106,43 +106,48 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onSelectStory, onSelec
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-start justify-center pt-8 sm:pt-16 px-4 bg-black/60 backdrop-blur-sm transition-all"
+      className="fixed inset-0 z-50 flex flex-col sm:items-center sm:justify-start bg-black/60 backdrop-blur-sm sm:p-4 sm:pt-10 md:pt-14 transition-all"
       onClick={() => setIsSearchOpen(false)}
     >
       <div
-        className="w-full max-w-3xl bg-[#FFFFFF] border border-[#E8E5DF] shadow-2xl overflow-hidden flex flex-col max-h-[85vh] rounded-xs"
+        className="w-full h-full sm:h-auto sm:max-h-[86vh] sm:max-w-3xl bg-[#FFFFFF] border-0 sm:border border-[#E8E5DF] sm:shadow-2xl overflow-hidden flex flex-col rounded-none sm:rounded-md transition-all"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Top search header with Brand Logo */}
-        <div className="p-4 sm:p-5 border-b border-[#E8E5DF] bg-[#F9F8F6] flex items-center gap-3.5">
+        {/* Top search header with Brand Logo & aligned search bar */}
+        <div className="p-3.5 sm:p-5 border-b border-[#E8E5DF] bg-[#F9F8F6] flex items-center gap-2.5 sm:gap-3.5 shrink-0">
           <div className="flex items-center gap-2 shrink-0">
-            <BrandLogo variant="emblem" size={26} theme="light" />
-            <span className="font-serif-editorial text-base font-bold text-[#111110] tracking-tight">
+            <BrandLogo variant="emblem" size={24} theme="light" />
+            <span className="hidden sm:inline font-serif-editorial text-base font-bold text-[#111110] tracking-tight shrink-0">
               The Folded Page
             </span>
           </div>
-          <input
-            ref={inputRef}
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleSearchSubmit(query);
-            }}
-            placeholder="Search stories, ideas, dispatches, places..."
-            className="flex-1 text-base sm:text-lg bg-transparent border-none outline-none text-[#111110] placeholder:text-[#8E8A81] font-serif-editorial"
-          />
-          {query && (
-            <button
-              onClick={() => setQuery('')}
-              className="text-xs font-mono-editorial text-[#6E6A62] hover:text-[#111110] px-2 py-1 bg-[#FFFFFF] rounded border border-[#E8E5DF]"
-            >
-              Clear
-            </button>
-          )}
+
+          <div className="flex-1 min-w-0 flex items-center gap-2 bg-[#FFFFFF] border border-[#E8E5DF] focus-within:border-[#EA580C] px-3 py-1.5 sm:py-2 rounded-xs transition-colors shadow-2xs">
+            <Search className="w-4 h-4 text-[#8E8A81] shrink-0" />
+            <input
+              ref={inputRef}
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSearchSubmit(query);
+              }}
+              placeholder="Search stories, ideas, dispatches, places..."
+              className="w-full text-sm sm:text-base bg-transparent border-none outline-none text-[#111110] placeholder:text-[#8E8A81] font-serif-editorial"
+            />
+            {query && (
+              <button
+                onClick={() => setQuery('')}
+                className="text-[11px] font-mono-editorial text-[#6E6A62] hover:text-[#111110] px-1.5 py-0.5 bg-[#FAF9F6] rounded border border-[#E8E5DF] shrink-0"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+
           <button
             onClick={() => setIsSearchOpen(false)}
-            className="p-1.5 text-[#6E6A62] hover:text-[#111110] hover:bg-[#E8E5DF] transition-colors rounded-xs"
+            className="p-2 text-[#6E6A62] hover:text-[#111110] hover:bg-[#E8E5DF] transition-colors rounded-xs shrink-0"
             aria-label="Close search"
           >
             <X className="w-5 h-5" />
@@ -150,7 +155,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onSelectStory, onSelec
         </div>
 
         {/* Category filter pills */}
-        <div className="px-4 sm:px-6 py-2.5 bg-[#FFFFFF] border-b border-[#E8E5DF] flex items-center gap-1.5 overflow-x-auto no-scrollbar text-xs font-semibold uppercase tracking-wider">
+        <div className="px-3.5 sm:px-6 py-2 bg-[#FFFFFF] border-b border-[#E8E5DF] flex items-center gap-1.5 overflow-x-auto no-scrollbar whitespace-nowrap text-xs font-semibold uppercase tracking-wider shrink-0">
           <button
             onClick={() => setActiveCategory('all')}
             className={`px-3 py-1 shrink-0 rounded-xs transition-colors ${
@@ -177,7 +182,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onSelectStory, onSelec
         </div>
 
         {/* Search Content Body */}
-        <div className="p-4 sm:p-6 overflow-y-auto flex-1 divide-y divide-[#E8E5DF] bg-[#FFFFFF]">
+        <div className="p-3.5 sm:p-6 overflow-y-auto flex-1 divide-y divide-[#E8E5DF] bg-[#FFFFFF] overscroll-contain">
           {/* If no query, show recent searches and trending tags */}
           {!query && (
             <div className="pb-6 space-y-5">
@@ -258,7 +263,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onSelectStory, onSelec
                 <div
                   key={article.id}
                   onClick={() => handleSelectArticle(article.slug)}
-                  className="group flex gap-4 p-3 -mx-3 hover:bg-[#FAF9F6] border border-transparent hover:border-[#E8E5DF] cursor-pointer transition-all rounded-xs"
+                  className="group flex gap-3.5 sm:gap-4 p-3 bg-[#FFFFFF] hover:bg-[#FAF9F6] border border-[#E8E5DF] hover:border-[#EA580C]/40 cursor-pointer transition-all rounded-xs shadow-2xs"
                 >
                   <img
                     src={article.heroImage}
@@ -267,14 +272,14 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onSelectStory, onSelec
                   />
                   <div className="flex-1 min-w-0 flex flex-col justify-between">
                     <div>
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-[#EA580C]">
                           {article.category}
                         </span>
                         <span className="text-xs text-[#8E8A81]">•</span>
                         <span className="text-xs text-[#8E8A81]">{article.readTime}</span>
                       </div>
-                      <h4 className="font-serif-editorial text-base sm:text-lg font-medium text-[#111110] group-hover:text-[#EA580C] transition-colors leading-snug line-clamp-1">
+                      <h4 className="font-serif-editorial text-sm sm:text-base md:text-lg font-medium text-[#111110] group-hover:text-[#EA580C] transition-colors leading-snug line-clamp-2 sm:line-clamp-1">
                         {article.title}
                       </h4>
                       <p className="text-xs text-[#55524B] line-clamp-1 mt-0.5">
@@ -282,8 +287,8 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onSelectStory, onSelec
                       </p>
                     </div>
                     <div className="text-[11px] text-[#8E8A81] flex items-center justify-between pt-1">
-                      <span>By {article.author.name}</span>
-                      <span className="inline-flex items-center gap-0.5 text-[#111110] font-medium group-hover:text-[#EA580C]">
+                      <span className="truncate mr-2">By {article.author.name}</span>
+                      <span className="inline-flex items-center gap-0.5 text-[#111110] font-medium group-hover:text-[#EA580C] shrink-0">
                         Open <ArrowUpRight className="w-3 h-3 text-[#EA580C]" />
                       </span>
                     </div>
@@ -295,12 +300,13 @@ export const SearchModal: React.FC<SearchModalProps> = ({ onSelectStory, onSelec
         </div>
 
         {/* Modal Footer helper */}
-        <div className="px-4 sm:px-6 py-3 bg-[#F9F8F6] border-t border-[#E8E5DF] flex items-center justify-between text-xs text-[#8E8A81] font-mono-editorial">
+        <div className="px-3.5 sm:px-6 py-2.5 bg-[#F9F8F6] border-t border-[#E8E5DF] flex items-center justify-between text-xs text-[#8E8A81] font-mono-editorial shrink-0">
           <div className="flex items-center gap-4">
             <span className="hidden sm:inline">ESC to close</span>
             <span className="hidden sm:inline">ENTER to select</span>
+            <span className="sm:hidden text-[#111110] font-semibold">{filteredArticles.length} found</span>
           </div>
-          <span className="text-[#EA580C]">THE FOLDED PAGE ARCHIVE</span>
+          <span className="text-[#EA580C] text-[11px] font-bold tracking-wider">THE FOLDED PAGE ARCHIVE</span>
         </div>
       </div>
     </div>

@@ -9,6 +9,7 @@ export interface AudioEngineCallbacks {
 
 class MagazineAudioEngine {
   private currentUtterance: SpeechSynthesisUtterance | null = null;
+  private activeUtterances: Set<SpeechSynthesisUtterance> = new Set();
   private chunks: string[] = [];
   private currentChunkIndex = 0;
   private isPlaying = false;
@@ -16,12 +17,12 @@ class MagazineAudioEngine {
   private speed = 1;
   private callbacks: AudioEngineCallbacks | null = null;
   private audioContext: AudioContext | null = null;
-  private synthOscillator: OscillatorNode | null = null;
   private voices: SpeechSynthesisVoice[] = [];
   
-  // Progress tracking
+  // Progress & watchdog tracking
   private progressTimer: any = null;
   private keepAliveTimer: any = null;
+  private chunkWatchdogTimer: any = null;
   private elapsedTimeSec = 0;
   private totalDurationSec = 300; // default 5 mins
 
@@ -76,36 +77,124 @@ class MagazineAudioEngine {
   }
 
   /**
-   * Cleans text and splits into pleasant, short speech chunks to avoid browser timeout bugs.
+   * Unlocks and keeps the browser audio hardware pipeline active to prevent
+   * mobile/desktop OS audio subsystems from suspending or muting speech synthesis.
+   */
+  private ensureAudioPipeline() {
+    if (typeof window === 'undefined') return;
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioCtx) {
+        if (!this.audioContext) {
+          this.audioContext = new AudioCtx();
+        }
+        if (this.audioContext.state === 'suspended') {
+          this.audioContext.resume().catch(() => {});
+        }
+      }
+    } catch (e) {
+      // Non-critical audio pipeline catch
+    }
+  }
+
+  /**
+   * Splits text into natural sentence and clause chunks strictly under maxLen (~100 chars).
+   * Short chunks prevent Chrome's hardcoded ~15-second speech synthesis cutoff bug
+   * while maintaining natural prosody and pleasant phrasing.
+   */
+  private splitIntoComfortableChunks(rawText: string, maxLen = 105): string[] {
+    const clean = rawText
+      .replace(/[*_#`~[\]()]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if (!clean) return [];
+    if (clean.length <= maxLen) return [clean];
+
+    // 1. Split on sentence terminators: period, exclamation, question mark
+    const sentences = clean.match(/[^.!?]+[.!?]+(\s|$)|[^.!?]+$/g) || [clean];
+    const results: string[] = [];
+
+    for (const rawSentence of sentences) {
+      const s = rawSentence.trim();
+      if (!s) continue;
+      if (s.length <= maxLen) {
+        results.push(s);
+        continue;
+      }
+
+      // 2. Sentence is longer than maxLen: split on natural clause punctuation (commas, semicolons, colons, em-dashes)
+      const clauses = s.split(/([,;:—–\-"'\(\)]+)/);
+      let currentClause = '';
+
+      for (let i = 0; i < clauses.length; i++) {
+        const part = clauses[i];
+        if (!part) continue;
+
+        if ((currentClause + part).length <= maxLen) {
+          currentClause += part;
+        } else {
+          if (currentClause.trim()) {
+            results.push(currentClause.trim());
+          }
+          if (part.length > maxLen) {
+            // Unbroken phrase: split by words
+            const words = part.split(/\s+/);
+            let subRun = '';
+            for (const word of words) {
+              if ((subRun + ' ' + word).trim().length <= maxLen) {
+                subRun = (subRun + ' ' + word).trim();
+              } else {
+                if (subRun.trim()) results.push(subRun.trim());
+                subRun = word;
+              }
+            }
+            if (subRun.trim()) results.push(subRun.trim());
+            currentClause = '';
+          } else {
+            currentClause = part;
+          }
+        }
+      }
+      if (currentClause.trim()) {
+        results.push(currentClause.trim());
+      }
+    }
+
+    return results.filter((c) => c.length > 0);
+  }
+
+  /**
+   * Cleans text and splits into pleasant, short speech chunks to prevent audio muting.
    */
   private prepareChunks(article: Article): string[] {
-    const rawChunks: string[] = [];
+    const rawParagraphs: string[] = [];
 
     // Header intro chunk
     const categoryName = article.category || 'Dispatches';
     const authorName = typeof article.author === 'string' ? article.author : (article.author?.name || 'Staff Writer');
     const intro = `The Folded Page presents: ${article.title}. Dispatched in ${categoryName} by ${authorName}.`;
-    rawChunks.push(intro);
+    rawParagraphs.push(intro);
 
     if (article.subtitle) {
-      rawChunks.push(article.subtitle);
+      rawParagraphs.push(article.subtitle);
     } else if (article.deck) {
-      rawChunks.push(article.deck);
+      rawParagraphs.push(article.deck);
     }
 
     // Article body content
     if (article.blocks && article.blocks.length > 0) {
       for (const block of article.blocks) {
         if (block.type === 'paragraph' && block.text) {
-          rawChunks.push(block.text);
+          rawParagraphs.push(block.text);
         } else if (block.type === 'subheading' && block.text) {
-          rawChunks.push(`Section: ${block.text}`);
+          rawParagraphs.push(`Section: ${block.text}`);
         } else if (block.type === 'pullquote' && block.text) {
-          rawChunks.push(`Quote: "${block.text}"`);
+          rawParagraphs.push(`Quote: "${block.text}"`);
         } else if (block.type === 'list' && block.items && block.items.length > 0) {
-          rawChunks.push(block.items.join('. '));
+          rawParagraphs.push(block.items.join('. '));
         } else if (block.text) {
-          rawChunks.push(block.text);
+          rawParagraphs.push(block.text);
         }
       }
     } else if ((article as any).content) {
@@ -114,28 +203,14 @@ class MagazineAudioEngine {
         .split(/\n\s*\n/)
         .map((p) => p.trim())
         .filter((p) => p.length > 0);
-      rawChunks.push(...paragraphs);
+      rawParagraphs.push(...paragraphs);
     }
 
-    // Further split chunks longer than 180 characters to prevent browser speech cutoff
+    // Split all paragraphs into safe, comfortable speech chunks
     const safeChunks: string[] = [];
-    for (const chunk of rawChunks) {
-      const clean = chunk
-        .replace(/[*_#`~[\]()]/g, '')
-        .replace(/\s+/g, ' ')
-        .trim();
-
-      if (!clean) continue;
-
-      if (clean.length <= 180) {
-        safeChunks.push(clean);
-      } else {
-        const sentences = clean.match(/[^.!?]+[.!?]+(\s|$)|[^.!?]+$/g) || [clean];
-        for (const sentence of sentences) {
-          const s = sentence.trim();
-          if (s.length > 0) safeChunks.push(s);
-        }
-      }
+    for (const paragraph of rawParagraphs) {
+      const chunkList = this.splitIntoComfortableChunks(paragraph, 105);
+      safeChunks.push(...chunkList);
     }
 
     return safeChunks.length > 0 ? safeChunks : [article.title, article.subtitle || 'Article narration in progress.'];
@@ -156,6 +231,8 @@ class MagazineAudioEngine {
     const minutes = article.audioMinutes || Math.max(2, Math.ceil(this.chunks.join(' ').split(/\s+/).length / 140));
     this.totalDurationSec = Math.max(30, minutes * 60);
 
+    this.ensureAudioPipeline();
+
     if (this.callbacks) {
       this.callbacks.onStateChange(true);
       this.callbacks.onProgress(0);
@@ -174,20 +251,19 @@ class MagazineAudioEngine {
 
       this.elapsedTimeSec += (intervalMs / 1000) * this.speed;
 
-      if (this.elapsedTimeSec >= this.totalDurationSec) {
-        this.elapsedTimeSec = this.totalDurationSec;
-        if (this.callbacks) {
-          this.callbacks.onProgress(100);
-        }
-        if (this.currentChunkIndex >= this.chunks.length) {
-          this.handlePlaybackComplete();
-        }
+      // Calculate progress from elapsed time and chunk completion
+      const timePercent = (this.elapsedTimeSec / this.totalDurationSec) * 100;
+      const chunkPercent = this.chunks.length > 0 ? (this.currentChunkIndex / this.chunks.length) * 100 : 0;
+      // Weighted blend for smooth tracking
+      const blendedPercent = Math.min(100, Math.max(0, Math.max(timePercent * 0.4 + chunkPercent * 0.6, chunkPercent)));
+
+      if (this.elapsedTimeSec >= this.totalDurationSec && this.currentChunkIndex >= this.chunks.length) {
+        this.handlePlaybackComplete();
         return;
       }
 
-      const percent = Math.min(100, Math.max(0, (this.elapsedTimeSec / this.totalDurationSec) * 100));
       if (this.callbacks) {
-        this.callbacks.onProgress(Number(percent.toFixed(1)));
+        this.callbacks.onProgress(Number(blendedPercent.toFixed(1)));
       }
     }, intervalMs);
   }
@@ -199,21 +275,27 @@ class MagazineAudioEngine {
     }
   }
 
-  // Workaround for Chrome bug where SpeechSynthesis pauses silently after ~15s
+  /**
+   * Safe Keep-Alive watchdog:
+   * Rather than calling pause() and resume() (which breaks audio renderer buffers in Chrome),
+   * this only detects if the browser's speech synthesis was unexpectedly paused or muted
+   * and gently resumes it.
+   */
   private startKeepAlive() {
     this.stopKeepAlive();
     this.keepAliveTimer = setInterval(() => {
-      if (
-        this.isPlaying &&
-        !this.isPaused &&
-        typeof window !== 'undefined' &&
-        'speechSynthesis' in window &&
-        window.speechSynthesis.speaking
-      ) {
-        window.speechSynthesis.pause();
-        window.speechSynthesis.resume();
+      if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+      if (this.isPlaying && !this.isPaused) {
+        // If synthesis engine entered paused state on its own, resume it
+        if (window.speechSynthesis.paused) {
+          try {
+            window.speechSynthesis.resume();
+          } catch (e) {
+            console.warn('Keep-alive resume notice:', e);
+          }
+        }
       }
-    }, 10000);
+    }, 4000);
   }
 
   private stopKeepAlive() {
@@ -221,9 +303,19 @@ class MagazineAudioEngine {
       clearInterval(this.keepAliveTimer);
       this.keepAliveTimer = null;
     }
+    this.stopChunkWatchdog();
+  }
+
+  private stopChunkWatchdog() {
+    if (this.chunkWatchdogTimer) {
+      clearTimeout(this.chunkWatchdogTimer);
+      this.chunkWatchdogTimer = null;
+    }
   }
 
   private speakCurrentChunk() {
+    this.stopChunkWatchdog();
+
     if (!this.isPlaying || this.isPaused) return;
 
     if (this.currentChunkIndex >= this.chunks.length) {
@@ -238,14 +330,21 @@ class MagazineAudioEngine {
     }
 
     try {
+      this.ensureAudioPipeline();
+
       if (window.speechSynthesis.paused) {
         window.speechSynthesis.resume();
       }
+
+      // Cancel previous speech without clearing queue violently
       window.speechSynthesis.cancel();
 
       const utterance = new SpeechSynthesisUtterance(text);
       this.currentUtterance = utterance;
-      (window as any).__tfp_active_utterance = utterance;
+
+      // CRITICAL: Retain strong reference on Set to permanently prevent V8 garbage collection
+      this.activeUtterances.add(utterance);
+      (window as any).__tfp_speech_utterances = this.activeUtterances;
 
       utterance.rate = Math.max(0.75, Math.min(2.0, this.speed));
       utterance.pitch = 1.0;
@@ -255,7 +354,29 @@ class MagazineAudioEngine {
         utterance.voice = voice;
       }
 
+      const chunkIndexWhenStarted = this.currentChunkIndex;
+
+      // Intelligent Chunk Watchdog:
+      // If a chunk gets silent or fails to fire onend past its expected duration + safety buffer,
+      // the watchdog auto-recovers and seamlessly advances to the next chunk!
+      const estimatedSec = Math.max(3, Math.ceil((text.length / 10) / this.speed)) + 3;
+      this.chunkWatchdogTimer = setTimeout(() => {
+        if (this.isPlaying && !this.isPaused && this.currentChunkIndex === chunkIndexWhenStarted) {
+          if (window.speechSynthesis.paused) {
+            window.speechSynthesis.resume();
+          } else {
+            // Auto-advance to next chunk to recover from silent browser stall
+            this.activeUtterances.delete(utterance);
+            this.currentChunkIndex++;
+            this.speakCurrentChunk();
+          }
+        }
+      }, estimatedSec * 1000);
+
       utterance.onend = () => {
+        this.stopChunkWatchdog();
+        this.activeUtterances.delete(utterance);
+
         if (!this.isPlaying || this.isPaused) return;
         this.currentChunkIndex++;
         if (this.currentChunkIndex < this.chunks.length) {
@@ -266,10 +387,15 @@ class MagazineAudioEngine {
       };
 
       utterance.onerror = (e) => {
+        this.stopChunkWatchdog();
+        this.activeUtterances.delete(utterance);
+
         if (e.error === 'canceled' || e.error === 'interrupted') {
           return;
         }
         console.warn('Speech synthesis chunk notice:', e);
+        if (!this.isPlaying || this.isPaused) return;
+
         this.currentChunkIndex++;
         if (this.currentChunkIndex < this.chunks.length) {
           this.speakCurrentChunk();
@@ -289,6 +415,8 @@ class MagazineAudioEngine {
     this.isPlaying = false;
     this.stopProgressTimer();
     this.stopKeepAlive();
+    this.stopChunkWatchdog();
+
     if (this.callbacks) {
       this.callbacks.onStateChange(false);
     }
@@ -304,11 +432,14 @@ class MagazineAudioEngine {
   public resume() {
     this.isPaused = false;
     this.isPlaying = true;
+    this.ensureAudioPipeline();
+
     if (this.callbacks) {
       this.callbacks.onStateChange(true);
     }
     this.startProgressTimer();
     this.startKeepAlive();
+
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       try {
         if (window.speechSynthesis.paused) {
@@ -367,10 +498,14 @@ class MagazineAudioEngine {
     this.currentChunkIndex = 0;
     this.elapsedTimeSec = 0;
     this.currentUtterance = null;
-    (window as any).__tfp_active_utterance = null;
+    this.activeUtterances.clear();
+    if (typeof window !== 'undefined') {
+      (window as any).__tfp_speech_utterances = null;
+    }
 
     this.stopProgressTimer();
     this.stopKeepAlive();
+    this.stopChunkWatchdog();
 
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       try {
@@ -391,9 +526,11 @@ class MagazineAudioEngine {
     this.isPaused = false;
     this.currentChunkIndex = 0;
     this.elapsedTimeSec = this.totalDurationSec;
+    this.activeUtterances.clear();
 
     this.stopProgressTimer();
     this.stopKeepAlive();
+    this.stopChunkWatchdog();
 
     if (this.callbacks) {
       this.callbacks.onProgress(100);
@@ -404,3 +541,4 @@ class MagazineAudioEngine {
 }
 
 export const magazineAudio = new MagazineAudioEngine();
+
