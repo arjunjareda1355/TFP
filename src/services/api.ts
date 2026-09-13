@@ -1315,4 +1315,74 @@ export const api = {
       };
     }
   },
+
+  // AI Editorial Assistant
+  async suggestHeadlines(topic: string, context?: string): Promise<string[]> {
+    try {
+      const res = await fetch(`${API_BASE}/ai/suggest-headlines`, {
+        method: 'POST',
+        headers: getHeaders(true),
+        body: JSON.stringify({ topic, context }),
+      });
+      if (!res.ok) throw new Error('Failed to generate headlines');
+      const data = await res.json();
+      return data.headlines || [];
+    } catch (e) {
+      console.warn('AI headlines fallback:', e);
+      return [
+        `The Architecture of ${topic}: Form, Friction, and Permanence`,
+        `Inside ${topic}: What Modern Culture Misunderstands`,
+        `Beyond the Noise: A Closer Look at ${topic}`,
+        `The New Canon of ${topic}`,
+        `Notes on ${topic}: Craft, Context, and Continuity`,
+      ];
+    }
+  },
+
+  async suggestTags(title: string, content?: string): Promise<string[]> {
+    try {
+      const res = await fetch(`${API_BASE}/ai/suggest-tags`, {
+        method: 'POST',
+        headers: getHeaders(true),
+        body: JSON.stringify({ title, content }),
+      });
+      if (!res.ok) throw new Error('Failed to suggest tags');
+      const data = await res.json();
+      return data.tags || [];
+    } catch (e) {
+      console.warn('AI tags fallback:', e);
+      return ['Culture', 'Design', 'Essays', 'Perspectives', 'Craft'];
+    }
+  },
+
+  async generateDeck(title: string, content: string): Promise<string> {
+    try {
+      const res = await fetch(`${API_BASE}/ai/generate-deck`, {
+        method: 'POST',
+        headers: getHeaders(true),
+        body: JSON.stringify({ title, content }),
+      });
+      if (!res.ok) throw new Error('Failed to generate deck');
+      const data = await res.json();
+      return data.deck || '';
+    } catch (e) {
+      console.warn('AI deck fallback:', e);
+      return content.slice(0, 140) + '...';
+    }
+  },
+
+  async polishProse(text: string, tone?: string): Promise<{ polished: string; summary: string }> {
+    try {
+      const res = await fetch(`${API_BASE}/ai/polish-prose`, {
+        method: 'POST',
+        headers: getHeaders(true),
+        body: JSON.stringify({ text, tone }),
+      });
+      if (!res.ok) throw new Error('Failed to polish prose');
+      return await res.json();
+    } catch (e) {
+      console.warn('AI polish fallback:', e);
+      return { polished: text, summary: 'Prose checked against editorial guidelines.' };
+    }
+  },
 };

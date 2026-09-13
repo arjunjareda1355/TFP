@@ -6,6 +6,7 @@ import crypto from 'crypto';
 import { db } from './db';
 import { User } from '../src/types';
 import { sendVerificationEmail, sendWelcomeEmail, sendStoryNewsletter } from './email';
+import { geminiService } from './gemini';
 
 const router = express.Router();
 
@@ -961,7 +962,7 @@ function getBaseUrl(req: express.Request): string {
 }
 
 // ====================== NEWSLETTER ENDPOINTS ======================
-router.get('/newsletter', (req, res) => {
+router.get(['/newsletter', '/newsletter/subscribers'], (req, res) => {
   const status = req.query.status as string;
   res.json(db.getSubscribers(status));
 });
@@ -1466,7 +1467,7 @@ router.post('/trash/empty', requireOwner(), (req, res) => {
 });
 
 // ====================== API KEYS & INTEGRATIONS ======================
-router.get('/api-keys', requireOwner(), (req, res) => {
+router.get(['/api-keys', '/apikeys'], requireOwner(), (req, res) => {
   try {
     const keys = db.getApiKeys();
     res.json(keys);
@@ -1475,7 +1476,7 @@ router.get('/api-keys', requireOwner(), (req, res) => {
   }
 });
 
-router.post('/api-keys', requireOwner(), (req, res) => {
+router.post(['/api-keys', '/apikeys'], requireOwner(), (req, res) => {
   try {
     const actor = (req as any).user as User;
     const { name, role, scopes, description } = req.body;
@@ -1497,7 +1498,7 @@ router.post('/api-keys', requireOwner(), (req, res) => {
   }
 });
 
-router.post('/api-keys/:id/revoke', requireOwner(), (req, res) => {
+router.post(['/api-keys/:id/revoke', '/apikeys/:id/revoke'], requireOwner(), (req, res) => {
   try {
     const actor = (req as any).user as User;
     const success = db.revokeApiKey(req.params.id, actor);
@@ -1508,7 +1509,7 @@ router.post('/api-keys/:id/revoke', requireOwner(), (req, res) => {
   }
 });
 
-router.delete('/api-keys/:id', requireOwner(), (req, res) => {
+router.delete(['/api-keys/:id', '/apikeys/:id'], requireOwner(), (req, res) => {
   try {
     const actor = (req as any).user as User;
     const success = db.deleteApiKey(req.params.id, actor);
@@ -1520,7 +1521,7 @@ router.delete('/api-keys/:id', requireOwner(), (req, res) => {
 });
 
 // Test / Verify API Key endpoint (Accessible via x-api-key, Authorization: Bearer, or query ?apiKey=...)
-router.all('/api-keys/test', (req, res) => {
+router.all(['/api-keys/test', '/apikeys/test'], (req, res) => {
   const user = getAuthUser(req);
   if (!user) {
     return res.status(401).json({
@@ -1698,6 +1699,47 @@ router.get('/sitemap.xml', (req, res) => {
 
   res.header('Content-Type', 'application/xml');
   res.send(xml);
+});
+
+// ====================== AI EDITORIAL ASSISTANT ======================
+router.post('/ai/suggest-headlines', requireOwner(), async (req, res) => {
+  try {
+    const { topic, context } = req.body;
+    const headlines = await geminiService.suggestHeadlines(topic || 'Editorial Perspectives', context);
+    res.json({ headlines });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/ai/suggest-tags', requireOwner(), async (req, res) => {
+  try {
+    const { title, content } = req.body;
+    const tags = await geminiService.suggestTags(title || '', content);
+    res.json({ tags });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/ai/generate-deck', requireOwner(), async (req, res) => {
+  try {
+    const { title, content } = req.body;
+    const deck = await geminiService.generateDeck(title || '', content || '');
+    res.json({ deck });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/ai/polish-prose', requireOwner(), async (req, res) => {
+  try {
+    const { text, tone } = req.body;
+    const result = await geminiService.polishProse(text || '', tone);
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 export default router;

@@ -11777,6 +11777,146 @@
       ],
       "metaTitle": "Arjun bharti mina",
       "metaDescription": ""
+    },
+    {
+      "id": "story-1789262520152",
+      "slug": "story-1789262520152",
+      "title": "Untitled Dispatch",
+      "subtitle": "",
+      "deck": "",
+      "category": "Culture",
+      "subcategory": "",
+      "tags": [
+        "Culture",
+        "Discovery"
+      ],
+      "author": {
+        "id": "editorial-team",
+        "name": "The Folded Page Editorial Board",
+        "role": "Editorial Staff",
+        "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240&auto=format&fit=crop&q=80",
+        "bio": "A collective of writers, visual researchers, and cultural anthropologists seeking out what is truly worth knowing.",
+        "location": "London & Kyoto",
+        "twitter": "@thefoldedpage"
+      },
+      "authorId": "editorial-team",
+      "status": "DRAFT",
+      "publishedDate": "September 13, 2026",
+      "updatedDate": "September 13, 2026",
+      "readTime": "1 min read",
+      "readTimeMinutes": 1,
+      "audioMinutes": 1,
+      "heroImage": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1400&q=80",
+      "heroImageType": "EXTERNAL_URL",
+      "heroImageAlt": "Untitled Dispatch",
+      "heroImageCaption": "",
+      "heroImageCredit": "",
+      "heroImageSourceUrl": "",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Begin typing the opening lines of your dispatch here...",
+          "dropCap": true
+        },
+        {
+          "type": "heading2",
+          "text": "The Architecture of the Idea"
+        },
+        {
+          "type": "paragraph",
+          "text": "Describe the core discovery, cultural phenomenon, or inquiry in detail."
+        }
+      ],
+      "isCoverStory": false,
+      "isTrending": false,
+      "isPopular": false,
+      "isUnique": false,
+      "isSpecial": false,
+      "isEditorsPick": false,
+      "isFeatured": false,
+      "popularityRank": 10,
+      "featuredQuote": "",
+      "relatedSlugs": [],
+      "seoTitle": "Untitled Dispatch",
+      "seoDescription": "",
+      "canonicalUrl": "https://thefoldedpage.press/story/story-1789262520152",
+      "socialTitle": "Untitled Dispatch",
+      "socialDescription": "",
+      "socialImage": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1400&q=80",
+      "views": 0,
+      "saves": 0,
+      "shares": 0,
+      "createdAt": "2026-09-13T01:23:00.880Z",
+      "revisions": [
+        {
+          "id": "rev-story-1789262520152-1",
+          "savedAt": "2026-09-13T01:23:00.880Z",
+          "authorName": "Arjun Jareda",
+          "title": "Untitled Dispatch",
+          "deck": "",
+          "blocksCount": 3,
+          "wordCount": 24,
+          "data": {
+            "id": "story-1789262520152",
+            "title": "Untitled Dispatch",
+            "subtitle": "",
+            "deck": "",
+            "slug": "story-1789262520152",
+            "category": "Culture",
+            "subcategory": "",
+            "tags": [
+              "Culture",
+              "Discovery"
+            ],
+            "author": {
+              "id": "editorial-team",
+              "name": "The Folded Page Editorial Board",
+              "role": "Editorial Staff",
+              "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240&auto=format&fit=crop&q=80",
+              "bio": "A collective of writers, visual researchers, and cultural anthropologists seeking out what is truly worth knowing.",
+              "location": "London & Kyoto",
+              "twitter": "@thefoldedpage"
+            },
+            "authorId": "editorial-team",
+            "status": "DRAFT",
+            "heroImage": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1400&q=80",
+            "heroImageAlt": "Untitled Dispatch",
+            "heroImageCaption": "",
+            "heroImageCredit": "",
+            "heroImageSourceUrl": "",
+            "isCoverStory": false,
+            "isTrending": false,
+            "isEditorsPick": false,
+            "isUnique": false,
+            "isSpecial": false,
+            "popularityRank": 10,
+            "readTime": "1 min read",
+            "readTimeMinutes": 1,
+            "audioMinutes": 1,
+            "seoTitle": "Untitled Dispatch",
+            "seoDescription": "",
+            "metaTitle": "Untitled Dispatch",
+            "metaDescription": "",
+            "canonicalUrl": "",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "text": "Begin typing the opening lines of your dispatch here...",
+                "dropCap": true
+              },
+              {
+                "type": "heading2",
+                "text": "The Architecture of the Idea"
+              },
+              {
+                "type": "paragraph",
+                "text": "Describe the core discovery, cultural phenomenon, or inquiry in detail."
+              }
+            ]
+          },
+          "note": "Initial Draft Created"
+        }
+      ]
     }
   ],
   "categories": [
@@ -12170,6 +12310,138 @@
   "invitations": [],
   "activityLogs": [
     {
+      "userId": "user-owner-operations-1355",
+      "userEmail": "arjunjareda1355@gmail.com",
+      "userName": "Arjun Jareda",
+      "userRole": "OPERATIONS_OWNER",
+      "action": "Deleted API Key",
+      "resource": "API & Integrations",
+      "details": "Permanently deleted API key \"Deep Check Test Key\".",
+      "result": "SUCCESS",
+      "id": "log-1789309590413-plswu",
+      "timestamp": "2026-09-13T14:26:30.413Z"
+    },
+    {
+      "userId": "user-owner-operations-1355",
+      "userEmail": "arjunjareda1355@gmail.com",
+      "userName": "Arjun Jareda",
+      "userRole": "OPERATIONS_OWNER",
+      "action": "Generated API Key",
+      "resource": "API & Integrations",
+      "details": "Created new API key \"Deep Check Test Key\" (key-1789309590373-bafs3) with role EDITOR.",
+      "result": "SUCCESS",
+      "id": "log-1789309590378-ku4bp",
+      "timestamp": "2026-09-13T14:26:30.378Z"
+    },
+    {
+      "userId": "user-owner-operations-1355",
+      "userEmail": "arjunjareda1355@gmail.com",
+      "userName": "Arjun Jareda",
+      "userRole": "OPERATIONS_OWNER",
+      "action": "Moved to Trash",
+      "resource": "Articles",
+      "details": "Soft-deleted article \"Automated Deep Check Dispatch (Updated)\" (Retention: 30 days).",
+      "result": "SUCCESS",
+      "id": "log-1789309589768-tm8fz",
+      "timestamp": "2026-09-13T14:26:29.768Z"
+    },
+    {
+      "userId": "user-owner-operations-1355",
+      "userEmail": "arjunjareda1355@gmail.com",
+      "userName": "Arjun Jareda",
+      "userRole": "OPERATIONS_OWNER",
+      "action": "Deleted API Key",
+      "resource": "API & Integrations",
+      "details": "Permanently deleted API key \"Deep Check Test Key\".",
+      "result": "SUCCESS",
+      "id": "log-1789309538401-zflcv",
+      "timestamp": "2026-09-13T14:25:38.401Z"
+    },
+    {
+      "userId": "user-owner-operations-1355",
+      "userEmail": "arjunjareda1355@gmail.com",
+      "userName": "Arjun Jareda",
+      "userRole": "OPERATIONS_OWNER",
+      "action": "Generated API Key",
+      "resource": "API & Integrations",
+      "details": "Created new API key \"Deep Check Test Key\" (key-1789309538370-ztqrx) with role EDITOR.",
+      "result": "SUCCESS",
+      "id": "log-1789309538376-g6qni",
+      "timestamp": "2026-09-13T14:25:38.376Z"
+    },
+    {
+      "userId": "user-owner-operations-1355",
+      "userEmail": "arjunjareda1355@gmail.com",
+      "userName": "Arjun Jareda",
+      "userRole": "OPERATIONS_OWNER",
+      "action": "Moved to Trash",
+      "resource": "Articles",
+      "details": "Soft-deleted article \"Automated Deep Check Dispatch (Updated)\" (Retention: 30 days).",
+      "result": "SUCCESS",
+      "id": "log-1789309537850-hiz73",
+      "timestamp": "2026-09-13T14:25:37.850Z"
+    },
+    {
+      "userId": "user-owner-operations-1355",
+      "userEmail": "arjunjareda1355@gmail.com",
+      "userName": "Arjun Jareda",
+      "userRole": "OPERATIONS_OWNER",
+      "action": "Deleted API Key",
+      "resource": "API & Integrations",
+      "details": "Permanently deleted API key \"Deep Check Test Key\".",
+      "result": "SUCCESS",
+      "id": "log-1789309456020-3ag12",
+      "timestamp": "2026-09-13T14:24:16.020Z"
+    },
+    {
+      "userId": "user-owner-operations-1355",
+      "userEmail": "arjunjareda1355@gmail.com",
+      "userName": "Arjun Jareda",
+      "userRole": "OPERATIONS_OWNER",
+      "action": "Generated API Key",
+      "resource": "API & Integrations",
+      "details": "Created new API key \"Deep Check Test Key\" (key-1789309455992-n2pgg) with role EDITOR.",
+      "result": "SUCCESS",
+      "id": "log-1789309455997-askvj",
+      "timestamp": "2026-09-13T14:24:15.997Z"
+    },
+    {
+      "userId": "user-owner-operations-1355",
+      "userEmail": "arjunjareda1355@gmail.com",
+      "userName": "Arjun Jareda",
+      "userRole": "OPERATIONS_OWNER",
+      "action": "Moved to Trash",
+      "resource": "Articles",
+      "details": "Soft-deleted article \"Automated Deep Check Dispatch (Updated)\" (Retention: 30 days).",
+      "result": "SUCCESS",
+      "id": "log-1789309455427-ogc8c",
+      "timestamp": "2026-09-13T14:24:15.427Z"
+    },
+    {
+      "userId": "user-owner-operations-1355",
+      "userEmail": "arjunjareda1355@gmail.com",
+      "userName": "Arjun Jareda",
+      "userRole": "OPERATIONS_OWNER",
+      "action": "Moved to Trash",
+      "resource": "Articles",
+      "details": "Soft-deleted article \"Automated Deep Check Dispatch (Updated)\" (Retention: 30 days).",
+      "result": "SUCCESS",
+      "id": "log-1789309443753-kd3mo",
+      "timestamp": "2026-09-13T14:24:03.753Z"
+    },
+    {
+      "userId": "user-owner-operations-1355",
+      "userEmail": "arjunjareda1355@gmail.com",
+      "userName": "Arjun Jareda",
+      "userRole": "OPERATIONS_OWNER",
+      "action": "Moved to Trash",
+      "resource": "Articles",
+      "details": "Soft-deleted article \"Automated Deep Check Dispatch (Updated)\" (Retention: 30 days).",
+      "result": "SUCCESS",
+      "id": "log-1789309277903-dfhr5",
+      "timestamp": "2026-09-13T14:21:17.903Z"
+    },
+    {
       "userId": "api-client-key-master-editorial-live",
       "userEmail": "arjunjareda1355@gmail.com",
       "userName": "API Client (External Editorial & Publishing Controller Key)",
@@ -12278,7 +12550,1003 @@
       "result": "SUCCESS"
     }
   ],
-  "trash": [],
+  "trash": [
+    {
+      "id": "trash-article-1789309589762",
+      "originalId": "story-1789309589701-askr",
+      "itemType": "ARTICLE",
+      "title": "Automated Deep Check Dispatch (Updated)",
+      "data": {
+        "id": "story-1789309589701-askr",
+        "slug": "automated-deep-check-dispatch-updated",
+        "title": "Automated Deep Check Dispatch (Updated)",
+        "subtitle": "Verification of editorial mechanics and pipeline stability",
+        "deck": "Verification of editorial mechanics and pipeline stability",
+        "category": "Design & Culture",
+        "subcategory": "",
+        "tags": [
+          "System",
+          "Verification"
+        ],
+        "author": {
+          "id": "author-test",
+          "name": "Arjun Jareda",
+          "email": "arjunjareda1355@gmail.com",
+          "role": "Editor in Chief",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240"
+        },
+        "authorId": "author-test",
+        "status": "DRAFT",
+        "publishedDate": "September 13, 2026",
+        "updatedDate": "September 13, 2026",
+        "readTime": "1 min read",
+        "readTimeMinutes": 1,
+        "audioMinutes": 2,
+        "heroImage": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1600&auto=format&fit=crop&q=85",
+        "heroImageType": "EXTERNAL_URL",
+        "heroImageAlt": "Automated Deep Check Dispatch",
+        "heroImageCaption": "",
+        "heroImageCredit": "",
+        "heroImageSourceUrl": "",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Start crafting your inquiry here. The Folded Page values clarity, depth, and tangible prose."
+          }
+        ],
+        "isCoverStory": false,
+        "isTrending": false,
+        "isPopular": false,
+        "isUnique": false,
+        "isSpecial": false,
+        "isEditorsPick": false,
+        "isFeatured": false,
+        "popularityRank": 25,
+        "featuredQuote": "",
+        "relatedSlugs": [],
+        "seoTitle": "Automated Deep Check Dispatch",
+        "seoDescription": "",
+        "canonicalUrl": "https://thefoldedpage.press/story/automated-deep-check-dispatch",
+        "socialTitle": "Automated Deep Check Dispatch",
+        "socialDescription": "",
+        "views": 0,
+        "saves": 0,
+        "shares": 0,
+        "createdAt": "2026-09-13T14:26:29.719Z",
+        "revisions": [
+          {
+            "id": "rev-story-1789309589701-askr-1789309589742",
+            "savedAt": "2026-09-13T14:26:29.742Z",
+            "authorName": "Arjun Jareda",
+            "title": "Automated Deep Check Dispatch (Updated)",
+            "deck": "Verification of editorial mechanics and pipeline stability",
+            "blocksCount": 1,
+            "wordCount": 14,
+            "data": {
+              "id": "story-1789309589701-askr",
+              "slug": "automated-deep-check-dispatch",
+              "title": "Automated Deep Check Dispatch",
+              "subtitle": "Verification of editorial mechanics and pipeline stability",
+              "deck": "Verification of editorial mechanics and pipeline stability",
+              "category": "Design & Culture",
+              "subcategory": "",
+              "tags": [
+                "System",
+                "Verification"
+              ],
+              "author": {
+                "id": "author-test",
+                "name": "Arjun Jareda",
+                "email": "arjunjareda1355@gmail.com",
+                "role": "Editor in Chief",
+                "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240"
+              },
+              "authorId": "author-test",
+              "status": "DRAFT",
+              "publishedDate": "September 13, 2026",
+              "updatedDate": "September 13, 2026",
+              "readTime": "1 min read",
+              "readTimeMinutes": 1,
+              "audioMinutes": 2,
+              "heroImage": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1600&auto=format&fit=crop&q=85",
+              "heroImageType": "EXTERNAL_URL",
+              "heroImageAlt": "Automated Deep Check Dispatch",
+              "heroImageCaption": "",
+              "heroImageCredit": "",
+              "heroImageSourceUrl": "",
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Start crafting your inquiry here. The Folded Page values clarity, depth, and tangible prose."
+                }
+              ],
+              "isCoverStory": false,
+              "isTrending": false,
+              "isPopular": false,
+              "isUnique": false,
+              "isSpecial": false,
+              "isEditorsPick": false,
+              "isFeatured": false,
+              "popularityRank": 25,
+              "featuredQuote": "",
+              "relatedSlugs": [],
+              "seoTitle": "Automated Deep Check Dispatch",
+              "seoDescription": "",
+              "canonicalUrl": "https://thefoldedpage.press/story/automated-deep-check-dispatch",
+              "socialTitle": "Automated Deep Check Dispatch",
+              "socialDescription": "",
+              "views": 0,
+              "saves": 0,
+              "shares": 0,
+              "createdAt": "2026-09-13T14:26:29.719Z",
+              "revisions": [
+                {
+                  "id": "rev-story-1789309589701-askr-1",
+                  "savedAt": "2026-09-13T14:26:29.719Z",
+                  "authorName": "Arjun Jareda",
+                  "title": "Automated Deep Check Dispatch",
+                  "blocksCount": 0,
+                  "wordCount": 0,
+                  "data": {
+                    "title": "Automated Deep Check Dispatch",
+                    "subtitle": "Verification of editorial mechanics and pipeline stability",
+                    "category": "Design & Culture",
+                    "excerpt": "Deep automated validation dispatch.",
+                    "content": "## Deep Check Content\n\nAll publishing mechanisms are functioning normally with precision typography and robust data pipelines.",
+                    "status": "DRAFT",
+                    "author": {
+                      "id": "author-test",
+                      "name": "Arjun Jareda",
+                      "email": "arjunjareda1355@gmail.com",
+                      "role": "Editor in Chief",
+                      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240"
+                    },
+                    "tags": [
+                      "System",
+                      "Verification"
+                    ],
+                    "featuredImage": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200"
+                  },
+                  "note": "Initial Draft Created"
+                }
+              ]
+            },
+            "note": "Saved update"
+          },
+          {
+            "id": "rev-story-1789309589701-askr-1",
+            "savedAt": "2026-09-13T14:26:29.719Z",
+            "authorName": "Arjun Jareda",
+            "title": "Automated Deep Check Dispatch",
+            "blocksCount": 0,
+            "wordCount": 0,
+            "data": {
+              "title": "Automated Deep Check Dispatch",
+              "subtitle": "Verification of editorial mechanics and pipeline stability",
+              "category": "Design & Culture",
+              "excerpt": "Deep automated validation dispatch.",
+              "content": "## Deep Check Content\n\nAll publishing mechanisms are functioning normally with precision typography and robust data pipelines.",
+              "status": "DRAFT",
+              "author": {
+                "id": "author-test",
+                "name": "Arjun Jareda",
+                "email": "arjunjareda1355@gmail.com",
+                "role": "Editor in Chief",
+                "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240"
+              },
+              "tags": [
+                "System",
+                "Verification"
+              ],
+              "featuredImage": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200"
+            },
+            "note": "Initial Draft Created"
+          }
+        ]
+      },
+      "deletedBy": "arjunjareda1355@gmail.com",
+      "deletedByRole": "OPERATIONS_OWNER",
+      "deletedAt": "2026-09-13T14:26:29.762Z",
+      "expiresAt": "2026-10-13T14:26:29.762Z",
+      "originalLocation": "Category: Design & Culture"
+    },
+    {
+      "id": "trash-article-1789309537845",
+      "originalId": "story-1789309537815-pgxm",
+      "itemType": "ARTICLE",
+      "title": "Automated Deep Check Dispatch (Updated)",
+      "data": {
+        "id": "story-1789309537815-pgxm",
+        "slug": "automated-deep-check-dispatch-updated",
+        "title": "Automated Deep Check Dispatch (Updated)",
+        "subtitle": "Verification of editorial mechanics and pipeline stability",
+        "deck": "Verification of editorial mechanics and pipeline stability",
+        "category": "Design & Culture",
+        "subcategory": "",
+        "tags": [
+          "System",
+          "Verification"
+        ],
+        "author": {
+          "id": "author-test",
+          "name": "Arjun Jareda",
+          "email": "arjunjareda1355@gmail.com",
+          "role": "Editor in Chief",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240"
+        },
+        "authorId": "author-test",
+        "status": "DRAFT",
+        "publishedDate": "September 13, 2026",
+        "updatedDate": "September 13, 2026",
+        "readTime": "1 min read",
+        "readTimeMinutes": 1,
+        "audioMinutes": 2,
+        "heroImage": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1600&auto=format&fit=crop&q=85",
+        "heroImageType": "EXTERNAL_URL",
+        "heroImageAlt": "Automated Deep Check Dispatch",
+        "heroImageCaption": "",
+        "heroImageCredit": "",
+        "heroImageSourceUrl": "",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Start crafting your inquiry here. The Folded Page values clarity, depth, and tangible prose."
+          }
+        ],
+        "isCoverStory": false,
+        "isTrending": false,
+        "isPopular": false,
+        "isUnique": false,
+        "isSpecial": false,
+        "isEditorsPick": false,
+        "isFeatured": false,
+        "popularityRank": 25,
+        "featuredQuote": "",
+        "relatedSlugs": [],
+        "seoTitle": "Automated Deep Check Dispatch",
+        "seoDescription": "",
+        "canonicalUrl": "https://thefoldedpage.press/story/automated-deep-check-dispatch",
+        "socialTitle": "Automated Deep Check Dispatch",
+        "socialDescription": "",
+        "views": 0,
+        "saves": 0,
+        "shares": 0,
+        "createdAt": "2026-09-13T14:25:37.815Z",
+        "revisions": [
+          {
+            "id": "rev-story-1789309537815-pgxm-1789309537830",
+            "savedAt": "2026-09-13T14:25:37.830Z",
+            "authorName": "Arjun Jareda",
+            "title": "Automated Deep Check Dispatch (Updated)",
+            "deck": "Verification of editorial mechanics and pipeline stability",
+            "blocksCount": 1,
+            "wordCount": 14,
+            "data": {
+              "id": "story-1789309537815-pgxm",
+              "slug": "automated-deep-check-dispatch",
+              "title": "Automated Deep Check Dispatch",
+              "subtitle": "Verification of editorial mechanics and pipeline stability",
+              "deck": "Verification of editorial mechanics and pipeline stability",
+              "category": "Design & Culture",
+              "subcategory": "",
+              "tags": [
+                "System",
+                "Verification"
+              ],
+              "author": {
+                "id": "author-test",
+                "name": "Arjun Jareda",
+                "email": "arjunjareda1355@gmail.com",
+                "role": "Editor in Chief",
+                "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240"
+              },
+              "authorId": "author-test",
+              "status": "DRAFT",
+              "publishedDate": "September 13, 2026",
+              "updatedDate": "September 13, 2026",
+              "readTime": "1 min read",
+              "readTimeMinutes": 1,
+              "audioMinutes": 2,
+              "heroImage": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1600&auto=format&fit=crop&q=85",
+              "heroImageType": "EXTERNAL_URL",
+              "heroImageAlt": "Automated Deep Check Dispatch",
+              "heroImageCaption": "",
+              "heroImageCredit": "",
+              "heroImageSourceUrl": "",
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Start crafting your inquiry here. The Folded Page values clarity, depth, and tangible prose."
+                }
+              ],
+              "isCoverStory": false,
+              "isTrending": false,
+              "isPopular": false,
+              "isUnique": false,
+              "isSpecial": false,
+              "isEditorsPick": false,
+              "isFeatured": false,
+              "popularityRank": 25,
+              "featuredQuote": "",
+              "relatedSlugs": [],
+              "seoTitle": "Automated Deep Check Dispatch",
+              "seoDescription": "",
+              "canonicalUrl": "https://thefoldedpage.press/story/automated-deep-check-dispatch",
+              "socialTitle": "Automated Deep Check Dispatch",
+              "socialDescription": "",
+              "views": 0,
+              "saves": 0,
+              "shares": 0,
+              "createdAt": "2026-09-13T14:25:37.815Z",
+              "revisions": [
+                {
+                  "id": "rev-story-1789309537815-pgxm-1",
+                  "savedAt": "2026-09-13T14:25:37.815Z",
+                  "authorName": "Arjun Jareda",
+                  "title": "Automated Deep Check Dispatch",
+                  "blocksCount": 0,
+                  "wordCount": 0,
+                  "data": {
+                    "title": "Automated Deep Check Dispatch",
+                    "subtitle": "Verification of editorial mechanics and pipeline stability",
+                    "category": "Design & Culture",
+                    "excerpt": "Deep automated validation dispatch.",
+                    "content": "## Deep Check Content\n\nAll publishing mechanisms are functioning normally with precision typography and robust data pipelines.",
+                    "status": "DRAFT",
+                    "author": {
+                      "id": "author-test",
+                      "name": "Arjun Jareda",
+                      "email": "arjunjareda1355@gmail.com",
+                      "role": "Editor in Chief",
+                      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240"
+                    },
+                    "tags": [
+                      "System",
+                      "Verification"
+                    ],
+                    "featuredImage": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200"
+                  },
+                  "note": "Initial Draft Created"
+                }
+              ]
+            },
+            "note": "Saved update"
+          },
+          {
+            "id": "rev-story-1789309537815-pgxm-1",
+            "savedAt": "2026-09-13T14:25:37.815Z",
+            "authorName": "Arjun Jareda",
+            "title": "Automated Deep Check Dispatch",
+            "blocksCount": 0,
+            "wordCount": 0,
+            "data": {
+              "title": "Automated Deep Check Dispatch",
+              "subtitle": "Verification of editorial mechanics and pipeline stability",
+              "category": "Design & Culture",
+              "excerpt": "Deep automated validation dispatch.",
+              "content": "## Deep Check Content\n\nAll publishing mechanisms are functioning normally with precision typography and robust data pipelines.",
+              "status": "DRAFT",
+              "author": {
+                "id": "author-test",
+                "name": "Arjun Jareda",
+                "email": "arjunjareda1355@gmail.com",
+                "role": "Editor in Chief",
+                "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240"
+              },
+              "tags": [
+                "System",
+                "Verification"
+              ],
+              "featuredImage": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200"
+            },
+            "note": "Initial Draft Created"
+          }
+        ]
+      },
+      "deletedBy": "arjunjareda1355@gmail.com",
+      "deletedByRole": "OPERATIONS_OWNER",
+      "deletedAt": "2026-09-13T14:25:37.845Z",
+      "expiresAt": "2026-10-13T14:25:37.845Z",
+      "originalLocation": "Category: Design & Culture"
+    },
+    {
+      "id": "trash-article-1789309455422",
+      "originalId": "story-1789309455360-xnfx",
+      "itemType": "ARTICLE",
+      "title": "Automated Deep Check Dispatch (Updated)",
+      "data": {
+        "id": "story-1789309455360-xnfx",
+        "slug": "automated-deep-check-dispatch-updated",
+        "title": "Automated Deep Check Dispatch (Updated)",
+        "subtitle": "Verification of editorial mechanics and pipeline stability",
+        "deck": "Verification of editorial mechanics and pipeline stability",
+        "category": "Design & Culture",
+        "subcategory": "",
+        "tags": [
+          "System",
+          "Verification"
+        ],
+        "author": {
+          "id": "author-test",
+          "name": "Arjun Jareda",
+          "email": "arjunjareda1355@gmail.com",
+          "role": "Editor in Chief",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240"
+        },
+        "authorId": "author-test",
+        "status": "DRAFT",
+        "publishedDate": "September 13, 2026",
+        "updatedDate": "September 13, 2026",
+        "readTime": "1 min read",
+        "readTimeMinutes": 1,
+        "audioMinutes": 2,
+        "heroImage": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1600&auto=format&fit=crop&q=85",
+        "heroImageType": "EXTERNAL_URL",
+        "heroImageAlt": "Automated Deep Check Dispatch",
+        "heroImageCaption": "",
+        "heroImageCredit": "",
+        "heroImageSourceUrl": "",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Start crafting your inquiry here. The Folded Page values clarity, depth, and tangible prose."
+          }
+        ],
+        "isCoverStory": false,
+        "isTrending": false,
+        "isPopular": false,
+        "isUnique": false,
+        "isSpecial": false,
+        "isEditorsPick": false,
+        "isFeatured": false,
+        "popularityRank": 25,
+        "featuredQuote": "",
+        "relatedSlugs": [],
+        "seoTitle": "Automated Deep Check Dispatch",
+        "seoDescription": "",
+        "canonicalUrl": "https://thefoldedpage.press/story/automated-deep-check-dispatch",
+        "socialTitle": "Automated Deep Check Dispatch",
+        "socialDescription": "",
+        "views": 0,
+        "saves": 0,
+        "shares": 0,
+        "createdAt": "2026-09-13T14:24:15.378Z",
+        "revisions": [
+          {
+            "id": "rev-story-1789309455360-xnfx-1789309455401",
+            "savedAt": "2026-09-13T14:24:15.401Z",
+            "authorName": "Arjun Jareda",
+            "title": "Automated Deep Check Dispatch (Updated)",
+            "deck": "Verification of editorial mechanics and pipeline stability",
+            "blocksCount": 1,
+            "wordCount": 14,
+            "data": {
+              "id": "story-1789309455360-xnfx",
+              "slug": "automated-deep-check-dispatch",
+              "title": "Automated Deep Check Dispatch",
+              "subtitle": "Verification of editorial mechanics and pipeline stability",
+              "deck": "Verification of editorial mechanics and pipeline stability",
+              "category": "Design & Culture",
+              "subcategory": "",
+              "tags": [
+                "System",
+                "Verification"
+              ],
+              "author": {
+                "id": "author-test",
+                "name": "Arjun Jareda",
+                "email": "arjunjareda1355@gmail.com",
+                "role": "Editor in Chief",
+                "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240"
+              },
+              "authorId": "author-test",
+              "status": "DRAFT",
+              "publishedDate": "September 13, 2026",
+              "updatedDate": "September 13, 2026",
+              "readTime": "1 min read",
+              "readTimeMinutes": 1,
+              "audioMinutes": 2,
+              "heroImage": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1600&auto=format&fit=crop&q=85",
+              "heroImageType": "EXTERNAL_URL",
+              "heroImageAlt": "Automated Deep Check Dispatch",
+              "heroImageCaption": "",
+              "heroImageCredit": "",
+              "heroImageSourceUrl": "",
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Start crafting your inquiry here. The Folded Page values clarity, depth, and tangible prose."
+                }
+              ],
+              "isCoverStory": false,
+              "isTrending": false,
+              "isPopular": false,
+              "isUnique": false,
+              "isSpecial": false,
+              "isEditorsPick": false,
+              "isFeatured": false,
+              "popularityRank": 25,
+              "featuredQuote": "",
+              "relatedSlugs": [],
+              "seoTitle": "Automated Deep Check Dispatch",
+              "seoDescription": "",
+              "canonicalUrl": "https://thefoldedpage.press/story/automated-deep-check-dispatch",
+              "socialTitle": "Automated Deep Check Dispatch",
+              "socialDescription": "",
+              "views": 0,
+              "saves": 0,
+              "shares": 0,
+              "createdAt": "2026-09-13T14:24:15.378Z",
+              "revisions": [
+                {
+                  "id": "rev-story-1789309455360-xnfx-1",
+                  "savedAt": "2026-09-13T14:24:15.378Z",
+                  "authorName": "Arjun Jareda",
+                  "title": "Automated Deep Check Dispatch",
+                  "blocksCount": 0,
+                  "wordCount": 0,
+                  "data": {
+                    "title": "Automated Deep Check Dispatch",
+                    "subtitle": "Verification of editorial mechanics and pipeline stability",
+                    "category": "Design & Culture",
+                    "excerpt": "Deep automated validation dispatch.",
+                    "content": "## Deep Check Content\n\nAll publishing mechanisms are functioning normally with precision typography and robust data pipelines.",
+                    "status": "DRAFT",
+                    "author": {
+                      "id": "author-test",
+                      "name": "Arjun Jareda",
+                      "email": "arjunjareda1355@gmail.com",
+                      "role": "Editor in Chief",
+                      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240"
+                    },
+                    "tags": [
+                      "System",
+                      "Verification"
+                    ],
+                    "featuredImage": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200"
+                  },
+                  "note": "Initial Draft Created"
+                }
+              ]
+            },
+            "note": "Saved update"
+          },
+          {
+            "id": "rev-story-1789309455360-xnfx-1",
+            "savedAt": "2026-09-13T14:24:15.378Z",
+            "authorName": "Arjun Jareda",
+            "title": "Automated Deep Check Dispatch",
+            "blocksCount": 0,
+            "wordCount": 0,
+            "data": {
+              "title": "Automated Deep Check Dispatch",
+              "subtitle": "Verification of editorial mechanics and pipeline stability",
+              "category": "Design & Culture",
+              "excerpt": "Deep automated validation dispatch.",
+              "content": "## Deep Check Content\n\nAll publishing mechanisms are functioning normally with precision typography and robust data pipelines.",
+              "status": "DRAFT",
+              "author": {
+                "id": "author-test",
+                "name": "Arjun Jareda",
+                "email": "arjunjareda1355@gmail.com",
+                "role": "Editor in Chief",
+                "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240"
+              },
+              "tags": [
+                "System",
+                "Verification"
+              ],
+              "featuredImage": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200"
+            },
+            "note": "Initial Draft Created"
+          }
+        ]
+      },
+      "deletedBy": "arjunjareda1355@gmail.com",
+      "deletedByRole": "OPERATIONS_OWNER",
+      "deletedAt": "2026-09-13T14:24:15.422Z",
+      "expiresAt": "2026-10-13T14:24:15.422Z",
+      "originalLocation": "Category: Design & Culture"
+    },
+    {
+      "id": "trash-article-1789309443748",
+      "originalId": "story-1789309443721-qf1d",
+      "itemType": "ARTICLE",
+      "title": "Automated Deep Check Dispatch (Updated)",
+      "data": {
+        "id": "story-1789309443721-qf1d",
+        "slug": "automated-deep-check-dispatch-updated",
+        "title": "Automated Deep Check Dispatch (Updated)",
+        "subtitle": "Verification of editorial mechanics and pipeline stability",
+        "deck": "Verification of editorial mechanics and pipeline stability",
+        "category": "Design & Culture",
+        "subcategory": "",
+        "tags": [
+          "System",
+          "Verification"
+        ],
+        "author": {
+          "id": "author-test",
+          "name": "Arjun Jareda",
+          "email": "arjunjareda1355@gmail.com",
+          "role": "Editor in Chief",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240"
+        },
+        "authorId": "author-test",
+        "status": "DRAFT",
+        "publishedDate": "September 13, 2026",
+        "updatedDate": "September 13, 2026",
+        "readTime": "1 min read",
+        "readTimeMinutes": 1,
+        "audioMinutes": 2,
+        "heroImage": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1600&auto=format&fit=crop&q=85",
+        "heroImageType": "EXTERNAL_URL",
+        "heroImageAlt": "Automated Deep Check Dispatch",
+        "heroImageCaption": "",
+        "heroImageCredit": "",
+        "heroImageSourceUrl": "",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Start crafting your inquiry here. The Folded Page values clarity, depth, and tangible prose."
+          }
+        ],
+        "isCoverStory": false,
+        "isTrending": false,
+        "isPopular": false,
+        "isUnique": false,
+        "isSpecial": false,
+        "isEditorsPick": false,
+        "isFeatured": false,
+        "popularityRank": 25,
+        "featuredQuote": "",
+        "relatedSlugs": [],
+        "seoTitle": "Automated Deep Check Dispatch",
+        "seoDescription": "",
+        "canonicalUrl": "https://thefoldedpage.press/story/automated-deep-check-dispatch",
+        "socialTitle": "Automated Deep Check Dispatch",
+        "socialDescription": "",
+        "views": 0,
+        "saves": 0,
+        "shares": 0,
+        "createdAt": "2026-09-13T14:24:03.721Z",
+        "revisions": [
+          {
+            "id": "rev-story-1789309443721-qf1d-1789309443736",
+            "savedAt": "2026-09-13T14:24:03.736Z",
+            "authorName": "Arjun Jareda",
+            "title": "Automated Deep Check Dispatch (Updated)",
+            "deck": "Verification of editorial mechanics and pipeline stability",
+            "blocksCount": 1,
+            "wordCount": 14,
+            "data": {
+              "id": "story-1789309443721-qf1d",
+              "slug": "automated-deep-check-dispatch",
+              "title": "Automated Deep Check Dispatch",
+              "subtitle": "Verification of editorial mechanics and pipeline stability",
+              "deck": "Verification of editorial mechanics and pipeline stability",
+              "category": "Design & Culture",
+              "subcategory": "",
+              "tags": [
+                "System",
+                "Verification"
+              ],
+              "author": {
+                "id": "author-test",
+                "name": "Arjun Jareda",
+                "email": "arjunjareda1355@gmail.com",
+                "role": "Editor in Chief",
+                "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240"
+              },
+              "authorId": "author-test",
+              "status": "DRAFT",
+              "publishedDate": "September 13, 2026",
+              "updatedDate": "September 13, 2026",
+              "readTime": "1 min read",
+              "readTimeMinutes": 1,
+              "audioMinutes": 2,
+              "heroImage": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1600&auto=format&fit=crop&q=85",
+              "heroImageType": "EXTERNAL_URL",
+              "heroImageAlt": "Automated Deep Check Dispatch",
+              "heroImageCaption": "",
+              "heroImageCredit": "",
+              "heroImageSourceUrl": "",
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Start crafting your inquiry here. The Folded Page values clarity, depth, and tangible prose."
+                }
+              ],
+              "isCoverStory": false,
+              "isTrending": false,
+              "isPopular": false,
+              "isUnique": false,
+              "isSpecial": false,
+              "isEditorsPick": false,
+              "isFeatured": false,
+              "popularityRank": 25,
+              "featuredQuote": "",
+              "relatedSlugs": [],
+              "seoTitle": "Automated Deep Check Dispatch",
+              "seoDescription": "",
+              "canonicalUrl": "https://thefoldedpage.press/story/automated-deep-check-dispatch",
+              "socialTitle": "Automated Deep Check Dispatch",
+              "socialDescription": "",
+              "views": 0,
+              "saves": 0,
+              "shares": 0,
+              "createdAt": "2026-09-13T14:24:03.721Z",
+              "revisions": [
+                {
+                  "id": "rev-story-1789309443721-qf1d-1",
+                  "savedAt": "2026-09-13T14:24:03.721Z",
+                  "authorName": "Arjun Jareda",
+                  "title": "Automated Deep Check Dispatch",
+                  "blocksCount": 0,
+                  "wordCount": 0,
+                  "data": {
+                    "title": "Automated Deep Check Dispatch",
+                    "subtitle": "Verification of editorial mechanics and pipeline stability",
+                    "category": "Design & Culture",
+                    "excerpt": "Deep automated validation dispatch.",
+                    "content": "## Deep Check Content\n\nAll publishing mechanisms are functioning normally with precision typography and robust data pipelines.",
+                    "status": "DRAFT",
+                    "author": {
+                      "id": "author-test",
+                      "name": "Arjun Jareda",
+                      "email": "arjunjareda1355@gmail.com",
+                      "role": "Editor in Chief",
+                      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240"
+                    },
+                    "tags": [
+                      "System",
+                      "Verification"
+                    ],
+                    "featuredImage": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200"
+                  },
+                  "note": "Initial Draft Created"
+                }
+              ]
+            },
+            "note": "Saved update"
+          },
+          {
+            "id": "rev-story-1789309443721-qf1d-1",
+            "savedAt": "2026-09-13T14:24:03.721Z",
+            "authorName": "Arjun Jareda",
+            "title": "Automated Deep Check Dispatch",
+            "blocksCount": 0,
+            "wordCount": 0,
+            "data": {
+              "title": "Automated Deep Check Dispatch",
+              "subtitle": "Verification of editorial mechanics and pipeline stability",
+              "category": "Design & Culture",
+              "excerpt": "Deep automated validation dispatch.",
+              "content": "## Deep Check Content\n\nAll publishing mechanisms are functioning normally with precision typography and robust data pipelines.",
+              "status": "DRAFT",
+              "author": {
+                "id": "author-test",
+                "name": "Arjun Jareda",
+                "email": "arjunjareda1355@gmail.com",
+                "role": "Editor in Chief",
+                "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240"
+              },
+              "tags": [
+                "System",
+                "Verification"
+              ],
+              "featuredImage": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200"
+            },
+            "note": "Initial Draft Created"
+          }
+        ]
+      },
+      "deletedBy": "arjunjareda1355@gmail.com",
+      "deletedByRole": "OPERATIONS_OWNER",
+      "deletedAt": "2026-09-13T14:24:03.748Z",
+      "expiresAt": "2026-10-13T14:24:03.748Z",
+      "originalLocation": "Category: Design & Culture"
+    },
+    {
+      "id": "trash-article-1789309277897",
+      "originalId": "story-1789309277850-f1p8",
+      "itemType": "ARTICLE",
+      "title": "Automated Deep Check Dispatch (Updated)",
+      "data": {
+        "id": "story-1789309277850-f1p8",
+        "slug": "automated-deep-check-dispatch-updated",
+        "title": "Automated Deep Check Dispatch (Updated)",
+        "subtitle": "Verification of editorial mechanics and pipeline stability",
+        "deck": "Verification of editorial mechanics and pipeline stability",
+        "category": "Design & Culture",
+        "subcategory": "",
+        "tags": [
+          "System",
+          "Verification"
+        ],
+        "author": {
+          "id": "author-test",
+          "name": "Arjun Jareda",
+          "email": "arjunjareda1355@gmail.com",
+          "role": "Editor in Chief",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240"
+        },
+        "authorId": "author-test",
+        "status": "DRAFT",
+        "publishedDate": "September 13, 2026",
+        "updatedDate": "September 13, 2026",
+        "readTime": "1 min read",
+        "readTimeMinutes": 1,
+        "audioMinutes": 2,
+        "heroImage": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1600&auto=format&fit=crop&q=85",
+        "heroImageType": "EXTERNAL_URL",
+        "heroImageAlt": "Automated Deep Check Dispatch",
+        "heroImageCaption": "",
+        "heroImageCredit": "",
+        "heroImageSourceUrl": "",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Start crafting your inquiry here. The Folded Page values clarity, depth, and tangible prose."
+          }
+        ],
+        "isCoverStory": false,
+        "isTrending": false,
+        "isPopular": false,
+        "isUnique": false,
+        "isSpecial": false,
+        "isEditorsPick": false,
+        "isFeatured": false,
+        "popularityRank": 25,
+        "featuredQuote": "",
+        "relatedSlugs": [],
+        "seoTitle": "Automated Deep Check Dispatch",
+        "seoDescription": "",
+        "canonicalUrl": "https://thefoldedpage.press/story/automated-deep-check-dispatch",
+        "socialTitle": "Automated Deep Check Dispatch",
+        "socialDescription": "",
+        "views": 0,
+        "saves": 0,
+        "shares": 0,
+        "createdAt": "2026-09-13T14:21:17.860Z",
+        "revisions": [
+          {
+            "id": "rev-story-1789309277850-f1p8-1789309277881",
+            "savedAt": "2026-09-13T14:21:17.881Z",
+            "authorName": "Arjun Jareda",
+            "title": "Automated Deep Check Dispatch (Updated)",
+            "deck": "Verification of editorial mechanics and pipeline stability",
+            "blocksCount": 1,
+            "wordCount": 14,
+            "data": {
+              "id": "story-1789309277850-f1p8",
+              "slug": "automated-deep-check-dispatch",
+              "title": "Automated Deep Check Dispatch",
+              "subtitle": "Verification of editorial mechanics and pipeline stability",
+              "deck": "Verification of editorial mechanics and pipeline stability",
+              "category": "Design & Culture",
+              "subcategory": "",
+              "tags": [
+                "System",
+                "Verification"
+              ],
+              "author": {
+                "id": "author-test",
+                "name": "Arjun Jareda",
+                "email": "arjunjareda1355@gmail.com",
+                "role": "Editor in Chief",
+                "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240"
+              },
+              "authorId": "author-test",
+              "status": "DRAFT",
+              "publishedDate": "September 13, 2026",
+              "updatedDate": "September 13, 2026",
+              "readTime": "1 min read",
+              "readTimeMinutes": 1,
+              "audioMinutes": 2,
+              "heroImage": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1600&auto=format&fit=crop&q=85",
+              "heroImageType": "EXTERNAL_URL",
+              "heroImageAlt": "Automated Deep Check Dispatch",
+              "heroImageCaption": "",
+              "heroImageCredit": "",
+              "heroImageSourceUrl": "",
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Start crafting your inquiry here. The Folded Page values clarity, depth, and tangible prose."
+                }
+              ],
+              "isCoverStory": false,
+              "isTrending": false,
+              "isPopular": false,
+              "isUnique": false,
+              "isSpecial": false,
+              "isEditorsPick": false,
+              "isFeatured": false,
+              "popularityRank": 25,
+              "featuredQuote": "",
+              "relatedSlugs": [],
+              "seoTitle": "Automated Deep Check Dispatch",
+              "seoDescription": "",
+              "canonicalUrl": "https://thefoldedpage.press/story/automated-deep-check-dispatch",
+              "socialTitle": "Automated Deep Check Dispatch",
+              "socialDescription": "",
+              "views": 0,
+              "saves": 0,
+              "shares": 0,
+              "createdAt": "2026-09-13T14:21:17.860Z",
+              "revisions": [
+                {
+                  "id": "rev-story-1789309277850-f1p8-1",
+                  "savedAt": "2026-09-13T14:21:17.860Z",
+                  "authorName": "Arjun Jareda",
+                  "title": "Automated Deep Check Dispatch",
+                  "blocksCount": 0,
+                  "wordCount": 0,
+                  "data": {
+                    "title": "Automated Deep Check Dispatch",
+                    "subtitle": "Verification of editorial mechanics and pipeline stability",
+                    "category": "Design & Culture",
+                    "excerpt": "Deep automated validation dispatch.",
+                    "content": "## Deep Check Content\n\nAll publishing mechanisms are functioning normally with precision typography and robust data pipelines.",
+                    "status": "DRAFT",
+                    "author": {
+                      "id": "author-test",
+                      "name": "Arjun Jareda",
+                      "email": "arjunjareda1355@gmail.com",
+                      "role": "Editor in Chief",
+                      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240"
+                    },
+                    "tags": [
+                      "System",
+                      "Verification"
+                    ],
+                    "featuredImage": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200"
+                  },
+                  "note": "Initial Draft Created"
+                }
+              ]
+            },
+            "note": "Saved update"
+          },
+          {
+            "id": "rev-story-1789309277850-f1p8-1",
+            "savedAt": "2026-09-13T14:21:17.860Z",
+            "authorName": "Arjun Jareda",
+            "title": "Automated Deep Check Dispatch",
+            "blocksCount": 0,
+            "wordCount": 0,
+            "data": {
+              "title": "Automated Deep Check Dispatch",
+              "subtitle": "Verification of editorial mechanics and pipeline stability",
+              "category": "Design & Culture",
+              "excerpt": "Deep automated validation dispatch.",
+              "content": "## Deep Check Content\n\nAll publishing mechanisms are functioning normally with precision typography and robust data pipelines.",
+              "status": "DRAFT",
+              "author": {
+                "id": "author-test",
+                "name": "Arjun Jareda",
+                "email": "arjunjareda1355@gmail.com",
+                "role": "Editor in Chief",
+                "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240"
+              },
+              "tags": [
+                "System",
+                "Verification"
+              ],
+              "featuredImage": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200"
+            },
+            "note": "Initial Draft Created"
+          }
+        ]
+      },
+      "deletedBy": "arjunjareda1355@gmail.com",
+      "deletedByRole": "OPERATIONS_OWNER",
+      "deletedAt": "2026-09-13T14:21:17.897Z",
+      "expiresAt": "2026-10-13T14:21:17.897Z",
+      "originalLocation": "Category: Design & Culture"
+    }
+  ],
   "webItems": [
     {
       "id": "web-item-1",

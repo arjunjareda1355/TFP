@@ -231,17 +231,16 @@ export const AdminArticlesList: React.FC<AdminArticlesListProps> = ({
         </div>
 
         <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 flex-wrap">
-          {/* Studio Features link button */}
-          <a
-            href="https://ais-pre-cgynibd2vuyveurtgk7rds-119232530641.asia-southeast1.run.app/"
-            target="_self"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-2 sm:py-2.5 border border-[#FED7AA] bg-[#FFF7ED] text-[#C2410C] hover:bg-[#FFEDD5] text-xs font-mono-editorial font-semibold uppercase tracking-wider rounded-xs transition-colors shadow-xs shrink-0 whitespace-nowrap"
-            title="Open The Folded Studio to design articles and images (opens in same tab)"
+          {/* Studio Features button */}
+          <button
+            type="button"
+            onClick={handleCreate}
+            className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-2 sm:py-2.5 border border-[#FED7AA] bg-[#FFF7ED] text-[#C2410C] hover:bg-[#FFEDD5] text-xs font-mono-editorial font-semibold uppercase tracking-wider rounded-xs transition-colors shadow-xs shrink-0 whitespace-nowrap cursor-pointer"
+            title="Open The Folded Studio to design articles and images"
           >
             <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#EA580C] shrink-0" />
             <span>Studio Features</span>
-          </a>
+          </button>
 
           {/* New Article button */}
           <button

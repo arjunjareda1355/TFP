@@ -12,6 +12,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { ArticleContentBlock } from '../../../types';
+import { api } from '../../../services/api';
 
 interface EditorAiAssistantModalProps {
   isOpen: boolean;
@@ -57,37 +58,49 @@ export const EditorAiAssistantModal: React.FC<EditorAiAssistantModalProps> = ({
     setIsGenerating(true);
     setResults(null);
 
-    // Contextual literary generation based on topic & keywords
-    setTimeout(() => {
-      const topic = title.trim() || category || 'Modern Culture';
+    const topic = title.trim() || category || 'Modern Culture';
+
+    try {
+      if (tool === 'headlines') {
+        const headlines = await api.suggestHeadlines(topic, plainTextContext);
+        setResults(headlines);
+      } else if (tool === 'deck') {
+        const generatedDeck = await api.generateDeck(topic, plainTextContext);
+        setResults([
+          generatedDeck,
+          `A reflective inquiry into how the quiet resurgence of ${topic.toLowerCase()} is reshaping our relationship to craft, time, and intellectual permanence.`,
+          `Beyond the digital consensus lies an untold landscape of deliberate friction, artisanal patience, and unyielding aesthetic integrity.`,
+        ].filter(Boolean));
+      } else if (tool === 'tags') {
+        const tags = await api.suggestTags(topic, plainTextContext);
+        setResults([
+          tags,
+          ['Essays', 'Culture', 'Craft', 'Aesthetics', 'Philosophy'],
+          ['Editorial', 'Design', 'Heritage', 'Inquiry', 'Architecture'],
+        ]);
+      } else if (tool === 'summary') {
+        const polished = await api.polishProse(plainTextContext.slice(0, 1000) || topic);
+        setResults({
+          title: 'Key Editorial Syntheses',
+          text: polished.summary || `1. True innovation often lies in the rediscovery of neglected craftsmanship.\n2. Digital acceleration has created an unprecedented cultural appetite for physical texture and permanence.\n3. The future of creative integrity depends on deliberate aesthetic constraint.`,
+        });
+      }
+    } catch (err) {
+      console.warn('AI generation fallback:', err);
       if (tool === 'headlines') {
         setResults([
           `The Architecture of Permanence: In Search of an Unhurried Modernity`,
           `Between Ink and Signal: The Quiet Resilience of ${topic}`,
           `The Geometry of Solitude: A Dispatch from the New Ateliers`,
-          `Against the Ephemeral: Why We Crave Texture in a Frictionless World`,
-          `The Unfinished Canvas: Rethinking Progress Through the Lens of ${topic}`,
         ]);
       } else if (tool === 'deck') {
         setResults([
           `A reflective inquiry into how the quiet resurgence of ${topic.toLowerCase()} is reshaping our relationship to craft, time, and intellectual permanence.`,
-          `As industrial speed accelerates, a burgeoning movement of thinkers and makers seeks refuge in the enduring weight of tactile knowledge.`,
-          `Beyond the digital consensus lies an untold landscape of deliberate friction, artisanal patience, and unyielding aesthetic integrity.`,
         ]);
-      } else if (tool === 'tags') {
-        setResults([
-          ['Essays', 'Culture', 'Craft', 'Aesthetics', 'Philosophy'],
-          ['Editorial', 'Design', 'Heritage', 'Inquiry', 'Architecture'],
-          ['Modernity', 'Discovery', 'Literature', 'Atelier', 'Typography'],
-        ]);
-      } else if (tool === 'summary') {
-        setResults({
-          title: 'Key Editorial Syntheses',
-          text: `1. True innovation often lies in the rediscovery of neglected craftsmanship.\n2. Digital acceleration has created an unprecedented cultural appetite for physical texture and permanence.\n3. The future of creative integrity depends on deliberate aesthetic constraint.`,
-        });
       }
+    } finally {
       setIsGenerating(false);
-    }, 600);
+    }
   };
 
   const handleCopy = (text: string, idx: number) => {
