@@ -91,6 +91,7 @@ export const AdminArticleEditor: React.FC<AdminArticleEditorProps> = ({
   const [isRevisionDrawerOpen, setIsRevisionDrawerOpen] = useState(false);
 
   // Auto-save & Local persistence state
+  const serverPersistedId = useRef<string | null>(null);
   const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'synced' | 'local_saved' | 'restored'>('idle');
   const [lastAutoSaveTime, setLastAutoSaveTime] = useState<string>('');
   const [localBackupPrompt, setLocalBackupPrompt] = useState<{ title: string; updatedAt: string; data: any } | null>(null);
@@ -159,7 +160,11 @@ export const AdminArticleEditor: React.FC<AdminArticleEditorProps> = ({
   // 1. Initial Load: Existing article or Unsaved Local Session
   useEffect(() => {
     if (articleId) {
+      if ((articleId === id || articleId === serverPersistedId.current) && title.trim()) {
+        return;
+      }
       setIsLoading(true);
+      serverPersistedId.current = articleId;
       api
         .getArticleBySlugOrId(articleId)
         .then((art) => {
@@ -395,26 +400,16 @@ export const AdminArticleEditor: React.FC<AdminArticleEditorProps> = ({
     isSpecial,
   ]);
 
-  // Debounced Background Cloud Sync (2.5s)
+  // Debounced Background Cloud Sync for existing dispatches (3s)
   useEffect(() => {
-    if (!title.trim() || isLoading) return;
+    const activeServerId = articleId || serverPersistedId.current;
+    if (!activeServerId || !title.trim() || isLoading) return;
 
     const timer = setTimeout(async () => {
       try {
         setAutoSaveStatus('saving');
-        const draftPayload = compileArticlePayload('DRAFT');
-
-        if (articleId) {
-          await api.updateArticle(articleId, draftPayload);
-        } else {
-          const created = await api.createArticle({ ...draftPayload, id, status: 'DRAFT' });
-          if (created?.id) {
-            setId(created.id);
-            if (window.location.hash !== `#/admin/editor/${created.id}`) {
-              window.location.hash = `#/admin/editor/${created.id}`;
-            }
-          }
-        }
+        const draftPayload = compileArticlePayload();
+        await api.updateArticle(activeServerId, draftPayload);
 
         const nowStr = new Date().toLocaleTimeString([], {
           hour: '2-digit',
@@ -423,12 +418,11 @@ export const AdminArticleEditor: React.FC<AdminArticleEditorProps> = ({
         });
         setLastAutoSaveTime(nowStr);
         setAutoSaveStatus('synced');
-        refreshArticles();
       } catch (err) {
         console.warn('Background auto-sync note:', err);
         setAutoSaveStatus('local_saved');
       }
-    }, 2500);
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, [
@@ -448,7 +442,6 @@ export const AdminArticleEditor: React.FC<AdminArticleEditorProps> = ({
     isUnique,
     isSpecial,
     articleId,
-    id,
     isLoading,
   ]);
 
@@ -538,24 +531,27 @@ export const AdminArticleEditor: React.FC<AdminArticleEditorProps> = ({
     setErrorMessage('');
     try {
       let saved: Article;
-      const isExistingOnServer = Boolean(articleId);
+      const effectiveServerId = articleId || serverPersistedId.current;
 
-      if (finalStatus === 'PUBLISHED' && isExistingOnServer) {
-        saved = await api.publishArticle(articleId!, payload);
-      } else if (isExistingOnServer) {
-        saved = await api.updateArticle(articleId!, payload);
+      if (finalStatus === 'PUBLISHED' && effectiveServerId) {
+        saved = await api.publishArticle(effectiveServerId, payload);
+      } else if (effectiveServerId) {
+        saved = await api.updateArticle(effectiveServerId, payload);
       } else {
         saved = await api.createArticle({ ...payload, id, status: finalStatus });
       }
 
       if (saved) {
+        serverPersistedId.current = saved.id;
         setId(saved.id);
         if (saved.slug) setSlug(saved.slug);
         setStatus(saved.status || finalStatus);
         if (saved.revisions) setRevisions(saved.revisions);
-        if (window.location.hash !== `#/admin/editor/${saved.id}`) {
-          window.location.hash = `#/admin/editor/${saved.id}`;
-        }
+        try {
+          if (window.location.hash !== `#/admin/editor/${saved.id}`) {
+            window.history.replaceState(null, '', `#/admin/editor/${saved.id}`);
+          }
+        } catch {}
       }
 
       await refreshArticles();
@@ -579,10 +575,11 @@ export const AdminArticleEditor: React.FC<AdminArticleEditorProps> = ({
         'success'
       );
     } catch (err: any) {
-      console.warn('Save error, recovering via local snapshot:', err);
+      console.error('Save error:', err);
       saveSnapshotToStorage();
-      setSaveSuccessMessage('Saved to local vault (will sync to cloud momentarily).');
-      setTimeout(() => setSaveSuccessMessage(''), 5000);
+      const errMsg = err?.message || 'Failed to save dispatch to server.';
+      setErrorMessage(errMsg);
+      toast?.showToast(errMsg, 'error');
     } finally {
       setIsSaving(false);
     }

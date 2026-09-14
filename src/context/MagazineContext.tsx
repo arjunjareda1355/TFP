@@ -112,6 +112,7 @@ interface MagazineContextType {
   currentUser: User | null;
   isAuthenticated: boolean;
   isOwner: boolean;
+  isStaff: boolean;
   loginAsAdmin: (email: string, passcode?: string) => Promise<User>;
   registerUser: (data: { email: string; name?: string; password?: string }) => Promise<User>;
   logoutAdmin: () => void;
@@ -392,6 +393,65 @@ export const MagazineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     refreshAll();
   }, [refreshAll]);
 
+  // Cross-tab synchronization via BroadcastChannel, storage events, and tab focus
+  useEffect(() => {
+    let bc: BroadcastChannel | null = null;
+    try {
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        bc = new BroadcastChannel('tfp_magazine_sync');
+        bc.onmessage = (event) => {
+          if (event?.data?.type?.startsWith('ARTICLE_') || event?.data?.type?.startsWith('USER_')) {
+            refreshArticles();
+          }
+        };
+      }
+    } catch {}
+
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'tfp_cached_articles' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setArticles(parsed);
+          }
+        } catch {}
+      } else if (e.key === 'tfp_sync_signal') {
+        refreshArticles();
+      } else if (e.key === 'tfp_admin_user') {
+        try {
+          setLocalAdminUser(e.newValue ? JSON.parse(e.newValue) : null);
+        } catch {}
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refreshArticles();
+      }
+    };
+
+    const handleFocus = () => {
+      refreshArticles();
+    };
+
+    window.addEventListener('storage', handleStorage);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    // Periodic silent sync poll every 12 seconds
+    const interval = setInterval(() => {
+      refreshArticles();
+    }, 12000);
+
+    return () => {
+      if (bc) bc.close();
+      window.removeEventListener('storage', handleStorage);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(interval);
+    };
+  }, [refreshArticles]);
+
   // Sync saved to localStorage
   useEffect(() => {
     try {
@@ -611,22 +671,22 @@ export const MagazineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   // Editorial Section Derived helpers
-  // Helper: Check if an article was published or created within the last 48 hours (2 days)
+  // Helper: Check if an article was published or created within the recent window
   const isRecentArticle = (article: Article): boolean => {
     if (!article) return false;
     const now = Date.now();
-    const twoDaysMs = 48 * 60 * 60 * 1000;
+    const recentWindowMs = 14 * 24 * 60 * 60 * 1000; // 14 days
 
     if (article.createdAt) {
       const createdTime = new Date(article.createdAt).getTime();
-      if (!isNaN(createdTime) && (now - createdTime) <= twoDaysMs && (now - createdTime) >= -60000) {
+      if (!isNaN(createdTime) && (now - createdTime) <= recentWindowMs && (createdTime - now) <= 86400000) {
         return true;
       }
     }
 
     if (article.publishedDate) {
       const pubTime = new Date(article.publishedDate).getTime();
-      if (!isNaN(pubTime) && (now - pubTime) <= twoDaysMs && (now - pubTime) >= -60000) {
+      if (!isNaN(pubTime) && (now - pubTime) <= recentWindowMs && (pubTime - now) <= 86400000) {
         return true;
       }
     }
@@ -800,8 +860,21 @@ export const MagazineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           currentUser?.role === 'EDITORIAL_OWNER' ||
           currentUser?.role === 'OPERATIONS_OWNER' ||
           currentUser?.role === 'OWNER' ||
-          currentUser?.email.toLowerCase() === 'arjunjareda2007@gmail.com' ||
-          currentUser?.email.toLowerCase() === 'arjunjareda1355@gmail.com',
+          currentUser?.email?.toLowerCase() === 'arjunjareda2007@gmail.com' ||
+          currentUser?.email?.toLowerCase() === 'arjunjareda1355@gmail.com',
+        isStaff: Boolean(
+          currentUser?.isPermanentOwner ||
+          currentUser?.role === 'EDITORIAL_OWNER' ||
+          currentUser?.role === 'OPERATIONS_OWNER' ||
+          currentUser?.role === 'OWNER' ||
+          currentUser?.role === 'MANAGING_EDITOR' ||
+          currentUser?.role === 'SENIOR_EDITOR' ||
+          currentUser?.role === 'EDITOR' ||
+          currentUser?.role === 'CONTRIBUTOR' ||
+          currentUser?.role === 'OPERATIONS_SPECIALIST' ||
+          currentUser?.email?.toLowerCase() === 'arjunjareda2007@gmail.com' ||
+          currentUser?.email?.toLowerCase() === 'arjunjareda1355@gmail.com'
+        ),
         loginAsAdmin,
         registerUser,
         logoutAdmin,

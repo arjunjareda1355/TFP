@@ -1,6 +1,154 @@
 {
   "articles": [
     {
+      "id": "story-1789360669321-otud",
+      "slug": "test-1355-article",
+      "title": "Test 1355 Article",
+      "subtitle": "",
+      "deck": "",
+      "category": "Culture",
+      "subcategory": "",
+      "tags": [
+        "Editorial"
+      ],
+      "author": {
+        "id": "editorial-team",
+        "name": "The Folded Page Editorial Board",
+        "role": "Editorial Staff",
+        "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240&auto=format&fit=crop&q=80",
+        "bio": "A collective of writers, visual researchers, and cultural anthropologists seeking out what is truly worth knowing.",
+        "location": "London & Kyoto",
+        "twitter": "@thefoldedpage"
+      },
+      "authorId": "editorial-team",
+      "status": "DRAFT",
+      "publishedDate": "September 14, 2026",
+      "updatedDate": "September 14, 2026",
+      "readTime": "1 min read",
+      "readTimeMinutes": 1,
+      "audioMinutes": 2,
+      "heroImage": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1600&auto=format&fit=crop&q=85",
+      "heroImageType": "EXTERNAL_URL",
+      "heroImageAlt": "Test 1355 Article",
+      "heroImageCaption": "",
+      "heroImageCredit": "",
+      "heroImageSourceUrl": "",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Start crafting your inquiry here. The Folded Page values clarity, depth, and tangible prose."
+        }
+      ],
+      "isCoverStory": false,
+      "isTrending": false,
+      "isPopular": false,
+      "isUnique": false,
+      "isSpecial": false,
+      "isEditorsPick": false,
+      "isFeatured": false,
+      "popularityRank": 26,
+      "featuredQuote": "",
+      "relatedSlugs": [],
+      "seoTitle": "Test 1355 Article",
+      "seoDescription": "",
+      "canonicalUrl": "https://thefoldedpage.press/story/test-1355-article",
+      "socialTitle": "Test 1355 Article",
+      "socialDescription": "",
+      "views": 0,
+      "saves": 0,
+      "shares": 0,
+      "createdAt": "2026-09-14T04:37:49.322Z",
+      "revisions": [
+        {
+          "id": "rev-story-1789360669321-otud-1",
+          "savedAt": "2026-09-14T04:37:49.322Z",
+          "authorName": "Arjun Jareda",
+          "title": "Test 1355 Article",
+          "blocksCount": 0,
+          "wordCount": 0,
+          "data": {
+            "title": "Test 1355 Article",
+            "category": "Culture"
+          },
+          "note": "Initial Draft Created"
+        }
+      ]
+    },
+    {
+      "id": "story-1789360662911-tfbj",
+      "slug": "test-article-from-curl",
+      "title": "Test Article from Curl",
+      "subtitle": "",
+      "deck": "",
+      "category": "Culture",
+      "subcategory": "",
+      "tags": [
+        "Editorial"
+      ],
+      "author": {
+        "id": "editorial-team",
+        "name": "The Folded Page Editorial Board",
+        "role": "Editorial Staff",
+        "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240&auto=format&fit=crop&q=80",
+        "bio": "A collective of writers, visual researchers, and cultural anthropologists seeking out what is truly worth knowing.",
+        "location": "London & Kyoto",
+        "twitter": "@thefoldedpage"
+      },
+      "authorId": "editorial-team",
+      "status": "DRAFT",
+      "publishedDate": "September 14, 2026",
+      "updatedDate": "September 14, 2026",
+      "readTime": "1 min read",
+      "readTimeMinutes": 1,
+      "audioMinutes": 2,
+      "heroImage": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1600&auto=format&fit=crop&q=85",
+      "heroImageType": "EXTERNAL_URL",
+      "heroImageAlt": "Test Article from Curl",
+      "heroImageCaption": "",
+      "heroImageCredit": "",
+      "heroImageSourceUrl": "",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Start crafting your inquiry here. The Folded Page values clarity, depth, and tangible prose."
+        }
+      ],
+      "isCoverStory": false,
+      "isTrending": false,
+      "isPopular": false,
+      "isUnique": false,
+      "isSpecial": false,
+      "isEditorsPick": false,
+      "isFeatured": false,
+      "popularityRank": 25,
+      "featuredQuote": "",
+      "relatedSlugs": [],
+      "seoTitle": "Test Article from Curl",
+      "seoDescription": "",
+      "canonicalUrl": "https://thefoldedpage.press/story/test-article-from-curl",
+      "socialTitle": "Test Article from Curl",
+      "socialDescription": "",
+      "views": 0,
+      "saves": 0,
+      "shares": 0,
+      "createdAt": "2026-09-14T04:37:42.921Z",
+      "revisions": [
+        {
+          "id": "rev-story-1789360662911-tfbj-1",
+          "savedAt": "2026-09-14T04:37:42.921Z",
+          "authorName": "Arjun Jareda",
+          "title": "Test Article from Curl",
+          "blocksCount": 0,
+          "wordCount": 0,
+          "data": {
+            "title": "Test Article from Curl",
+            "category": "Culture"
+          },
+          "note": "Initial Draft Created"
+        }
+      ]
+    },
+    {
       "id": "story-1788981385687-c3ut",
       "slug": "test-published-article-123",
       "title": "Test Published Article 123",
@@ -12305,10 +12453,79 @@
       "createdAt": "2026-09-03T17:15:49.294Z",
       "twoFactorEnabled": true,
       "lastLogin": "2026-09-06T04:39:32.041Z"
+    },
+    {
+      "id": "user-1789360698892",
+      "email": "testeditor@example.com",
+      "name": "testeditor",
+      "role": "EDITOR",
+      "customPermissions": [],
+      "status": "INVITED",
+      "createdAt": "2026-09-14T04:38:18.892Z"
+    },
+    {
+      "id": "user-1789360703827",
+      "email": "editor2@example.com",
+      "name": "editor2",
+      "role": "EDITOR",
+      "customPermissions": [],
+      "status": "INVITED",
+      "createdAt": "2026-09-14T04:38:23.827Z"
     }
   ],
-  "invitations": [],
+  "invitations": [
+    {
+      "id": "invitation-1789360703827",
+      "email": "editor2@example.com",
+      "name": "editor2",
+      "role": "EDITOR",
+      "customPermissions": [],
+      "invitedBy": "arjunjareda1355@gmail.com",
+      "invitedByName": "Arjun Jareda",
+      "invitedAt": "2026-09-14T04:38:23.827Z",
+      "expiresAt": "2026-09-21T04:38:23.827Z",
+      "status": "PENDING",
+      "token": "inv-1789360703827-nph9jgn2"
+    },
+    {
+      "id": "invitation-1789360698892",
+      "email": "testeditor@example.com",
+      "name": "testeditor",
+      "role": "EDITOR",
+      "customPermissions": [],
+      "invitedBy": "arjunjareda2007@gmail.com",
+      "invitedByName": "Arjun Jareda",
+      "invitedAt": "2026-09-14T04:38:18.892Z",
+      "expiresAt": "2026-09-21T04:38:18.892Z",
+      "status": "PENDING",
+      "token": "inv-1789360698892-pqe4ave8"
+    }
+  ],
   "activityLogs": [
+    {
+      "userId": "user-owner-operations-1355",
+      "userEmail": "arjunjareda1355@gmail.com",
+      "userName": "Arjun Jareda",
+      "userRole": "OPERATIONS_OWNER",
+      "action": "Invited User",
+      "resource": "Users & Access",
+      "details": "Invited \"editor2@example.com\" with role EDITOR.",
+      "result": "SUCCESS",
+      "id": "log-1789360703833-5cqbt",
+      "timestamp": "2026-09-14T04:38:23.833Z"
+    },
+    {
+      "userId": "user-owner-editorial-2007",
+      "userEmail": "arjunjareda2007@gmail.com",
+      "userName": "Arjun Jareda",
+      "userRole": "EDITORIAL_OWNER",
+      "action": "Invited User",
+      "resource": "Users & Access",
+      "details": "Invited \"testeditor@example.com\" with role EDITOR.",
+      "result": "SUCCESS",
+      "id": "log-1789360698898-y7oze",
+      "timestamp": "2026-09-14T04:38:18.898Z"
+    },
     {
       "userId": "user-owner-operations-1355",
       "userEmail": "arjunjareda1355@gmail.com",

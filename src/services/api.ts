@@ -56,6 +56,18 @@ function getHeaders(isJson = true): HeadersInit {
   return headers;
 }
 
+// Cross-tab broadcast & storage signal helper
+export function notifySync(type = 'ARTICLE_MUTATED', payload?: any) {
+  try {
+    localStorage.setItem('tfp_sync_signal', String(Date.now()));
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      const bc = new BroadcastChannel('tfp_magazine_sync');
+      bc.postMessage({ type, payload, timestamp: Date.now() });
+      bc.close();
+    }
+  } catch {}
+}
+
 // Local registered accounts helper for serverless resilience
 function getLocalRegisteredAccounts(): Record<string, { user: User; password?: string }> {
   try {
@@ -313,6 +325,7 @@ export const api = {
         localStorage.setItem('tfp_draft_vault', JSON.stringify([created, ...vList.filter((a) => a.id !== created.id)]));
       }
     } catch {}
+    notifySync('ARTICLE_CREATED', created);
     return created;
   },
 
@@ -343,6 +356,7 @@ export const api = {
         localStorage.setItem('tfp_draft_vault', JSON.stringify(nextVault));
       }
     } catch {}
+    notifySync('ARTICLE_UPDATED', updatedArt);
     return updatedArt;
   },
 
@@ -352,7 +366,9 @@ export const api = {
       headers: getHeaders(),
     });
     if (!res.ok) throw new Error('Failed to duplicate article');
-    return await res.json();
+    const dup = await res.json();
+    notifySync('ARTICLE_CREATED', dup);
+    return dup;
   },
 
   async publishArticle(id: string, payload?: Partial<Article>): Promise<Article> {
@@ -373,6 +389,7 @@ export const api = {
       if (!updated.some((a) => a.id === pub.id)) updated.unshift(pub);
       localStorage.setItem('tfp_cached_articles', JSON.stringify(updated));
     } catch {}
+    notifySync('ARTICLE_PUBLISHED', pub);
     return pub;
   },
 
@@ -1039,6 +1056,36 @@ export const api = {
       throw new Error(err.error || 'Failed to fetch users');
     }
     return await res.json();
+  },
+
+  async createUser(data: {
+    email: string;
+    name?: string;
+    role?: string;
+    bio?: string;
+    avatar?: string;
+    customPermissions?: string[];
+  }): Promise<{ success: boolean; user: User; message: string }> {
+    const res = await fetch(`${API_BASE}/users`, {
+      method: 'POST',
+      headers: getHeaders(true),
+      body: JSON.stringify(data),
+    });
+    const resData = await res.json();
+    if (!res.ok) throw new Error(resData.error || 'Failed to create editor');
+    notifySync('USER_MUTATED', resData.user);
+    return resData;
+  },
+
+  async activateUserDirect(idOrEmail: string): Promise<{ success: boolean; user: User; message: string }> {
+    const res = await fetch(`${API_BASE}/users/${encodeURIComponent(idOrEmail)}/activate`, {
+      method: 'POST',
+      headers: getHeaders(),
+    });
+    const resData = await res.json();
+    if (!res.ok) throw new Error(resData.error || 'Failed to activate editor');
+    notifySync('USER_MUTATED', resData.user);
+    return resData;
   },
 
   async inviteUser(data: { email: string; name?: string; role: string; customPermissions?: string[] }): Promise<any> {

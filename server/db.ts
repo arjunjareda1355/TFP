@@ -1917,6 +1917,108 @@ class DatabaseService {
     return user;
   }
 
+  public addOrActivateUser(
+    payload: {
+      email: string;
+      name?: string;
+      role?: UserRole;
+      bio?: string;
+      avatar?: string;
+      customPermissions?: string[];
+    },
+    actor?: User
+  ): User {
+    const cleanEmail = (payload.email || '').trim().toLowerCase();
+    if (!cleanEmail) {
+      throw new Error('Valid email address is required.');
+    }
+
+    const displayName = payload.name?.trim() || cleanEmail.split('@')[0];
+    const targetRole: UserRole = payload.role || 'EDITOR';
+
+    let user = this.getUserByEmail(cleanEmail);
+    if (user) {
+      user.status = 'ACTIVE';
+      user.name = displayName || user.name;
+      user.role = targetRole;
+      if (payload.customPermissions) user.customPermissions = payload.customPermissions;
+      if (payload.bio) user.bio = payload.bio;
+      if (payload.avatar) user.avatar = payload.avatar;
+    } else {
+      user = {
+        id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+        email: cleanEmail,
+        name: displayName,
+        role: targetRole,
+        status: 'ACTIVE',
+        customPermissions: payload.customPermissions || [],
+        bio: payload.bio || `Staff ${targetRole}`,
+        avatar: payload.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240&auto=format&fit=crop&q=80',
+        createdAt: new Date().toISOString(),
+      };
+      this.data.users.push(user);
+    }
+
+    // Mark any pending invitation for this email as ACCEPTED
+    if (this.data.invitations) {
+      this.data.invitations.forEach((inv) => {
+        if (inv.email.toLowerCase() === cleanEmail) {
+          inv.status = 'ACCEPTED';
+        }
+      });
+    }
+
+    // Automatically create or update corresponding Author profile in the masthead
+    if (!this.data.authors) this.data.authors = [];
+    const authorIndex = this.data.authors.findIndex(
+      (a) => a.email?.toLowerCase() === cleanEmail || a.id === user?.id
+    );
+    const authorRoleName =
+      targetRole === 'EDITOR'
+        ? 'Staff Editor'
+        : targetRole === 'SENIOR_EDITOR'
+        ? 'Senior Editor'
+        : targetRole === 'MANAGING_EDITOR'
+        ? 'Managing Editor'
+        : targetRole === 'CONTRIBUTOR'
+        ? 'Contributing Editor'
+        : 'Editorial Staff';
+
+    if (authorIndex >= 0) {
+      this.data.authors[authorIndex] = {
+        ...this.data.authors[authorIndex],
+        name: user.name,
+        role: authorRoleName,
+        bio: payload.bio || this.data.authors[authorIndex].bio || `Editor at The Folded Page`,
+        avatar: user.avatar || this.data.authors[authorIndex].avatar,
+      };
+    } else {
+      this.data.authors.push({
+        id: `auth-${user.id}`,
+        name: user.name,
+        role: authorRoleName,
+        avatar: user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240&auto=format&fit=crop&q=80',
+        bio: payload.bio || `Editor & Contributor at The Folded Page`,
+        email: cleanEmail,
+      });
+    }
+
+    this.save();
+
+    this.logActivity({
+      userId: actor?.id || 'system',
+      userEmail: actor?.email || 'system',
+      userName: actor?.name || 'Publication Owner',
+      userRole: actor?.role || 'OWNER',
+      action: 'Added/Activated Editor',
+      resource: 'Users & Access',
+      details: `Added and activated user "${cleanEmail}" with role ${targetRole}.`,
+      result: 'SUCCESS',
+    });
+
+    return user;
+  }
+
   public hasPermission(user: User, permission: string): boolean {
     if (!user || user.status === 'SUSPENDED' || user.status === 'REMOVED') {
       return false;
@@ -1952,8 +2054,22 @@ class DatabaseService {
     
     // Check if user already exists
     const existingUser = this.getUserByEmail(cleanEmail);
-    if (existingUser) {
-      throw new Error(`A user with email "${cleanEmail}" already exists with role ${existingUser.role}.`);
+    if (existingUser && existingUser.status === 'ACTIVE') {
+      // If already active, return the user and an invitation record
+      const token = `inv-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
+      const activeInv: UserInvitation = {
+        id: `invitation-${Date.now()}`,
+        email: cleanEmail,
+        name: existingUser.name,
+        role: existingUser.role,
+        invitedBy: actor.email,
+        invitedByName: actor.name,
+        invitedAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 7 * 86400000).toISOString(),
+        status: 'ACCEPTED',
+        token,
+      };
+      return { user: existingUser, invitation: activeInv };
     }
 
     // Role safety check: only owners can invite/manage, cannot invite as permanent owner
@@ -1990,7 +2106,13 @@ class DatabaseService {
 
     if (!this.data.invitations) this.data.invitations = [];
     this.data.invitations.unshift(newInvitation);
-    this.data.users.push(createdUser);
+    if (existingUser) {
+      existingUser.name = payload.name?.trim() || existingUser.name;
+      existingUser.role = targetRole;
+      if (payload.customPermissions) existingUser.customPermissions = payload.customPermissions;
+    } else {
+      this.data.users.push(createdUser);
+    }
     this.save();
 
     this.logActivity({

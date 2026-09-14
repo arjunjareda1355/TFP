@@ -41,6 +41,7 @@ export const AdminUsersRoles: React.FC = () => {
 
   // Invite modal state
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [activateImmediately, setActivateImmediately] = useState(true);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteName, setInviteName] = useState('');
   const [inviteRole, setInviteRole] = useState<RoleName>('EDITOR');
@@ -75,6 +76,22 @@ export const AdminUsersRoles: React.FC = () => {
 
   useEffect(() => {
     loadUsersAndInvitations();
+
+    let bc: BroadcastChannel | null = null;
+    try {
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        bc = new BroadcastChannel('tfp_magazine_sync');
+        bc.onmessage = (event) => {
+          if (event?.data?.type?.startsWith('USER_')) {
+            loadUsersAndInvitations();
+          }
+        };
+      }
+    } catch {}
+
+    return () => {
+      if (bc) bc.close();
+    };
   }, []);
 
   const handleSendInvite = async (e: React.FormEvent) => {
@@ -82,6 +99,31 @@ export const AdminUsersRoles: React.FC = () => {
     if (!inviteEmail) {
       setFeedback({ type: 'error', message: 'Please provide a valid email address.' });
       return;
+    }
+
+    if (activateImmediately) {
+      try {
+        const res = await api.createUser({
+          email: inviteEmail.trim(),
+          name: inviteName.trim() || undefined,
+          role: inviteRole,
+          customPermissions: customPermissions.length > 0 ? customPermissions : undefined,
+        });
+
+        setFeedback({
+          type: 'success',
+          message: `Successfully added and activated ${res.user.name} (${res.user.email}) as ${res.user.role}!`,
+        });
+        setShowInviteModal(false);
+        setInviteEmail('');
+        setInviteName('');
+        setCustomPermissions([]);
+        await loadUsersAndInvitations();
+        return;
+      } catch (err: any) {
+        setFeedback({ type: 'error', message: err.message || 'Failed to add user directly.' });
+        return;
+      }
     }
 
     try {
@@ -102,12 +144,26 @@ export const AdminUsersRoles: React.FC = () => {
         type: 'success',
         message: `Invitation generated for ${res.invitation.email}. Role: ${res.invitation.role}`,
       });
+      setShowInviteModal(false);
       setInviteEmail('');
       setInviteName('');
       setCustomPermissions([]);
-      loadUsersAndInvitations();
+      await loadUsersAndInvitations();
     } catch (err: any) {
       setFeedback({ type: 'error', message: err.message || 'Failed to generate invitation.' });
+    }
+  };
+
+  const handleQuickActivateInvitation = async (token: string, name?: string) => {
+    try {
+      const res = await api.acceptInvitation(token, name);
+      setFeedback({
+        type: 'success',
+        message: `Account activated for ${res.user.name} (${res.user.role})!`,
+      });
+      await loadUsersAndInvitations();
+    } catch (err: any) {
+      setFeedback({ type: 'error', message: err.message || 'Failed to activate invitation.' });
     }
   };
 
@@ -575,6 +631,14 @@ export const AdminUsersRoles: React.FC = () => {
 
                 <div className="flex items-center gap-2">
                   <button
+                    onClick={() => handleQuickActivateInvitation(inv.token, inv.name)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#16A34A] hover:bg-[#15803D] text-white text-xs font-semibold rounded-xs transition-colors shadow-xs"
+                    title="Activate Account Immediately"
+                  >
+                    <CheckCircle2 className="w-3 h-3" />
+                    <span>Activate Now</span>
+                  </button>
+                  <button
                     onClick={() => {
                       const url = `${window.location.origin}/#accept-invite?token=${inv.token}`;
                       navigator.clipboard.writeText(url);
@@ -728,6 +792,21 @@ export const AdminUsersRoles: React.FC = () => {
                 </div>
               </div>
 
+              <div className="bg-[#FAF8F5] border border-[#E8E5DF] p-3 rounded-xs flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-semibold text-[#111110]">Immediate Direct Activation</div>
+                  <div className="text-[11px] text-[#6E6A62]">Directly activate editor without requiring invite token confirmation</div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={activateImmediately}
+                    onChange={(e) => setActivateImmediately(e.target.checked)}
+                    className="w-4 h-4 rounded text-[#EA580C] focus:ring-[#EA580C]"
+                  />
+                </label>
+              </div>
+
               <div className="pt-4 border-t border-[#E8E5DF] flex items-center justify-end gap-3">
                 <button
                   type="button"
@@ -740,7 +819,7 @@ export const AdminUsersRoles: React.FC = () => {
                   type="submit"
                   className="px-5 py-2 bg-[#EA580C] hover:bg-[#C2410C] text-white text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors"
                 >
-                  Generate Invitation
+                  {activateImmediately ? 'Add & Activate Editor' : 'Generate Invitation'}
                 </button>
               </div>
             </form>

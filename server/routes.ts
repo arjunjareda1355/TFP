@@ -1302,6 +1302,60 @@ router.get('/users', requireOwner(), (req, res) => {
   }
 });
 
+router.post('/users', requireOwner(), (req, res) => {
+  try {
+    const actor = (req as any).user as User;
+    const { email, name, role, bio, avatar, customPermissions } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required to add an editor.' });
+    }
+    const user = db.addOrActivateUser(
+      {
+        email,
+        name,
+        role: role || 'EDITOR',
+        bio,
+        avatar,
+        customPermissions,
+      },
+      actor
+    );
+    res.status(201).json({
+      success: true,
+      user,
+      message: `Editor ${user.name} (${user.role}) added and activated successfully!`,
+    });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+router.post('/users/:id/activate', requireOwner(), (req, res) => {
+  try {
+    const actor = (req as any).user as User;
+    const idOrEmail = decodeURIComponent(req.params.id || '').trim();
+    let user = db.getUserById(idOrEmail) || db.getUserByEmail(idOrEmail.toLowerCase());
+    if (!user) {
+      // Check if it matches an invitation
+      const inv = db.getInvitations().find((i) => i.id === idOrEmail || i.email.toLowerCase() === idOrEmail.toLowerCase() || i.token === idOrEmail);
+      if (inv) {
+        user = db.addOrActivateUser({ email: inv.email, name: inv.name, role: inv.role, customPermissions: inv.customPermissions }, actor);
+      } else {
+        return res.status(404).json({ error: 'User or invitation not found.' });
+      }
+    } else {
+      user = db.addOrActivateUser({ email: user.email, name: user.name, role: user.role, customPermissions: user.customPermissions }, actor);
+    }
+    res.json({
+      success: true,
+      user,
+      message: `User ${user.name} activated successfully!`,
+    });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 router.post('/users/invite', requireOwner(), (req, res) => {
   try {
     const actor = (req as any).user as User;
