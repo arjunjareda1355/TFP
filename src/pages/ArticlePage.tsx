@@ -171,7 +171,10 @@ export const ArticlePage: React.FC<ArticlePageProps> = ({
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.title = 'The Folded Page';
+    };
   }, [slug, article?.id]);
 
   const getFontSizeClass = () => {
