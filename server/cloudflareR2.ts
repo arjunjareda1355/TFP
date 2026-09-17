@@ -377,20 +377,68 @@ export async function loadDatabaseFromCloudflareR2(): Promise<any | null> {
  */
 export async function loadArticlesFromCloudflareR2(): Promise<any[] | null> {
   try {
+    const articleMap = new Map<string, any>();
+
+    // 1. Try loading master all-articles.json
     const buffer = await downloadObjectFromR2('articles/all-articles.json');
     if (buffer) {
       const text = buffer.toString('utf-8');
       if (text && text.trim().length > 0) {
-        const parsed = JSON.parse(text);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
+        try {
+          const parsed = JSON.parse(text);
+          if (Array.isArray(parsed)) {
+            for (const art of parsed) {
+              if (art && art.id) {
+                articleMap.set(art.id, art);
+              }
+            }
+          }
+        } catch (parseErr) {
+          console.warn('[Cloudflare R2] all-articles.json parse error:', parseErr);
         }
       }
     }
 
-    const dbData = await loadDatabaseFromCloudflareR2();
-    if (dbData && Array.isArray(dbData.articles) && dbData.articles.length > 0) {
-      return dbData.articles;
+    // 2. Also check database snapshot if all-articles was empty
+    if (articleMap.size === 0) {
+      const dbData = await loadDatabaseFromCloudflareR2();
+      if (dbData && Array.isArray(dbData.articles)) {
+        for (const art of dbData.articles) {
+          if (art && art.id) {
+            articleMap.set(art.id, art);
+          }
+        }
+      }
+    }
+
+    // 3. Scan individual article files under articles/ to ensure no individual dispatches were missed
+    try {
+      const objects = await listObjectsFromR2('articles/');
+      const individualFiles = objects.filter(
+        (obj) => obj.key.startsWith('articles/') && obj.key.endsWith('.json') && obj.key !== 'articles/all-articles.json'
+      );
+
+      for (const obj of individualFiles) {
+        const idMatch = obj.key.replace(/^articles\//, '').replace(/\.json$/, '');
+        // If not in map or if remote individual file might be newer
+        if (!articleMap.has(idMatch)) {
+          const fileBuf = await downloadObjectFromR2(obj.key);
+          if (fileBuf) {
+            try {
+              const art = JSON.parse(fileBuf.toString('utf-8'));
+              if (art && art.id) {
+                articleMap.set(art.id, art);
+              }
+            } catch {}
+          }
+        }
+      }
+    } catch (listErr) {
+      console.warn('[Cloudflare R2] Scan individual articles warning:', listErr);
+    }
+
+    if (articleMap.size > 0) {
+      return Array.from(articleMap.values());
     }
 
     return null;

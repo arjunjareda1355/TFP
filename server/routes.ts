@@ -15,6 +15,8 @@ import {
   isR2Configured,
   R2_BUCKET_NAME,
   R2_PUBLIC_DOMAIN,
+  saveArticleToCloudflareR2,
+  deleteArticleFromCloudflareR2,
 } from './cloudflareR2';
 import {
   isD1Configured,
@@ -272,6 +274,16 @@ function requirePermission(permission: string) {
   };
 }
 
+// Ensure database state is fully synchronized before serving API traffic
+router.use(async (req, res, next) => {
+  try {
+    await db.ensureSynced();
+  } catch (err) {
+    console.warn('[Database] Sync before request notice:', err);
+  }
+  next();
+});
+
 // ====================== AUTH ROUTES ======================
 router.post('/auth/login', (req, res) => {
   const { email, password, passcode } = req.body;
@@ -434,6 +446,9 @@ router.get('/articles', async (req, res) => {
       includeDrafts: includeDrafts === 'true' || Boolean(status && status !== 'PUBLISHED'),
     });
 
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     res.json(result);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -447,124 +462,158 @@ router.get('/articles/:id_or_slug', async (req, res) => {
     if (!article) {
       return res.status(404).json({ error: 'Article not found.' });
     }
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     res.json(article);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 });
 
-router.post('/articles', requireOwner(), (req, res) => {
+router.post('/articles', requireOwner(), async (req, res) => {
   try {
+    await db.ensureSynced();
     const user = (req as any).user;
     const newArticle = db.createArticle(req.body, user);
+    await saveArticleToCloudflareR2(newArticle);
+    await db.saveAsync();
     res.status(201).json(newArticle);
   } catch (err: any) {
     res.status(400).json({ error: err.message });
   }
 });
 
-router.put('/articles/:id', requireOwner(), (req, res) => {
+router.put('/articles/:id', requireOwner(), async (req, res) => {
   try {
+    await db.ensureSynced();
     const user = (req as any).user;
     const updated = db.updateArticle(req.params.id, req.body, user);
     if (!updated) {
       return res.status(404).json({ error: 'Article not found.' });
     }
+    await saveArticleToCloudflareR2(updated);
+    await db.saveAsync();
     res.json(updated);
   } catch (err: any) {
     res.status(400).json({ error: err.message });
   }
 });
 
-router.post('/articles/:id/duplicate', requireOwner(), (req, res) => {
+router.post('/articles/:id/duplicate', requireOwner(), async (req, res) => {
   try {
+    await db.ensureSynced();
     const user = (req as any).user;
     const duplicated = db.duplicateArticle(req.params.id, user);
     if (!duplicated) {
       return res.status(404).json({ error: 'Article not found to duplicate.' });
     }
+    await saveArticleToCloudflareR2(duplicated);
+    await db.saveAsync();
     res.status(201).json(duplicated);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 });
 
-router.post('/articles/:id/publish', requireOwner(), (req, res) => {
+router.post('/articles/:id/publish', requireOwner(), async (req, res) => {
   try {
+    await db.ensureSynced();
     const user = (req as any).user;
-    const nowStr = new Date().toLocaleDateString('en-US', {
+    const now = new Date();
+    const nowStr = now.toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
       year: 'numeric',
     });
+    const nowIso = now.toISOString();
     
     // Merge any incoming body updates with PUBLISHED status
     const updates = {
       ...(req.body || {}),
       status: 'PUBLISHED' as const,
       publishedDate: req.body?.publishedDate || nowStr,
+      publishedAt: req.body?.publishedAt || nowIso,
       updatedDate: nowStr,
+      updatedAt: nowIso,
     };
 
     let updated = db.updateArticle(req.params.id, updates, user);
     if (!updated && req.body && (req.body.title || req.body.deck)) {
-      updated = db.createArticle({ ...req.body, status: 'PUBLISHED', publishedDate: nowStr }, user);
+      updated = db.createArticle(
+        { ...req.body, id: req.params.id, status: 'PUBLISHED', publishedDate: nowStr, publishedAt: nowIso },
+        user
+      );
     }
 
     if (!updated) {
       return res.status(404).json({ error: 'Article not found to publish.' });
     }
+    await saveArticleToCloudflareR2(updated);
+    await db.saveAsync();
     res.json(updated);
   } catch (err: any) {
     res.status(400).json({ error: err.message || 'Failed to publish article.' });
   }
 });
 
-router.post('/articles/:id/unpublish', requireOwner(), (req, res) => {
+router.post('/articles/:id/unpublish', requireOwner(), async (req, res) => {
   try {
+    await db.ensureSynced();
     const user = (req as any).user;
     const updated = db.updateArticle(req.params.id, { status: 'DRAFT', ...(req.body || {}) }, user);
     if (!updated) {
       return res.status(404).json({ error: 'Article not found.' });
     }
+    await saveArticleToCloudflareR2(updated);
+    await db.saveAsync();
     res.json(updated);
   } catch (err: any) {
     res.status(400).json({ error: err.message });
   }
 });
 
-router.post('/articles/:id/archive', requireOwner(), (req, res) => {
+router.post('/articles/:id/archive', requireOwner(), async (req, res) => {
   try {
+    await db.ensureSynced();
     const user = (req as any).user;
     const updated = db.updateArticle(req.params.id, { status: 'ARCHIVED', ...(req.body || {}) }, user);
     if (!updated) {
       return res.status(404).json({ error: 'Article not found.' });
     }
+    await saveArticleToCloudflareR2(updated);
+    await db.saveAsync();
     res.json(updated);
   } catch (err: any) {
     res.status(400).json({ error: err.message });
   }
 });
 
-router.delete('/articles/:id', requireOwner(), (req, res) => {
+router.delete('/articles/:id', requireOwner(), async (req, res) => {
   try {
+    await db.ensureSynced();
     const user = (req as any).user;
     const success = db.deleteArticle(req.params.id, user);
     if (!success) {
       return res.status(404).json({ error: 'Article not found.' });
     }
+    await deleteArticleFromCloudflareR2(req.params.id);
+    await db.saveAsync();
     res.json({ success: true, message: 'Article moved to trash.' });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 });
 
-router.post('/articles/:id/revisions/:revId/restore', (req, res) => {
+router.post('/articles/:id/revisions/:revId/restore', async (req, res) => {
   try {
+    await db.ensureSynced();
     const restored = db.restoreRevision(req.params.id, req.params.revId);
     if (!restored) {
       return res.status(404).json({ error: 'Revision could not be restored.' });
     }
+    await saveArticleToCloudflareR2(restored);
+    await db.saveAsync();
     res.json(restored);
   } catch (err: any) {
     res.status(500).json({ error: err.message });

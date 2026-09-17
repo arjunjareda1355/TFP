@@ -357,6 +357,7 @@ class DatabaseService {
 
   private async syncFromCloudflare() {
     try {
+      console.log('[Database] Checking Cloudflare R2 for remote updates...');
       // 1. Try loading articles list directly from R2
       let remoteArticles = await loadArticlesFromCloudflareR2();
       // 2. Also load full database snapshot from R2
@@ -375,16 +376,18 @@ class DatabaseService {
           if (!remArt || !remArt.id) continue;
           if (!localMap.has(remArt.id)) {
             this.data.articles.push(remArt);
+            localMap.set(remArt.id, remArt);
             addedCount++;
           } else {
             const localArt = localMap.get(remArt.id)!;
-            // If remote has newer revisions or status, merge into local
-            const remTime = new Date(remArt.updatedDate || remArt.publishedDate || remArt.createdAt || 0).getTime();
-            const locTime = new Date(localArt.updatedDate || localArt.publishedDate || localArt.createdAt || 0).getTime();
+            // Compare timestamps with ISO fallbacks
+            const remTime = new Date(remArt.updatedAt || remArt.updatedDate || remArt.publishedAt || remArt.publishedDate || remArt.createdAt || 0).getTime();
+            const locTime = new Date(localArt.updatedAt || localArt.updatedDate || localArt.publishedAt || localArt.publishedDate || localArt.createdAt || 0).getTime();
             if (remTime > locTime || (remArt.revisions && (!localArt.revisions || remArt.revisions.length > localArt.revisions.length))) {
               const idx = this.data.articles.findIndex((a) => a.id === remArt.id);
               if (idx !== -1) {
                 this.data.articles[idx] = remArt;
+                localMap.set(remArt.id, remArt);
                 updatedCount++;
               }
             }
@@ -395,6 +398,17 @@ class DatabaseService {
           console.log(`[Cloudflare R2] Synced: ${addedCount} added, ${updatedCount} updated from cloud vault.`);
           this.saveDatabaseToFile(this.data);
         }
+      }
+
+      // CRITICAL: Ensure local articles missing from remote R2 are backed up to R2 so data is never lost across container cold-starts
+      const remoteIds = new Set((remoteArticles || []).map((a: any) => a.id));
+      const missingFromRemote = this.data.articles.filter((a) => !remoteIds.has(a.id));
+      if (missingFromRemote.length > 0) {
+        console.log(`[Cloudflare R2] Backing up ${missingFromRemote.length} local dispatches to R2 vault...`);
+        for (const localArt of missingFromRemote) {
+          await saveArticleToCloudflareR2(localArt).catch(() => {});
+        }
+        await saveDatabaseToCloudflareR2(this.data).catch(() => {});
       }
 
       // Sync categories, series, issues, users if remote has them
@@ -765,6 +779,16 @@ class DatabaseService {
     });
   }
 
+  public async saveAsync(): Promise<boolean> {
+    this.saveDatabaseToFile(this.data);
+    try {
+      return await saveDatabaseToCloudflareR2(this.data);
+    } catch (err) {
+      console.warn('[Cloudflare R2] saveAsync error:', err);
+      return false;
+    }
+  }
+
   // Check scheduled articles to auto-publish
   public checkScheduledArticles() {
     const now = new Date();
@@ -1027,7 +1051,9 @@ class DatabaseService {
       views: 0,
       saves: 0,
       shares: 0,
-      createdAt: new Date().toISOString(),
+      createdAt: articleData.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      publishedAt: isPublished ? (articleData.publishedAt || new Date().toISOString()) : undefined,
       revisions: [
         {
           id: `rev-${newId}-1`,
@@ -1129,7 +1155,9 @@ class DatabaseService {
       id: existing.id,
       slug: updatedSlug,
       publishedDate,
+      publishedAt: updates.status === 'PUBLISHED' ? (existing.publishedAt || updates.publishedAt || new Date().toISOString()) : existing.publishedAt,
       updatedDate: nowStr,
+      updatedAt: new Date().toISOString(),
       readTime,
       readTimeMinutes,
       revisions: updatedRevisions,

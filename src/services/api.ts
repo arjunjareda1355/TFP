@@ -243,13 +243,31 @@ export const api = {
       if (params?.search) searchParams.append('search', params.search);
       if (params?.includeDrafts) searchParams.append('includeDrafts', 'true');
 
-      const url = `${API_BASE}/articles${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
-      const res = await fetch(url, { headers: getHeaders() });
+      const url = `${API_BASE}/articles${searchParams.toString() ? `?${searchParams.toString()}&_t=${Date.now()}` : `?_t=${Date.now()}`}`;
+      const res = await fetch(url, { headers: getHeaders(), cache: 'no-cache' });
       if (!res.ok) throw new Error('Failed to fetch articles');
       const data = await res.json();
       if (data?.articles) {
         try {
-          localStorage.setItem('tfp_cached_articles', JSON.stringify(data.articles));
+          const isFullFetch = !params?.category && !params?.tag && !params?.status && !params?.search && !params?.flag && !params?.authorId;
+          if (isFullFetch) {
+            // Merge with local drafts that haven't synced yet
+            const cached = localStorage.getItem('tfp_cached_articles');
+            const localList: Article[] = cached ? JSON.parse(cached) : [];
+            const remoteIds = new Set(data.articles.map((a: Article) => a.id));
+            const unsyncedDrafts = localList.filter((a) => !remoteIds.has(a.id) && a.status === 'DRAFT');
+            const merged = [...data.articles, ...unsyncedDrafts];
+            localStorage.setItem('tfp_cached_articles', JSON.stringify(merged));
+          } else {
+            // Update individual fetched articles in cached list without overwriting the master list
+            const cached = localStorage.getItem('tfp_cached_articles');
+            if (cached) {
+              const localList: Article[] = JSON.parse(cached);
+              const fetchMap = new Map(data.articles.map((a: Article) => [a.id, a]));
+              const updated = localList.map((a) => fetchMap.get(a.id) || a);
+              localStorage.setItem('tfp_cached_articles', JSON.stringify(updated));
+            }
+          }
         } catch {}
       }
       return data;
@@ -288,16 +306,41 @@ export const api = {
 
   async getArticleBySlugOrId(idOrSlug: string): Promise<Article | null> {
     try {
-      const res = await fetch(`${API_BASE}/articles/${encodeURIComponent(idOrSlug)}`, {
+      const res = await fetch(`${API_BASE}/articles/${encodeURIComponent(idOrSlug)}?_t=${Date.now()}`, {
         headers: getHeaders(),
+        cache: 'no-cache',
       });
       if (!res.ok) {
         if (res.status === 404) return null;
         throw new Error('Failed to fetch article');
       }
-      return await res.json();
+      const art = await res.json();
+      if (art && art.id) {
+        try {
+          const cached = localStorage.getItem('tfp_cached_articles');
+          if (cached) {
+            const list: Article[] = JSON.parse(cached);
+            const idx = list.findIndex((a) => a.id === art.id || a.slug === art.slug);
+            if (idx !== -1) {
+              list[idx] = art;
+            } else {
+              list.unshift(art);
+            }
+            localStorage.setItem('tfp_cached_articles', JSON.stringify(list));
+          }
+        } catch {}
+      }
+      return art;
     } catch (err) {
       console.warn('API fetch article failed, using fallback:', err);
+      try {
+        const cached = localStorage.getItem('tfp_cached_articles');
+        if (cached) {
+          const list: Article[] = JSON.parse(cached);
+          const found = list.find((a) => a.slug === idOrSlug || a.id === idOrSlug);
+          if (found) return found;
+        }
+      } catch {}
       return ARTICLES.find((a) => a.slug === idOrSlug || a.id === idOrSlug) || null;
     }
   },
@@ -399,7 +442,15 @@ export const api = {
       headers: getHeaders(),
     });
     if (!res.ok) throw new Error('Failed to unpublish article');
-    return await res.json();
+    const unpub: Article = await res.json();
+    try {
+      const cached = localStorage.getItem('tfp_cached_articles');
+      const list: Article[] = cached ? JSON.parse(cached) : [];
+      const updated = list.map((a) => (a.id === unpub.id ? unpub : a));
+      localStorage.setItem('tfp_cached_articles', JSON.stringify(updated));
+    } catch {}
+    notifySync('ARTICLE_UPDATED', unpub);
+    return unpub;
   },
 
   async archiveArticle(id: string): Promise<Article> {
@@ -408,7 +459,15 @@ export const api = {
       headers: getHeaders(),
     });
     if (!res.ok) throw new Error('Failed to archive article');
-    return await res.json();
+    const arch: Article = await res.json();
+    try {
+      const cached = localStorage.getItem('tfp_cached_articles');
+      const list: Article[] = cached ? JSON.parse(cached) : [];
+      const updated = list.map((a) => (a.id === arch.id ? arch : a));
+      localStorage.setItem('tfp_cached_articles', JSON.stringify(updated));
+    } catch {}
+    notifySync('ARTICLE_UPDATED', arch);
+    return arch;
   },
 
   async deleteArticle(id: string): Promise<boolean> {
@@ -417,6 +476,21 @@ export const api = {
       headers: getHeaders(),
     });
     if (!res.ok) throw new Error('Failed to delete article');
+    try {
+      const cached = localStorage.getItem('tfp_cached_articles');
+      if (cached) {
+        const list: Article[] = JSON.parse(cached);
+        const filtered = list.filter((a) => a.id !== id && a.slug !== id);
+        localStorage.setItem('tfp_cached_articles', JSON.stringify(filtered));
+      }
+      const vault = localStorage.getItem('tfp_draft_vault');
+      if (vault) {
+        const vList: Article[] = JSON.parse(vault);
+        const nextVault = vList.filter((a) => a.id !== id && a.slug !== id);
+        localStorage.setItem('tfp_draft_vault', JSON.stringify(nextVault));
+      }
+    } catch {}
+    notifySync('ARTICLE_DELETED', { id });
     return true;
   },
 

@@ -90,7 +90,9 @@ export interface Article {
   authorId?: string;
   status?: ArticleStatus;
   publishedDate: string;
+  publishedAt?: string;
   updatedDate?: string;
+  updatedAt?: string;
   scheduledPublishTime?: string;
   scheduledPublishDate?: string;
   readTime: string;

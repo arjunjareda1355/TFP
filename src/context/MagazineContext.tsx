@@ -309,8 +309,9 @@ export const MagazineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setArticles((prev) => {
           const remoteList = res.articles;
           const remoteIds = new Set(remoteList.map((a) => a.id));
-          const localOnly = prev.filter((a) => !remoteIds.has(a.id));
-          const merged = [...remoteList, ...localOnly];
+          // Preserve only local unsaved drafts not yet sent to the server (never resurrect deleted articles)
+          const localDraftsOnly = prev.filter((a) => !remoteIds.has(a.id) && a.status === 'DRAFT');
+          const merged = [...remoteList, ...localDraftsOnly];
           try {
             localStorage.setItem('tfp_cached_articles', JSON.stringify(merged));
           } catch {}
@@ -339,9 +340,9 @@ export const MagazineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setArticles((prev) => {
           const remoteList = artRes.value.articles;
           const remoteIds = new Set(remoteList.map((a) => a.id));
-          // Preserve any local drafts or freshly added items not yet returned
-          const localOnly = prev.filter((a) => !remoteIds.has(a.id));
-          const merged = [...remoteList, ...localOnly];
+          // Preserve only local unsaved drafts not yet sent to server
+          const localDraftsOnly = prev.filter((a) => !remoteIds.has(a.id) && a.status === 'DRAFT');
+          const merged = [...remoteList, ...localDraftsOnly];
           try {
             localStorage.setItem('tfp_cached_articles', JSON.stringify(merged));
           } catch {}
@@ -400,7 +401,16 @@ export const MagazineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
         bc = new BroadcastChannel('tfp_magazine_sync');
         bc.onmessage = (event) => {
-          if (event?.data?.type?.startsWith('ARTICLE_') || event?.data?.type?.startsWith('USER_')) {
+          const data = event?.data;
+          if (!data) return;
+          if (data.type === 'ARTICLE_DELETED' && data.payload?.id) {
+            setArticles((prev) => prev.filter((a) => a.id !== data.payload.id && a.slug !== data.payload.id));
+          } else if (data.type === 'ARTICLE_CREATED' && data.payload) {
+            setArticles((prev) => [data.payload, ...prev.filter((a) => a.id !== data.payload.id)]);
+          } else if ((data.type === 'ARTICLE_UPDATED' || data.type === 'ARTICLE_PUBLISHED') && data.payload) {
+            setArticles((prev) => prev.map((a) => (a.id === data.payload.id ? data.payload : a)));
+          }
+          if (data.type?.startsWith('ARTICLE_') || data.type?.startsWith('USER_')) {
             refreshArticles();
           }
         };
@@ -698,56 +708,45 @@ export const MagazineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const publishedArticles = [...articles]
     .filter((a) => a.status === 'PUBLISHED' || !a.status)
     .sort((a, b) => {
-      const timeA = new Date(a.createdAt || a.publishedDate || 0).getTime();
-      const timeB = new Date(b.createdAt || b.publishedDate || 0).getTime();
+      const timeA = new Date(a.publishedAt || a.updatedAt || a.createdAt || a.publishedDate || 0).getTime();
+      const timeB = new Date(b.publishedAt || b.updatedAt || b.createdAt || b.publishedDate || 0).getTime();
       return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
     });
 
-  // Recent articles published in the last 48 hours (featured by default on main screen)
-  const recentArticles = publishedArticles.filter(isRecentArticle);
+  // Recent articles: always reflects the newest published articles first
+  const recentArticles = publishedArticles;
 
-  // Cover Story: check layout setting or isCoverStory flag or recent 2-day article or first published article
+  // Cover Story: check layout setting or isCoverStory flag or recent article or first published article
   const coverStory =
     (homepageLayout?.coverStoryId
       ? publishedArticles.find((a) => a.id === homepageLayout.coverStoryId)
       : null) ||
     publishedArticles.find((a) => a.isCoverStory) ||
-    (recentArticles.length > 0 ? recentArticles[0] : null) ||
     publishedArticles[0] ||
     articles[0];
 
-  // Helper to merge and deduplicate articles while prioritizing new 2-day articles
+  // Helper to merge and deduplicate articles, keeping all published stories accessible
   const mergeWithRecent = (baseList: Article[], maxItems = 6): Article[] => {
     const list: Article[] = [];
     const seen = new Set<string>();
 
-    // Add recent 2-day articles first
-    for (const art of recentArticles) {
-      if (!seen.has(art.id)) {
-        seen.add(art.id);
-        list.push(art);
-      }
-    }
-
-    // Add base configured / flagged articles
+    // 1. Add configured/flagged base stories first
     for (const art of baseList) {
-      if (!seen.has(art.id)) {
+      if (art && !seen.has(art.id) && (!coverStory || art.id !== coverStory.id)) {
         seen.add(art.id);
         list.push(art);
       }
     }
 
-    // Fill with published articles if needed
-    if (list.length < 4) {
-      for (const art of publishedArticles) {
-        if (!seen.has(art.id)) {
-          seen.add(art.id);
-          list.push(art);
-        }
+    // 2. Fill with published articles chronologically (newest first)
+    for (const art of publishedArticles) {
+      if (art && !seen.has(art.id) && (!coverStory || art.id !== coverStory.id)) {
+        seen.add(art.id);
+        list.push(art);
       }
     }
 
-    return list.slice(0, Math.max(maxItems, list.length));
+    return list.slice(0, maxItems);
   };
 
   // Trending (Features new articles for 2 days + keeps existing trending configuration)
