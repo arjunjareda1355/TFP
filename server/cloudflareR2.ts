@@ -16,7 +16,7 @@ dotenv.config();
 const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID || '';
 const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID || '';
 const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY || '';
-export const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME || 'thefoldedpage-storage';
+export const R2_BUCKET_NAME = (process.env.R2_BUCKET_NAME || 'thefoldedpage-storage').trim().toLowerCase();
 export const R2_PUBLIC_DOMAIN = process.env.R2_PUBLIC_DOMAIN || '';
 
 // S3-compatible R2 endpoint
@@ -320,11 +320,12 @@ export async function generateR2DownloadUrl(
  * Compute public URL for an R2 object key
  */
 export function getObjectPublicUrl(key: string): string {
-  if (R2_PUBLIC_DOMAIN) {
+  const cleanKey = key.replace(/^\//, '');
+  if (R2_PUBLIC_DOMAIN && !R2_PUBLIC_DOMAIN.includes('r2.cloudflarestorage.com')) {
     const base = R2_PUBLIC_DOMAIN.replace(/\/$/, '');
-    return `${base}/${key.replace(/^\//, '')}`;
+    return `${base}/${cleanKey}`;
   }
-  return `/api/storage/file-raw?key=${encodeURIComponent(key)}`;
+  return `/api/storage/download/${cleanKey}`;
 }
 
 /**
