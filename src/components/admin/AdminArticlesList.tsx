@@ -550,15 +550,29 @@ export const AdminArticlesList: React.FC<AdminArticlesListProps> = ({
 
                         <button
                           onClick={() => {
-                            try {
-                              localStorage.setItem('tfp_preview_article', JSON.stringify(article));
-                              if (article.slug) localStorage.setItem(`tfp_preview_${article.slug}`, JSON.stringify(article));
-                              if (article.id) localStorage.setItem(`tfp_preview_${article.id}`, JSON.stringify(article));
-                            } catch {}
+                            if (article.status !== 'PUBLISHED') {
+                              try {
+                                localStorage.setItem('tfp_preview_article', JSON.stringify(article));
+                                if (article.slug) localStorage.setItem(`tfp_preview_${article.slug}`, JSON.stringify(article));
+                                if (article.id) localStorage.setItem(`tfp_preview_${article.id}`, JSON.stringify(article));
+                              } catch {}
+                            } else {
+                              try {
+                                if (article.slug) localStorage.removeItem(`tfp_preview_${article.slug}`);
+                                if (article.id) localStorage.removeItem(`tfp_preview_${article.id}`);
+                                const generic = localStorage.getItem('tfp_preview_article');
+                                if (generic) {
+                                  const parsed = JSON.parse(generic);
+                                  if (parsed.id === article.id || parsed.slug === article.slug) {
+                                    localStorage.removeItem('tfp_preview_article');
+                                  }
+                                }
+                              } catch {}
+                            }
                             onPreviewArticle(article.slug || article.id);
                           }}
                           className="p-1.5 text-[#55524B] hover:text-[#111110] bg-[#F9F8F6] hover:bg-[#E8E5DF] rounded-xs transition-colors shrink-0"
-                          title="Preview in magazine"
+                          title={article.status === 'PUBLISHED' ? 'View live story' : 'Preview draft in magazine'}
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
                         </button>

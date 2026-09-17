@@ -408,7 +408,13 @@ export const MagazineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           } else if (data.type === 'ARTICLE_CREATED' && data.payload) {
             setArticles((prev) => [data.payload, ...prev.filter((a) => a.id !== data.payload.id)]);
           } else if ((data.type === 'ARTICLE_UPDATED' || data.type === 'ARTICLE_PUBLISHED') && data.payload) {
-            setArticles((prev) => prev.map((a) => (a.id === data.payload.id ? data.payload : a)));
+            setArticles((prev) => {
+              const exists = prev.some((a) => a.id === data.payload.id);
+              if (exists) {
+                return prev.map((a) => (a.id === data.payload.id ? data.payload : a));
+              }
+              return [data.payload, ...prev];
+            });
           }
           if (data.type?.startsWith('ARTICLE_') || data.type?.startsWith('USER_')) {
             refreshArticles();

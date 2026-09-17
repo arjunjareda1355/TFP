@@ -55,6 +55,7 @@ export const ArticlePage: React.FC<ArticlePageProps> = ({
     readerTheme,
     setReaderTheme,
     isOwner,
+    refreshArticles,
   } = useMagazine();
 
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -63,15 +64,18 @@ export const ArticlePage: React.FC<ArticlePageProps> = ({
   const [isPublishingDraft, setIsPublishingDraft] = useState(false);
   const [publishSuccess, setPublishSuccess] = useState(false);
 
-  // Check local preview cache first (for real-time in-progress editor drafts)
+  // Check local preview cache (ONLY for active in-progress editor drafts)
   const localPreviewDraft = React.useMemo(() => {
     try {
       const specific = localStorage.getItem(`tfp_preview_${slug}`);
-      if (specific) return JSON.parse(specific) as Article;
+      if (specific) {
+        const parsed = JSON.parse(specific) as Article;
+        if (parsed.status !== 'PUBLISHED') return parsed;
+      }
       const generic = localStorage.getItem('tfp_preview_article');
       if (generic) {
         const parsed = JSON.parse(generic) as Article;
-        if (parsed.slug === slug || parsed.id === slug || !slug) {
+        if ((parsed.slug === slug || parsed.id === slug || !slug) && parsed.status !== 'PUBLISHED') {
           return parsed;
         }
       }
@@ -85,49 +89,73 @@ export const ArticlePage: React.FC<ArticlePageProps> = ({
     return decodeURIComponent(slug || '').trim().toLowerCase();
   }, [slug]);
 
-  // Find in context, local preview, or fetched API
+  const contextArticle = articles.find(
+    (a) =>
+      a.slug === slug ||
+      a.id === slug ||
+      (a.title && a.title.trim().toLowerCase() === cleanLookup) ||
+      (a.slug && a.slug.toLowerCase() === cleanLookup)
+  );
+
+  // Prioritize published state from server or context
   const article =
-    articles.find(
-      (a) =>
-        a.slug === slug ||
-        a.id === slug ||
-        (a.title && a.title.trim().toLowerCase() === cleanLookup) ||
-        (a.slug && a.slug.toLowerCase() === cleanLookup)
-    ) ||
-    localPreviewDraft ||
-    fetchedArticle;
+    (fetchedArticle?.status === 'PUBLISHED' ? fetchedArticle : null) ||
+    (contextArticle?.status === 'PUBLISHED' ? contextArticle : null) ||
+    fetchedArticle ||
+    contextArticle ||
+    localPreviewDraft;
+
+  // If the article is confirmed published anywhere, it is NEVER a draft or preview
+  const isConfirmedPublished =
+    article?.status === 'PUBLISHED' ||
+    fetchedArticle?.status === 'PUBLISHED' ||
+    contextArticle?.status === 'PUBLISHED';
 
   const isDraftOrPreview =
-    article?.status === 'DRAFT' ||
-    article?.status === 'SCHEDULED' ||
-    Boolean(localPreviewDraft && localPreviewDraft.id === article?.id);
+    !isConfirmedPublished &&
+    (article?.status === 'DRAFT' ||
+      article?.status === 'SCHEDULED' ||
+      Boolean(localPreviewDraft && localPreviewDraft.status !== 'PUBLISHED' && (localPreviewDraft.id === article?.id || localPreviewDraft.slug === article?.slug)));
 
+  // Revalidate with server to guarantee fresh published status
   useEffect(() => {
     let isMounted = true;
-    const found = articles.find(
-      (a) =>
-        a.slug === slug ||
-        a.id === slug ||
-        (a.title && a.title.trim().toLowerCase() === cleanLookup) ||
-        (a.slug && a.slug.toLowerCase() === cleanLookup)
-    );
-    if (!found && !localPreviewDraft) {
+    if (!contextArticle && !localPreviewDraft) {
       setIsLoadingArticle(true);
-      api
-        .getArticleBySlugOrId(slug)
-        .then((res) => {
-          if (isMounted && res) {
-            setFetchedArticle(res);
-          }
-        })
-        .finally(() => {
-          if (isMounted) setIsLoadingArticle(false);
-        });
     }
+
+    api
+      .getArticleBySlugOrId(slug)
+      .then((res) => {
+        if (isMounted && res) {
+          setFetchedArticle(res);
+          // If confirmed published, clean up any stale preview cache
+          if (res.status === 'PUBLISHED') {
+            try {
+              if (res.slug) localStorage.removeItem(`tfp_preview_${res.slug}`);
+              if (res.id) localStorage.removeItem(`tfp_preview_${res.id}`);
+              const generic = localStorage.getItem('tfp_preview_article');
+              if (generic) {
+                const parsed = JSON.parse(generic);
+                if (parsed.id === res.id || parsed.slug === res.slug) {
+                  localStorage.removeItem('tfp_preview_article');
+                }
+              }
+            } catch {}
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn('Error fetching article from server:', err);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoadingArticle(false);
+      });
+
     return () => {
       isMounted = false;
     };
-  }, [slug, articles, localPreviewDraft, cleanLookup]);
+  }, [slug, cleanLookup]);
 
   const saved = article ? isSaved(article.id) : false;
   const isThisPlaying = isPlayingAudio && activeAudioArticle?.id === article?.id;
@@ -136,17 +164,30 @@ export const ArticlePage: React.FC<ArticlePageProps> = ({
     if (!article) return;
     setIsPublishingDraft(true);
     try {
+      let published: Article;
       if (article.id) {
-        await api.publishArticle(article.id);
+        published = await api.publishArticle(article.id);
       } else {
-        await api.createArticle({ ...article, status: 'PUBLISHED' });
+        published = await api.createArticle({ ...article, status: 'PUBLISHED' });
       }
+
+      setFetchedArticle(published);
+
+      // Clean up preview keys
+      try {
+        if (article.slug) localStorage.removeItem(`tfp_preview_${article.slug}`);
+        if (article.id) localStorage.removeItem(`tfp_preview_${article.id}`);
+        if (published.slug) localStorage.removeItem(`tfp_preview_${published.slug}`);
+        if (published.id) localStorage.removeItem(`tfp_preview_${published.id}`);
+        localStorage.removeItem('tfp_preview_article');
+      } catch {}
+
+      await refreshArticles();
       setPublishSuccess(true);
       toast.success('Draft published live to magazine readers!');
       setTimeout(() => {
         setPublishSuccess(false);
-        window.location.reload();
-      }, 1500);
+      }, 2500);
     } catch (err: any) {
       toast.error('Failed to publish: ' + (err.message || 'Unknown error'));
     } finally {

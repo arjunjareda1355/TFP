@@ -338,6 +338,22 @@ export const AdminArticleEditor: React.FC<AdminArticleEditorProps> = ({
   const saveSnapshotToStorage = () => {
     if (!title && blocks.length <= 1 && !blocks[0]?.text) return;
     const payload = compileArticlePayload();
+    if (payload.status === 'PUBLISHED') {
+      // Don't pollute preview draft storage for already published articles
+      try {
+        if (payload.slug) localStorage.removeItem(`tfp_preview_${payload.slug}`);
+        if (payload.id) localStorage.removeItem(`tfp_preview_${payload.id}`);
+        const generic = localStorage.getItem('tfp_preview_article');
+        if (generic) {
+          const parsed = JSON.parse(generic);
+          if (parsed.id === payload.id || parsed.slug === payload.slug) {
+            localStorage.removeItem('tfp_preview_article');
+          }
+        }
+      } catch {}
+      return;
+    }
+
     const storageKey = articleId
       ? `tfp_draft_autosave_${articleId}`
       : id
@@ -552,6 +568,22 @@ export const AdminArticleEditor: React.FC<AdminArticleEditorProps> = ({
             window.history.replaceState(null, '', `#/admin/editor/${saved.id}`);
           }
         } catch {}
+
+        if (finalStatus === 'PUBLISHED') {
+          try {
+            if (saved.slug) localStorage.removeItem(`tfp_preview_${saved.slug}`);
+            if (saved.id) localStorage.removeItem(`tfp_preview_${saved.id}`);
+            localStorage.removeItem(`tfp_draft_autosave_${saved.id}`);
+            localStorage.removeItem('tfp_draft_autosave_new');
+            const generic = localStorage.getItem('tfp_preview_article');
+            if (generic) {
+              const parsed = JSON.parse(generic);
+              if (parsed.id === saved.id || parsed.slug === saved.slug) {
+                localStorage.removeItem('tfp_preview_article');
+              }
+            }
+          } catch {}
+        }
       }
 
       await refreshArticles();

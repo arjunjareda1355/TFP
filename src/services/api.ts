@@ -431,6 +431,17 @@ export const api = {
       const updated = list.map((a) => (a.id === pub.id ? pub : a));
       if (!updated.some((a) => a.id === pub.id)) updated.unshift(pub);
       localStorage.setItem('tfp_cached_articles', JSON.stringify(updated));
+
+      // Clean up any stale preview cache for this published article
+      if (pub.slug) localStorage.removeItem(`tfp_preview_${pub.slug}`);
+      if (pub.id) localStorage.removeItem(`tfp_preview_${pub.id}`);
+      const generic = localStorage.getItem('tfp_preview_article');
+      if (generic) {
+        const parsed = JSON.parse(generic);
+        if (parsed.id === pub.id || parsed.slug === pub.slug) {
+          localStorage.removeItem('tfp_preview_article');
+        }
+      }
     } catch {}
     notifySync('ARTICLE_PUBLISHED', pub);
     return pub;
