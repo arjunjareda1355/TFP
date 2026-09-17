@@ -1,11 +1,20 @@
 import fs from 'fs';
 import path from 'path';
 import {
-  saveDatabaseToSupabase,
-  loadDatabaseFromSupabase,
-  loadArticlesFromSupabase,
-  saveArticleToSupabase,
-} from './supabase';
+  saveDatabaseToCloudflareR2,
+  loadDatabaseFromCloudflareR2,
+  loadArticlesFromCloudflareR2,
+  saveArticleToCloudflareR2,
+  deleteArticleFromCloudflareR2,
+  isR2Configured,
+  R2_BUCKET_NAME,
+} from './cloudflareR2';
+import {
+  StoredFileRecord,
+  isD1Configured,
+  generateD1SqlDump,
+  syncDatabaseToCloudflareD1,
+} from './cloudflareD1';
 import {
   Article,
   ArticleRevision,
@@ -287,6 +296,7 @@ interface DatabaseSchema {
   contacts: ContactSubmission[];
   socialChannels: SocialChannel[];
   apiKeys: ApiKey[];
+  files?: StoredFileRecord[];
   analytics: {
     views: Record<string, number>;
     saves: Record<string, number>;
@@ -334,8 +344,8 @@ class DatabaseService {
     this.ensureDbDir();
     this.data = this.loadDatabase();
     this.checkScheduledArticles();
-    this.syncPromise = this.syncFromSupabase().catch((err) => {
-      console.warn('[Supabase] Initial sync background error:', err);
+    this.syncPromise = this.syncFromCloudflare().catch((err) => {
+      console.warn('[Cloudflare] Initial sync background error:', err);
     });
   }
 
@@ -345,12 +355,12 @@ class DatabaseService {
     }
   }
 
-  private async syncFromSupabase() {
+  private async syncFromCloudflare() {
     try {
-      // 1. Try loading articles list directly
-      let remoteArticles = await loadArticlesFromSupabase();
-      // 2. Also load full database snapshot
-      const remoteDb = await loadDatabaseFromSupabase();
+      // 1. Try loading articles list directly from R2
+      let remoteArticles = await loadArticlesFromCloudflareR2();
+      // 2. Also load full database snapshot from R2
+      const remoteDb = await loadDatabaseFromCloudflareR2();
 
       if ((!remoteArticles || remoteArticles.length === 0) && remoteDb?.articles) {
         remoteArticles = remoteDb.articles;
@@ -382,7 +392,7 @@ class DatabaseService {
         }
 
         if (addedCount > 0 || updatedCount > 0) {
-          console.log(`[Supabase] Synced: ${addedCount} added, ${updatedCount} updated from cloud vault.`);
+          console.log(`[Cloudflare R2] Synced: ${addedCount} added, ${updatedCount} updated from cloud vault.`);
           this.saveDatabaseToFile(this.data);
         }
       }
@@ -401,10 +411,13 @@ class DatabaseService {
         if (remoteDb.homepage) {
           this.data.homepage = { ...this.data.homepage, ...remoteDb.homepage };
         }
+        if (Array.isArray(remoteDb.files) && remoteDb.files.length > 0) {
+          this.data.files = remoteDb.files;
+        }
       }
       this.isSyncComplete = true;
     } catch (err) {
-      console.warn('[Supabase] Initial sync notice:', err);
+      console.warn('[Cloudflare] Initial sync notice:', err);
       this.isSyncComplete = true;
     }
   }
@@ -473,6 +486,26 @@ class DatabaseService {
       users[operationsOwnerIdx].status = 'ACTIVE';
     }
 
+    const rawFiles: StoredFileRecord[] = db.files && Array.isArray(db.files) ? db.files : [];
+    if (rawFiles.length === 0 && Array.isArray(db.media) && db.media.length > 0) {
+      for (const m of db.media) {
+        rawFiles.push({
+          id: m.id || `file_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          object_key: m.url.startsWith('/uploads/') ? m.url.replace('/uploads/', 'uploads/') : `images/${m.id}.jpg`,
+          original_name: m.filename || 'media_asset',
+          mime_type: m.mimeType || 'image/jpeg',
+          size: m.fileSize || 102400,
+          bucket: R2_BUCKET_NAME,
+          visibility: 'public',
+          created_at: m.uploadedAt || new Date().toISOString(),
+          updated_at: m.uploadedAt || new Date().toISOString(),
+          status: 'ready',
+          public_url: m.url,
+          metadata: { alt: m.alt, caption: m.caption, credit: m.credit },
+        });
+      }
+    }
+
     return {
       articles: db.articles || [],
       categories: db.categories || CATEGORIES,
@@ -491,6 +524,7 @@ class DatabaseService {
       media: db.media || [],
       users,
       invitations: db.invitations || [],
+      files: rawFiles,
       activityLogs: db.activityLogs || this.getInitialActivityLogs(),
       trash: db.trash || [],
       webItems: db.webItems || this.getDefaultWebItems(),
@@ -726,8 +760,8 @@ class DatabaseService {
 
   public save() {
     this.saveDatabaseToFile(this.data);
-    saveDatabaseToSupabase(this.data).catch((err) => {
-      console.warn('[Supabase] Background save error:', err);
+    saveDatabaseToCloudflareR2(this.data).catch((err) => {
+      console.warn('[Cloudflare R2] Background save error:', err);
     });
   }
 
@@ -1019,7 +1053,7 @@ class DatabaseService {
 
     this.data.articles.unshift(newArticle);
     this.save();
-    saveArticleToSupabase(newArticle).catch(() => {});
+    saveArticleToCloudflareR2(newArticle).catch(() => {});
     return newArticle;
   }
 
@@ -1111,7 +1145,7 @@ class DatabaseService {
 
     this.data.articles[index] = merged;
     this.save();
-    saveArticleToSupabase(merged).catch(() => {});
+    saveArticleToCloudflareR2(merged).catch(() => {});
     return merged;
   }
 
@@ -1182,6 +1216,7 @@ class DatabaseService {
     if (!this.data.trash) this.data.trash = [];
     this.data.trash.unshift(trashItem);
     this.save();
+    deleteArticleFromCloudflareR2(deleted.id).catch(() => {});
     return true;
   }
 
@@ -2890,6 +2925,114 @@ class DatabaseService {
       categoryBreakdown,
       weeklyVelocity,
     };
+  }
+
+  // ==========================================
+  // CLOUDFLARE R2 & D1 FILE STORAGE OPERATIONS
+  // ==========================================
+  public getStoredFiles(): StoredFileRecord[] {
+    if (!this.data.files) this.data.files = [];
+    return this.data.files;
+  }
+
+  public getStoredFile(id: string): StoredFileRecord | undefined {
+    return this.getStoredFiles().find((f) => f.id === id || f.object_key === id);
+  }
+
+  public addStoredFile(file: Partial<StoredFileRecord>): StoredFileRecord {
+    if (!this.data.files) this.data.files = [];
+    const newRecord: StoredFileRecord = {
+      id: file.id || `file_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      user_id: file.user_id,
+      object_key: file.object_key || `uploads/${Date.now()}_${file.original_name || 'file'}`,
+      original_name: file.original_name || 'unnamed_file',
+      mime_type: file.mime_type || 'application/octet-stream',
+      size: file.size || 0,
+      bucket: file.bucket || R2_BUCKET_NAME,
+      visibility: file.visibility || 'public',
+      created_at: file.created_at || new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      status: file.status || 'ready',
+      public_url: file.public_url,
+      metadata: file.metadata,
+    };
+
+    const existingIdx = this.data.files.findIndex((f) => f.id === newRecord.id || f.object_key === newRecord.object_key);
+    if (existingIdx !== -1) {
+      this.data.files[existingIdx] = newRecord;
+    } else {
+      this.data.files.unshift(newRecord);
+    }
+    this.save();
+    return newRecord;
+  }
+
+  public deleteStoredFile(id: string): boolean {
+    if (!this.data.files) return false;
+    const idx = this.data.files.findIndex((f) => f.id === id || f.object_key === id);
+    if (idx === -1) return false;
+    this.data.files.splice(idx, 1);
+    this.save();
+    return true;
+  }
+
+  public getStorageStats() {
+    const files = this.getStoredFiles();
+    const totalBytes = files.reduce((acc, f) => acc + (f.size || 0), 0);
+    const totalFiles = files.length;
+
+    const breakdown = {
+      images: { count: 0, bytes: 0 },
+      videos: { count: 0, bytes: 0 },
+      documents: { count: 0, bytes: 0 },
+      others: { count: 0, bytes: 0 },
+    };
+
+    for (const f of files) {
+      const mime = (f.mime_type || '').toLowerCase();
+      if (mime.startsWith('image/')) {
+        breakdown.images.count++;
+        breakdown.images.bytes += f.size || 0;
+      } else if (mime.startsWith('video/')) {
+        breakdown.videos.count++;
+        breakdown.videos.bytes += f.size || 0;
+      } else if (mime.includes('pdf') || mime.includes('document') || mime.includes('text/')) {
+        breakdown.documents.count++;
+        breakdown.documents.bytes += f.size || 0;
+      } else {
+        breakdown.others.count++;
+        breakdown.others.bytes += f.size || 0;
+      }
+    }
+
+    const largestFiles = [...files].sort((a, b) => (b.size || 0) - (a.size || 0)).slice(0, 8);
+    const recentFiles = [...files].slice(0, 10);
+    const maxQuotaBytes = 10 * 1024 * 1024 * 1024; // 10 GB default tier
+
+    return {
+      provider: 'Cloudflare R2 + D1',
+      isR2Configured: isR2Configured(),
+      isD1Configured: isD1Configured(),
+      bucketName: R2_BUCKET_NAME,
+      totalBytes,
+      totalFiles,
+      breakdown,
+      largestFiles,
+      recentFiles,
+      quota: {
+        usedBytes: totalBytes,
+        maxBytes: maxQuotaBytes,
+        percentUsed: Math.min(100, Math.round((totalBytes / maxQuotaBytes) * 100)),
+      },
+    };
+  }
+
+  public async syncToCloudflareD1() {
+    return syncDatabaseToCloudflareD1(this.data);
+  }
+
+  public getD1SqlDump(): string {
+    return generateD1SqlDump(this.data);
   }
 }
 

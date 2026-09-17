@@ -243,7 +243,7 @@ export const EditorDraftVaultModal: React.FC<EditorDraftVaultModalProps> = ({
         <div className="p-4 border-t border-stone-200 bg-stone-50/70 flex items-center justify-between text-xs text-stone-500">
           <div className="flex items-center gap-2">
             <Cloud className="w-4 h-4 text-emerald-600" />
-            <span>Vault is automatically synced with Supabase and local browser cache.</span>
+            <span>Vault is automatically synced with Cloudflare R2 cloud storage and local cache.</span>
           </div>
           <button
             onClick={onClose}

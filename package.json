@@ -12,12 +12,12 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1134.0",
+    "@aws-sdk/s3-request-presigner": "^3.1134.0",
     "@clerk/clerk-react": "^5.61.3",
     "@clerk/express": "^2.1.64",
     "@clerk/themes": "^2.4.57",
     "@google/genai": "^2.4.0",
-    "@supabase/server": "^1.5.3",
-    "@supabase/supabase-js": "^2.116.0",
     "@tailwindcss/vite": "^4.1.14",
     "@types/canvas-confetti": "^1.9.0",
     "@types/multer": "^2.2.0",

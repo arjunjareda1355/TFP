@@ -40,12 +40,15 @@ export const AdminMediaLibrary: React.FC<AdminMediaLibraryProps> = ({ onSelectMe
   const [uploadMode, setUploadMode] = useState<'upload' | 'url'>('upload');
 
   const [selectedMediaForEdit, setSelectedMediaForEdit] = useState<MediaItem | null>(null);
+  const [storageStats, setStorageStats] = useState<any>(null);
 
   const loadMedia = async () => {
     setIsLoading(true);
     try {
       const items = await api.getMedia();
       setMediaList(items);
+      const stats = await api.getStorageStats();
+      if (stats) setStorageStats(stats);
     } catch (err) {
       console.error(err);
     } finally {
@@ -173,6 +176,15 @@ export const AdminMediaLibrary: React.FC<AdminMediaLibraryProps> = ({ onSelectMe
             Centralized archive for high-resolution images, archival documents, and photography.
           </p>
         </div>
+        {storageStats && (
+          <div className="flex items-center gap-2.5 bg-[#F9F8F6] border border-[#E8E5DF] px-3 py-1.5 rounded-xs text-xs font-mono-editorial self-start sm:self-auto">
+            <span className="w-2 h-2 rounded-full bg-emerald-600 inline-block"></span>
+            <span className="text-[#111110] font-semibold">Cloudflare R2 Storage</span>
+            <span className="text-[#6E6A62]">
+              {storageStats.totalFiles} items ({((storageStats.totalBytes || 0) / (1024 * 1024)).toFixed(1)} MB)
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Upload & Add Asset Card */}

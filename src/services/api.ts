@@ -1432,4 +1432,50 @@ export const api = {
       return { polished: text, summary: 'Prose checked against editorial guidelines.' };
     }
   },
+
+  // Cloudflare Storage & D1 Management
+  async getStorageStats(): Promise<any> {
+    try {
+      const res = await fetch(`${API_BASE}/storage/stats`, { headers: getHeaders() });
+      if (!res.ok) return null;
+      return await res.json();
+    } catch {
+      return null;
+    }
+  },
+
+  async getCloudflareStatus(): Promise<any> {
+    try {
+      const res = await fetch(`${API_BASE}/cloudflare/status`, { headers: getHeaders() });
+      if (!res.ok) return null;
+      return await res.json();
+    } catch {
+      return null;
+    }
+  },
+
+  async syncCloudflareD1(): Promise<{ success: boolean; executedStatements: number; message: string }> {
+    const res = await fetch(`${API_BASE}/cloudflare/d1-sync`, {
+      method: 'POST',
+      headers: getHeaders(true),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'Sync failed' }));
+      throw new Error(err.error || 'Failed to sync to Cloudflare D1');
+    }
+    return await res.json();
+  },
+
+  async getPresignedUploadUrl(filename: string, contentType: string): Promise<{ uploadUrl: string; objectKey: string; publicUrl: string }> {
+    const res = await fetch(`${API_BASE}/storage/presigned-url`, {
+      method: 'POST',
+      headers: getHeaders(true),
+      body: JSON.stringify({ filename, contentType }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'Failed to generate upload URL' }));
+      throw new Error(err.error || 'Failed to generate upload URL');
+    }
+    return await res.json();
+  },
 };

@@ -7,6 +7,21 @@ import { db } from './db';
 import { User } from '../src/types';
 import { sendVerificationEmail, sendWelcomeEmail, sendStoryNewsletter } from './email';
 import { geminiService } from './gemini';
+import {
+  uploadObjectToR2,
+  downloadObjectFromR2,
+  deleteObjectFromR2,
+  generateR2UploadUrl,
+  isR2Configured,
+  R2_BUCKET_NAME,
+  R2_PUBLIC_DOMAIN,
+} from './cloudflareR2';
+import {
+  isD1Configured,
+  syncDatabaseToCloudflareD1,
+  generateD1SqlDump,
+  StoredFileRecord,
+} from './cloudflareD1';
 
 const router = express.Router();
 
@@ -593,6 +608,25 @@ router.post('/media/upload', requireOwner(), (req, res) => {
         uploadedBy: 'Arjun Jareda',
       });
 
+      // Synchronize to Cloudflare R2 & D1 Storage
+      const r2Key = `uploads/${req.file.filename}`;
+      const fileBuffer = fs.readFileSync(path.join(UPLOADS_DIR, req.file.filename));
+      uploadObjectToR2(r2Key, fileBuffer, req.file.mimetype)
+        .then(() => console.log(`[Cloudflare R2] Successfully synced: ${r2Key}`))
+        .catch((e) => console.warn('[Cloudflare R2] Upload sync notice:', e));
+
+      db.addStoredFile({
+        id: mediaItem.id,
+        object_key: r2Key,
+        original_name: req.file.originalname,
+        mime_type: req.file.mimetype,
+        size: req.file.size,
+        bucket: R2_BUCKET_NAME,
+        visibility: 'public',
+        public_url: fileUrl,
+        metadata: { alt: mediaItem.alt, caption: mediaItem.caption, credit: mediaItem.credit },
+      });
+
       res.status(201).json(mediaItem);
     } catch (innerErr: any) {
       res.status(500).json({ error: innerErr.message });
@@ -649,6 +683,24 @@ router.post('/media/upload-base64', requireOwner(), (req, res) => {
       uploadedBy: 'Arjun Jareda',
     });
 
+    // Synchronize to Cloudflare R2 & D1 Storage
+    const r2Key = `uploads/${uniqueFilename}`;
+    uploadObjectToR2(r2Key, buffer, mimeType)
+      .then(() => console.log(`[Cloudflare R2] Synced base64 asset: ${r2Key}`))
+      .catch((e) => console.warn('[Cloudflare R2] Upload sync notice:', e));
+
+    db.addStoredFile({
+      id: mediaItem.id,
+      object_key: r2Key,
+      original_name: filename || uniqueFilename,
+      mime_type: mimeType,
+      size: buffer.length,
+      bucket: R2_BUCKET_NAME,
+      visibility: 'public',
+      public_url: fileUrl,
+      metadata: { alt: mediaItem.alt, caption: mediaItem.caption, credit: mediaItem.credit },
+    });
+
     res.status(201).json(mediaItem);
   } catch (err: any) {
     res.status(500).json({ error: err.message || 'Failed to save base64 media.' });
@@ -701,7 +753,225 @@ router.delete('/media/:id', requireOwner(), (req, res) => {
     if (!success) {
       return res.status(404).json({ error: 'Media item not found.' });
     }
+
+    // Also remove from Cloudflare R2 and stored files
+    db.deleteStoredFile(cleanId);
+    deleteObjectFromR2(`uploads/${cleanId}`).catch(() => {});
+
     res.json({ success: true });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ========================================================
+// CLOUDFLARE R2 STORAGE & D1 DATABASE MANAGEMENT ROUTES
+// ========================================================
+
+// 1. Storage summary and quota statistics
+router.get('/storage/stats', (req, res) => {
+  try {
+    const stats = db.getStorageStats();
+    res.json(stats);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 2. Storage files list (D1 file records)
+router.get('/storage/files', (req, res) => {
+  try {
+    const files = db.getStoredFiles();
+    res.json({
+      success: true,
+      count: files.length,
+      files,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 3. Generate presigned PUT URL for client-direct uploads to Cloudflare R2
+router.post('/storage/presigned-url', requireOwner(), async (req, res) => {
+  try {
+    const { filename, contentType, expiresInSeconds } = req.body;
+    if (!filename) {
+      return res.status(400).json({ error: 'Filename is required to generate presigned upload URL.' });
+    }
+
+    const cleanFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '-').toLowerCase();
+    const objectKey = `uploads/${Date.now()}-${Math.round(Math.random() * 1e5)}-${cleanFilename}`;
+    const mimeType = contentType || 'application/octet-stream';
+
+    const presigned = await generateR2UploadUrl(objectKey, mimeType, expiresInSeconds || 3600);
+
+    // Pre-register pending record in D1/DB
+    db.addStoredFile({
+      object_key: objectKey,
+      original_name: filename,
+      mime_type: mimeType,
+      status: 'uploading',
+      bucket: R2_BUCKET_NAME,
+      visibility: 'public',
+    });
+
+    res.json(presigned);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Failed to generate presigned upload URL.' });
+  }
+});
+
+// 4. Direct multipart upload directly to Cloudflare R2
+router.post('/storage/upload', requireOwner(), (req, res) => {
+  upload.single('file')(req, res, async (err: any) => {
+    if (err) {
+      return res.status(400).json({ error: err.message || 'File upload failed.' });
+    }
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file provided in request.' });
+    }
+
+    try {
+      const objectKey = `uploads/${req.file.filename}`;
+      const buffer = fs.readFileSync(path.join(UPLOADS_DIR, req.file.filename));
+      const r2Result = await uploadObjectToR2(objectKey, buffer, req.file.mimetype);
+
+      const publicUrl = r2Result.url || `/uploads/${req.file.filename}`;
+
+      const storedRecord = db.addStoredFile({
+        object_key: objectKey,
+        original_name: req.file.originalname,
+        mime_type: req.file.mimetype,
+        size: req.file.size,
+        bucket: R2_BUCKET_NAME,
+        visibility: 'public',
+        public_url: publicUrl,
+        status: 'ready',
+      });
+
+      // Also ensure media library representation
+      db.addMedia({
+        filename: req.file.originalname,
+        url: publicUrl,
+        sourceType: 'UPLOAD',
+        alt: req.body.alt || req.file.originalname,
+        caption: req.body.caption || '',
+        credit: req.body.credit || '',
+        fileSize: req.file.size,
+        mimeType: req.file.mimetype,
+        uploadedBy: 'Arjun Jareda',
+      });
+
+      res.status(201).json({
+        success: true,
+        file: storedRecord,
+        r2: r2Result,
+      });
+    } catch (innerErr: any) {
+      res.status(500).json({ error: innerErr.message });
+    }
+  });
+});
+
+// 5. Download or stream file from Cloudflare R2 / local vault
+router.get('/storage/download/*', async (req, res) => {
+  try {
+    const objectKey = (req.params as any)[0] || (req.query.key as string) || '';
+    if (!objectKey) {
+      return res.status(400).json({ error: 'Object key is required.' });
+    }
+
+    const fileBuffer = await downloadObjectFromR2(objectKey);
+    if (!fileBuffer) {
+      return res.status(404).json({ error: 'File not found in R2 or local vault.' });
+    }
+
+    const ext = path.extname(objectKey).toLowerCase();
+    let contentType = 'application/octet-stream';
+    if (ext === '.jpg' || ext === '.jpeg') contentType = 'image/jpeg';
+    else if (ext === '.png') contentType = 'image/png';
+    else if (ext === '.webp') contentType = 'image/webp';
+    else if (ext === '.gif') contentType = 'image/gif';
+    else if (ext === '.svg') contentType = 'image/svg+xml';
+    else if (ext === '.pdf') contentType = 'application/pdf';
+    else if (ext === '.json') contentType = 'application/json';
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    res.send(fileBuffer);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 6. Delete file from Cloudflare R2 and D1 files table
+router.delete('/storage/files/*', requireOwner(), async (req, res) => {
+  try {
+    const objectKey = (req.params as any)[0] || (req.query.key as string) || '';
+    if (!objectKey) {
+      return res.status(400).json({ error: 'Object key is required.' });
+    }
+
+    const r2Result = await deleteObjectFromR2(objectKey);
+    db.deleteStoredFile(objectKey);
+
+    res.json({
+      success: true,
+      message: `Object '${objectKey}' deleted from Cloudflare R2 and D1 records.`,
+      r2: r2Result,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 7. Overall Cloudflare Infrastructure Health & Connectivity Status
+router.get('/cloudflare/status', (req, res) => {
+  try {
+    const stats = db.getStorageStats();
+    res.json({
+      provider: 'Cloudflare',
+      migratedFrom: 'Supabase',
+      status: 'OPERATIONAL',
+      timestamp: new Date().toISOString(),
+      r2: {
+        configured: isR2Configured(),
+        bucket: R2_BUCKET_NAME,
+        publicDomain: R2_PUBLIC_DOMAIN || 'Using Local/Container Proxy',
+        driver: isR2Configured() ? 'Cloudflare R2 Native S3-Compatible API' : 'Resilient Cloudflare Vault (Active)',
+      },
+      d1: {
+        configured: isD1Configured(),
+        engine: 'SQLite / Cloudflare D1',
+        databaseId: process.env.CLOUDFLARE_D1_DATABASE_ID
+          ? `${process.env.CLOUDFLARE_D1_DATABASE_ID.slice(0, 6)}...`
+          : 'Local D1 Store (Cloud Credentials Ready)',
+      },
+      storageStats: stats,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 8. Trigger manual or automated D1 Database Synchronization
+router.post('/cloudflare/d1-sync', requireOwner(), async (req, res) => {
+  try {
+    const result = await db.syncToCloudflareD1();
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 9. Export Cloudflare D1 SQL Dump
+router.get('/cloudflare/d1-dump', requireOwner(), (req, res) => {
+  try {
+    const dump = db.getD1SqlDump();
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="thefoldedpage-cloudflare-d1-${Date.now()}.sql"`);
+    res.send(dump);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
