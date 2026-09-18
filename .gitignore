@@ -7,3 +7,5 @@ coverage/
 .env
 .env.*
 !.env.example
+data/r2_vault/
+*.tmp

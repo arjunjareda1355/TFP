@@ -1,12 +1,11 @@
 import React from 'react';
 import { Author } from '../types';
-import { MapPin, Twitter, Youtube, Instagram, Linkedin, Music, Globe } from 'lucide-react';
+import { MapPin, Twitter } from 'lucide-react';
 
 interface AuthorCardProps {
   author: Author;
   className?: string;
   variant?: 'compact' | 'full';
-  onSelectStory?: (slug: string) => void;
 }
 
 export const AuthorCard: React.FC<AuthorCardProps> = ({
@@ -35,115 +34,34 @@ export const AuthorCard: React.FC<AuthorCardProps> = ({
   }
 
   return (
-    <div className={`bg-[#F9F8F6] border border-[#E8E5DF] p-6 sm:p-7 flex flex-col sm:flex-row gap-5 items-start rounded-xs shadow-xs ${className}`}>
+    <div className={`bg-[#F9F8F6] border border-[#E8E5DF] p-6 flex flex-col sm:flex-row gap-5 items-start rounded-xs shadow-xs ${className}`}>
       <img
         src={author.avatar}
         alt={author.name}
-        className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover shrink-0 border border-[#E8E5DF]"
+        className="w-16 h-16 rounded-full object-cover shrink-0 border border-[#E8E5DF]"
       />
-      <div className="space-y-3 flex-1 min-w-0">
+      <div className="space-y-2">
         <div>
-          <span className="text-[10px] font-mono-editorial uppercase font-bold text-[#EA580C] block tracking-wider">
+          <span className="text-[10px] font-mono-editorial uppercase font-bold text-[#EA580C] block">
             {author.role}
           </span>
-          <h4 className="font-serif-editorial text-xl sm:text-2xl font-medium text-[#111110] mt-0.5">
+          <h4 className="font-serif-editorial text-xl font-medium text-[#111110]">
             {author.name}
           </h4>
-          {author.aliases && author.aliases.length > 0 && (
-            <p className="text-[11px] font-mono-editorial text-[#6E6A62] mt-0.5">
-              Also known as: {author.aliases.join(', ')}
-            </p>
-          )}
         </div>
-
         <p className="text-xs sm:text-sm text-[#55524B] leading-relaxed">
           {author.bio}
         </p>
-
-        {author.quote && (
-          <p className="italic text-xs font-serif-editorial text-[#111110] border-l-2 border-[#EA580C] pl-3 py-0.5">
-            "{author.quote}"
-          </p>
-        )}
-
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-mono-editorial text-[#6E6A62] pt-1">
-          {author.location && (
-            <span className="flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5 text-[#EA580C]" />
-              {author.location}
-            </span>
-          )}
-          {author.spotify && (
-            <a
-              href={author.spotify}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-[#1DB954] hover:underline"
-              title="Spotify Artist"
-            >
-              <Music className="w-3.5 h-3.5" />
-              <span>Spotify</span>
-            </a>
-          )}
-          {author.youtube && (
-            <a
-              href={author.youtube}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-[#EA580C] hover:underline"
-              title="YouTube Channel"
-            >
-              <Youtube className="w-3.5 h-3.5" />
-              <span>YouTube</span>
-            </a>
-          )}
-          {author.instagram && (
-            <a
-              href={author.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-[#E1306C] hover:underline"
-              title="Instagram"
-            >
-              <Instagram className="w-3.5 h-3.5" />
-              <span>Instagram</span>
-            </a>
-          )}
-          {author.linkedin && (
-            <a
-              href={author.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-[#0077B5] hover:underline"
-              title="LinkedIn"
-            >
-              <Linkedin className="w-3.5 h-3.5" />
-              <span>LinkedIn</span>
-            </a>
-          )}
+        <div className="flex items-center gap-4 text-xs font-mono-editorial text-[#6E6A62] pt-1">
+          <span className="flex items-center gap-1">
+            <MapPin className="w-3 h-3 text-[#EA580C]" />
+            {author.location}
+          </span>
           {author.twitter && (
-            <a
-              href={author.twitter.startsWith('http') ? author.twitter : `https://x.com/${author.twitter.replace('@', '')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-[#111110] hover:underline"
-              title="X / Twitter"
-            >
-              <Twitter className="w-3.5 h-3.5" />
-              <span>@{author.twitter.replace('@', '')}</span>
-            </a>
-          )}
-          {author.website && (
-            <a
-              href={author.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-[#EA580C] hover:underline"
-              title="Website"
-            >
-              <Globe className="w-3.5 h-3.5" />
-              <span>Website</span>
-            </a>
+            <span className="flex items-center gap-1 text-[#EA580C]">
+              <Twitter className="w-3 h-3" />
+              @{author.twitter}
+            </span>
           )}
         </div>
       </div>

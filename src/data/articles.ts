@@ -729,58 +729,47 @@ export const ARTICLES: Article[] = [
       }
     ]
   },
-  // 17. SPECIAL FEATURE / FOUNDER PROFILE DISPATCH
+  // 13. CULTURE & CREATORS: ARJUN BHARTI MINA
   {
     id: 'story-arjun-bharti-mina',
     slug: 'arjun-bharti-mina',
-    title: 'Arjun Bharti Mina: Creating Stories Through Music, Words and Technology',
-    subtitle: 'From independent Hindi songwriting to YouTube storytelling, career publishing, and digital media — the creative journey of Rajasthan’s multidisciplinary artist.',
-    deck: 'Arjun Bharti Mina is an Indian independent music artist, digital creator, writer, YouTuber and student from Rajasthan, India. Also known online as Arjun Mina and Arjun Jareda, he works across music, storytelling, digital media, technology and creative content.',
+    title: 'Arjun Bharti Mina: The Multidisciplinary Journey of Music, Technology, and Creative Storytelling',
+    subtitle: 'From Rajasthan to the digital frontier: How independent artist and creator Arjun Bharti Mina connects Hindi songwriting, civil engineering, and digital media.',
+    deck: 'An in-depth profile of Arjun Bharti Mina (also known online as Arjun Mina and Arjun Jareda)—exploring his independent music catalog, digital storytelling projects, career publishing, and multifaceted creative vision.',
     category: 'Culture',
-    subcategory: 'Artist Profile & Digital Media',
-    tags: [
-      'Arjun Bharti Mina',
-      'Music',
-      'Independent Artist',
-      'Storytelling',
-      'YouTube',
-      'Digital Media',
-      'Publishing',
-      'Rajasthan'
-    ],
+    subcategory: 'Creator Profiles & Independent Music',
+    tags: ['Music', 'Arjun Bharti Mina', 'Digital Creators', 'Culture', 'Storytelling', 'Technology', 'Rajasthan'],
     author: AUTHORS.arjun,
-    publishedDate: 'September 18, 2026',
-    updatedDate: 'September 18, 2026',
-    readTime: '6 min read',
-    readTimeMinutes: 6,
-    audioMinutes: 7,
+    publishedDate: 'September 17, 2026',
+    updatedDate: 'September 17, 2026',
+    readTime: '5 min read',
+    readTimeMinutes: 5,
+    audioMinutes: 6,
     heroImage: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1600&auto=format&fit=crop&q=85',
-    heroImageCaption: 'Studio composition, contemporary songwriting, and digital creation in Rajasthan, India.',
-    heroImageCredit: 'The Folded Page Cultural Archives',
+    heroImageCaption: 'Soundboards, acoustic resonance, and digital audio workstations: the creative ecosystem of modern independent artists.',
+    heroImageCredit: 'The Folded Page / Cultural Spotlight Archive',
     isCoverStory: false,
     isTrending: true,
     isPopular: true,
-    isSpecial: true,
     isEditorsPick: true,
-    isFeatured: true,
-    seriesName: 'THE FOLD',
-    issueNumber: 'ISSUE 01',
+    seriesName: 'CREATIVE VOICES',
+    issueNumber: 'ISSUE 04',
     popularityRank: 2,
     featuredQuote: 'Creating stories through music, words and technology — one idea at a time.',
     relatedSlugs: [
+      'the-anthropology-of-digital-solitude',
       'the-internets-new-obsession-isnt-what-you-think',
-      'the-quiet-mastery-of-untranslated-literature',
-      'the-last-watchmaker-who-still-hand-cuts-every-gear'
+      'the-future-of-quiet-rooms'
     ],
     blocks: [
       {
         type: 'paragraph',
         dropCap: true,
-        text: 'Arjun Bharti Mina is an Indian independent music artist, digital creator, writer, YouTuber and student from Rajasthan, India. Also known online as Arjun Mina and Arjun Jareda, he works across music, storytelling, digital media, technology and creative content.'
+        text: 'Arjun Bharti Mina is an Indian independent music artist, digital creator, writer, YouTuber, and student from Rajasthan, India. Also known online as Arjun Mina and Arjun Jareda, he works across music, storytelling, digital media, technology, and creative content.'
       },
       {
         type: 'paragraph',
-        text: 'Born on 13 May 2007 in Nadoti, Karauli, Rajasthan, Arjun developed an interest in music, writing, technology and digital media from an early age. He later pursued his education in Jaipur, including a B.Tech in Civil Engineering at Swami Keshwanand Institute of Technology, Management & Gramothan (SKIT).'
+        text: 'Born on 13 May 2007 in Nadoti, Karauli, Rajasthan, Arjun developed an early curiosity for music, writing, technology, and digital media from a formative age. He later pursued his academic career in Jaipur, studying for a B.Tech in Civil Engineering at the renowned Swami Keshwanand Institute of Technology, Management & Gramothan (SKIT).'
       },
       {
         type: 'pullquote',
@@ -793,57 +782,112 @@ export const ARTICLES: Article[] = [
       },
       {
         type: 'paragraph',
-        text: "Music is an important part of Arjun's creative identity. As an independent artist, he writes and releases original music combining Hindi songwriting, rap, emotional themes and contemporary storytelling."
+        text: "Music is an essential cornerstone of Arjun's creative identity. As an independent artist, he writes, composes, and releases original music that blends soulful Hindi songwriting, modern rap cadences, poignant emotional themes, and contemporary narrative storytelling."
       },
       {
         type: 'highlight',
-        text: 'His publicly listed works include “Darmiyan,” “Raat Adhuri Hai,” “Lakeerien,” “The Civil Engineer,” “Raza,” “Street Shade,” “Ruh Da Hani,” “Shikhar Mera Hai,” “Bapu Mera Rab Verga,” “Har Dhun Pe Meena,” “Aahatein Teri,” and “Mera Safar.” His work is available through major digital music platforms.'
+        calloutTone: 'amber',
+        title: 'Original Discography & Releases',
+        text: 'His publicly listed works include "Darmiyan," "Raat Adhuri Hai," "Lakeerien," "The Civil Engineer," "Raza," "Street Shade," "Ruh Da Hani," "Shikhar Mera Hai," "Bapu Mera Rab Verga," "Har Dhun Pe Meena," "Aahatein Teri," and "Mera Safar." His catalog is accessible worldwide across all major digital music streaming platforms.'
+      },
+      {
+        type: 'list',
+        ordered: false,
+        items: [
+          '“Darmiyan” & “Raat Adhuri Hai” — Evocative explorations of nighttime introspection, yearning, and ambient emotion.',
+          '“Lakeerien” & “Raza” — Lyrical compositions reflecting on destiny, perseverance, and quiet resolve.',
+          '“The Civil Engineer” — A unique autobiographical composition bridging academic discipline and creative passion.',
+          '“Street Shade” & “Shikhar Mera Hai” — High-energy lyrical anthems celebrating personal ambition, grit, and growth.',
+          '“Ruh Da Hani” & “Bapu Mera Rab Verga” — Deeply moving acoustic and cultural tributes honoring family, spiritual roots, and timeless bonds.',
+          '“Har Dhun Pe Meena,” “Aahatein Teri,” & “Mera Safar” — Melodic reflections charting the journey of self-discovery and creative evolution.'
+        ]
       },
       {
         type: 'paragraph',
-        text: 'Beyond music, Arjun creates videos and digital projects involving storytelling, AI, editing, technology and online media. His YouTube presence under Arjun Mina is another major part of his creative journey. Third-party channel analytics currently list more than 21,000 subscribers and 60 million views, although these figures change over time.'
+        text: "Beyond studio recording, Arjun conceives digital video projects and content spanning narrative storytelling, artificial intelligence, audio-visual editing, and emergent web technologies. His digital presence on YouTube under the handle 'Arjun Mina' forms an integral chapter of his creative journey. Third-party channel analytics currently record more than 21,000 subscribers and 60 million views, metrics that continue to expand over time."
+      },
+      {
+        type: 'divider'
       },
       {
         type: 'subheading',
-        text: 'Writing & Publishing'
+        text: 'Writing, Publishing & Co-Authorship'
       },
       {
         type: 'paragraph',
-        text: "Arjun has also explored digital publishing and books. In 2026, he was listed as a co-author of Dhruv Rathee’s Ultimate 100+ Career Path Guide, a career-focused ebook covering more than 100 modern career possibilities, skills, industries and career pathways. Google Books lists Arjun Bharti Mina as one of the authors and describes him as an Indian independent music artist, digital creator and student from Rajasthan."
+        text: "Arjun's creative endeavors also reach into digital publishing and literature. In 2026, he was officially credited as a co-author of Dhruv Rathee’s Ultimate 100+ Career Path Guide, an extensive career navigation ebook exploring over 100 modern vocational possibilities, industry skills, and emergent professional trajectories for the next generation."
       },
       {
         type: 'paragraph',
-        text: 'His broader creative projects extend into visual publishing, fiction, audio storytelling and podcasting, reflecting his interest in combining different forms of media.'
+        text: 'Google Books catalog listings document Arjun Bharti Mina as one of the contributing authors, describing him as an Indian independent music artist, digital creator, and student from Rajasthan. His wider narrative portfolio extends into visual literature, speculative fiction, serialized audio storytelling, and podcasting, embodying a fluid ethos that refuses to be confined to a single creative box.'
       },
       {
         type: 'subheading',
-        text: 'Podcast & Digital Presence'
+        text: 'Podcasting & Digital Presence: "Real Talk with Arjun"'
       },
       {
         type: 'paragraph',
-        text: 'Arjun also presents “Real Talk with Arjun,” a podcast where he discusses his personal journey, education, content creation, music, YouTube and experiences as a young creator. Public podcast listings describe an episode focused on his journey from childhood through education and digital content creation.'
+        text: 'In the audio sphere, Arjun hosts and presents “Real Talk with Arjun,” a candid conversational podcast where he unpacks his personal journey, civil engineering education, content creation techniques, independent music production, YouTube insights, and the lived realities of being a young creator in contemporary India. Public podcast directories spotlight an in-depth episode tracing his trajectory from his roots in Karauli through his education in Jaipur and into full-fledged digital production.'
       },
       {
         type: 'paragraph',
-        text: 'His online presence includes YouTube, Instagram, Spotify, LinkedIn, X and other digital platforms, allowing him to share his music, ideas and creative projects with a wider audience.'
+        text: 'His vibrant digital footprint spans YouTube, Instagram, Spotify, LinkedIn, X, and other major platforms, providing a direct conduit to share his sounds, concepts, and multimedia experiments with an expanding global audience.'
+      },
+      {
+        type: 'divider'
       },
       {
         type: 'subheading',
-        text: 'Vision'
+        text: 'Vision: Connecting Sound, Story, and Engineering'
       },
       {
         type: 'paragraph',
-        text: "Arjun Bharti Mina's work represents a combination of music, storytelling, technology and digital creativity. Rather than limiting himself to a single medium, he continues to experiment with different ways of creating and communicating."
+        text: 'Arjun Bharti Mina’s body of work represents a harmonious intersection of musical expression, literary narrative, engineering rigor, and digital creativity. Rather than restricting his voice to one discipline, he perpetually investigates fresh modes of human communication.'
       },
       {
-        type: 'paragraph',
-        text: 'His long-term vision is to build a creative identity that connects music, literature, technology and digital innovation, while encouraging young people to explore their interests, develop skills and create their own opportunities.'
+        type: 'blockquote',
+        text: 'His long-term vision is to build an enduring creative identity that connects music, literature, technology, and digital innovation, while encouraging young people to explore their interests, develop real skills, and create their own opportunities.',
+        cite: 'Editorial Profile'
       },
       {
         type: 'callout',
-        calloutTone: 'amber',
-        title: 'Official Profiles & Verified Channels',
-        text: 'Connect with Arjun across official digital channels:\n• YouTube: https://youtube.com/@arjun_mina\n• Instagram: https://www.instagram.com/arjun.jaredaa\n• Spotify: https://open.spotify.com/artist/4z2SP2WmtXQrEzRAwNnhp2\n• LinkedIn: https://www.linkedin.com/in/arjunbhartimina\n• X (Twitter): https://x.com/ArjunJareda'
+        calloutTone: 'blue',
+        title: 'Core Philosophy',
+        text: '“Creating stories through music, words and technology — one idea at a time.”'
+      },
+      {
+        type: 'heading3',
+        text: 'Official Channels & Verified Portfolios'
+      },
+      {
+        type: 'paragraph',
+        text: 'Explore Arjun Bharti Mina’s music catalog, video dispatches, social channels, and professional network directly:'
+      },
+      {
+        type: 'list',
+        ordered: false,
+        items: [
+          'YouTube: youtube.com/@arjun_mina (21K+ subscribers, 60M+ views)',
+          'Spotify Artist Page: open.spotify.com/artist/4z2SP2WmtXQrEzRAwNnhp2',
+          'Instagram: instagram.com/arjun.jaredaa',
+          'LinkedIn: linkedin.com/in/arjunbhartimina',
+          'X (Twitter): x.com/ArjunJareda'
+        ]
+      },
+      {
+        type: 'button',
+        buttonLabel: 'Listen on Spotify',
+        buttonUrl: 'https://open.spotify.com/artist/4z2SP2WmtXQrEzRAwNnhp2'
+      },
+      {
+        type: 'button',
+        buttonLabel: 'Subscribe on YouTube (@arjun_mina)',
+        buttonUrl: 'https://youtube.com/@arjun_mina'
+      },
+      {
+        type: 'button',
+        buttonLabel: 'Follow on Instagram (@arjun.jaredaa)',
+        buttonUrl: 'https://www.instagram.com/arjun.jaredaa'
       }
     ]
   }

@@ -1,27 +1,6 @@
 import { Author } from '../types';
 
 export const AUTHORS: Record<string, Author> = {
-  arjun: {
-    id: 'arjun-bharti-mina',
-    slug: 'arjun-bharti-mina',
-    name: 'Arjun Bharti Mina',
-    role: 'Founder & Publisher • Music Artist & Digital Creator',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
-    bio: 'Indian independent music artist, digital creator, writer, YouTuber and student from Rajasthan. Exploring contemporary storytelling across music, words and technology.',
-    location: 'Jaipur & Nadoti, Rajasthan',
-    email: 'arjunjareda1355@gmail.com',
-    twitter: 'ArjunJareda',
-    website: 'https://thefoldedpage.press',
-    youtube: 'https://youtube.com/@arjun_mina',
-    instagram: 'https://www.instagram.com/arjun.jaredaa',
-    spotify: 'https://open.spotify.com/artist/4z2SP2WmtXQrEzRAwNnhp2',
-    linkedin: 'https://www.linkedin.com/in/arjunbhartimina',
-    aliases: ['Arjun Mina', 'Arjun Jareda'],
-    birthDate: '13 May 2007',
-    birthPlace: 'Nadoti, Karauli, Rajasthan',
-    education: 'B.Tech in Civil Engineering at SKIT Jaipur',
-    quote: 'Creating stories through music, words and technology — one idea at a time.',
-  },
   editorial: {
     id: 'editorial-team',
     name: 'The Folded Page Editorial Board',
@@ -66,5 +45,16 @@ export const AUTHORS: Record<string, Author> = {
     bio: 'Explorer and naturalist tracking rare ecosystems, deep-sea research, and alpine botany.',
     location: 'Stockholm',
     twitter: '@lindqvist_m'
+  },
+  arjun: {
+    id: 'arjun-bharti-mina',
+    name: 'Arjun Bharti Mina',
+    role: 'Music Artist & Digital Creator',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=240&auto=format&fit=crop&q=80',
+    bio: 'Indian independent music artist, digital creator, writer, YouTuber and student from Rajasthan, India. Working across music, storytelling, digital media, technology and creative content.',
+    location: 'Rajasthan, India',
+    twitter: '@ArjunJareda',
+    website: 'https://youtube.com/@arjun_mina',
+    slug: 'arjun-bharti-mina'
   }
 };

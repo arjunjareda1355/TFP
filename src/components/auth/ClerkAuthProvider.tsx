@@ -415,11 +415,12 @@ export const ClerkAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
     );
   }
 
-  // Official ClerkProvider instance wrapped in ErrorBoundary (loads from Clerk CDN directly)
+  // Official ClerkProvider instance wrapped in ErrorBoundary (loads local bundle first for zero latency and iframe immunity)
   return (
     <ClerkErrorBoundary onResetKey={handleReset} onFallbackToDevKey={handleFallbackToDevKey}>
       <ClerkProvider
         publishableKey={resolvedKey}
+        clerkJSUrl="/clerk.browser.js"
         appearance={{
           variables: {
             colorPrimary: '#EA580C',

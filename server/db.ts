@@ -464,22 +464,19 @@ class DatabaseService {
       users.push({
         id: 'user-owner-editorial-2007',
         email: 'arjunjareda2007@gmail.com',
-        name: 'Arjun Bharti Mina',
+        name: 'Arjun Jareda',
         role: 'EDITORIAL_OWNER',
         isPermanentOwner: true,
         status: 'ACTIVE',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
-        bio: 'Indian independent music artist, digital creator, writer, YouTuber and student from Rajasthan. Editorial Owner & Publisher.',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240&auto=format&fit=crop&q=80',
+        bio: 'Editorial Owner & Editor-in-Chief — Content, Publishing & Journalistic Standards',
         createdAt: new Date().toISOString(),
         twoFactorEnabled: true,
       });
     } else {
-      users[editorialOwnerIdx].name = 'Arjun Bharti Mina';
       users[editorialOwnerIdx].role = 'EDITORIAL_OWNER';
       users[editorialOwnerIdx].isPermanentOwner = true;
       users[editorialOwnerIdx].status = 'ACTIVE';
-      users[editorialOwnerIdx].avatar = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80';
-      users[editorialOwnerIdx].bio = 'Indian independent music artist, digital creator, writer, YouTuber and student from Rajasthan. Editorial Owner & Publisher.';
     }
 
     // Ensure Operations Owner exists
@@ -488,22 +485,19 @@ class DatabaseService {
       users.push({
         id: 'user-owner-operations-1355',
         email: 'arjunjareda1355@gmail.com',
-        name: 'Arjun Bharti Mina',
+        name: 'Arjun Jareda',
         role: 'OPERATIONS_OWNER',
         isPermanentOwner: true,
         status: 'ACTIVE',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
-        bio: 'Indian independent music artist, digital creator, writer, YouTuber and student from Rajasthan. Operations Owner & Publication Director.',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=240&auto=format&fit=crop&q=80',
+        bio: 'Operations Owner & Publication Director — Website, Distribution & Operations',
         createdAt: new Date().toISOString(),
         twoFactorEnabled: true,
       });
     } else {
-      users[operationsOwnerIdx].name = 'Arjun Bharti Mina';
       users[operationsOwnerIdx].role = 'OPERATIONS_OWNER';
       users[operationsOwnerIdx].isPermanentOwner = true;
       users[operationsOwnerIdx].status = 'ACTIVE';
-      users[operationsOwnerIdx].avatar = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80';
-      users[operationsOwnerIdx].bio = 'Indian independent music artist, digital creator, writer, YouTuber and student from Rajasthan. Operations Owner & Publication Director.';
     }
 
     const rawFiles: StoredFileRecord[] = db.files && Array.isArray(db.files) ? db.files : [];
@@ -526,36 +520,10 @@ class DatabaseService {
       }
     }
 
-    // Ensure Authors list includes Arjun Bharti Mina
-    const rawAuthors: Author[] = Array.isArray(db.authors) && db.authors.length > 0 ? [...db.authors] : Object.values(AUTHORS);
-    const arjunAuthor = AUTHORS.arjun;
-    const arjunAuthorIdx = rawAuthors.findIndex(
-      (a) => a.id === 'arjun-bharti-mina' || a.id === 'arjun-jareda' || (a.name && a.name.toLowerCase().includes('arjun'))
-    );
-    if (arjunAuthorIdx === -1) {
-      rawAuthors.unshift(arjunAuthor);
-    } else {
-      rawAuthors[arjunAuthorIdx] = { ...rawAuthors[arjunAuthorIdx], ...arjunAuthor };
-    }
-
-    // Ensure Articles list includes Arjun Bharti Mina biographical feature
-    const rawArticles: Article[] = Array.isArray(db.articles) && db.articles.length > 0 ? [...db.articles] : ARTICLES;
-    const arjunArticleFromData = ARTICLES.find((a) => a.id === 'story-arjun-bharti-mina');
-    if (arjunArticleFromData) {
-      const existingIdx = rawArticles.findIndex(
-        (a) => a.id === 'story-arjun-bharti-mina' || a.slug === 'arjun-bharti-mina'
-      );
-      if (existingIdx === -1) {
-        rawArticles.unshift(arjunArticleFromData);
-      } else {
-        rawArticles[existingIdx] = { ...rawArticles[existingIdx], ...arjunArticleFromData };
-      }
-    }
-
     return {
-      articles: rawArticles,
+      articles: db.articles || [],
       categories: db.categories || CATEGORIES,
-      authors: rawAuthors,
+      authors: db.authors || Object.values(AUTHORS),
       series: db.series || EDITORIAL_SERIES,
       issues: db.issues || MAGAZINE_ISSUES,
       homepage: db.homepage || {
