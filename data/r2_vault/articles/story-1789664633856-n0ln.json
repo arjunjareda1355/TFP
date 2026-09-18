@@ -1,0 +1,84 @@
+{
+  "id": "story-1789664633856-n0ln",
+  "slug": "a-test-editorial-dispatch",
+  "title": "A Test Editorial Dispatch",
+  "subtitle": "Deep dive into typography and layout",
+  "deck": "Deep dive into typography and layout",
+  "category": "Trending",
+  "subcategory": "",
+  "tags": [
+    "Editorial"
+  ],
+  "author": {
+    "id": "editorial-team",
+    "name": "The Folded Page Editorial Board",
+    "role": "Editorial Staff",
+    "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240&auto=format&fit=crop&q=80",
+    "bio": "A collective of writers, visual researchers, and cultural anthropologists seeking out what is truly worth knowing.",
+    "location": "London & Kyoto",
+    "twitter": "@thefoldedpage"
+  },
+  "authorId": "editorial-team",
+  "status": "PUBLISHED",
+  "publishedDate": "September 17, 2026",
+  "updatedDate": "September 17, 2026",
+  "readTime": "1 min read",
+  "readTimeMinutes": 1,
+  "audioMinutes": 2,
+  "heroImage": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1600&auto=format&fit=crop&q=85",
+  "heroImageType": "EXTERNAL_URL",
+  "heroImageAlt": "A Test Editorial Dispatch",
+  "heroImageCaption": "",
+  "heroImageCredit": "",
+  "heroImageSourceUrl": "",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "Testing article creation."
+    }
+  ],
+  "isCoverStory": false,
+  "isTrending": false,
+  "isPopular": false,
+  "isUnique": false,
+  "isSpecial": false,
+  "isEditorsPick": false,
+  "isFeatured": false,
+  "popularityRank": 29,
+  "featuredQuote": "",
+  "relatedSlugs": [],
+  "seoTitle": "A Test Editorial Dispatch",
+  "seoDescription": "Deep dive into typography and layout",
+  "canonicalUrl": "https://thefoldedpage.press/story/a-test-editorial-dispatch",
+  "socialTitle": "A Test Editorial Dispatch",
+  "socialDescription": "Deep dive into typography and layout",
+  "views": 0,
+  "saves": 0,
+  "shares": 0,
+  "createdAt": "2026-09-17T17:03:53.856Z",
+  "updatedAt": "2026-09-17T17:03:53.856Z",
+  "publishedAt": "2026-09-17T17:03:53.856Z",
+  "revisions": [
+    {
+      "id": "rev-story-1789664633856-n0ln-1",
+      "savedAt": "2026-09-17T17:03:53.856Z",
+      "authorName": "Arjun Jareda",
+      "title": "A Test Editorial Dispatch",
+      "deck": "Deep dive into typography and layout",
+      "blocksCount": 1,
+      "wordCount": 3,
+      "data": {
+        "title": "A Test Editorial Dispatch",
+        "deck": "Deep dive into typography and layout",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Testing article creation."
+          }
+        ],
+        "status": "PUBLISHED"
+      },
+      "note": "Published Initial Release"
+    }
+  ]
+}

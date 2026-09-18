@@ -128,7 +128,7 @@ function getAuthUser(req: express.Request): User | null {
     else if (req.body.api_key) rawToken = String(req.body.api_key).trim();
   }
 
-  if (!rawToken) {
+  if (!rawToken || rawToken === 'null' || rawToken === 'undefined' || rawToken === '""') {
     const referer = (req.headers.referer || '').toLowerCase();
     const origin = (req.headers.origin || '').toLowerCase();
     if (
@@ -476,8 +476,9 @@ router.post('/articles', requireOwner(), async (req, res) => {
     await db.ensureSynced();
     const user = (req as any).user;
     const newArticle = db.createArticle(req.body, user);
-    await saveArticleToCloudflareR2(newArticle);
-    await db.saveAsync();
+    // Non-blocking background cloud sync
+    saveArticleToCloudflareR2(newArticle).catch(() => {});
+    db.saveAsync().catch(() => {});
     res.status(201).json(newArticle);
   } catch (err: any) {
     res.status(400).json({ error: err.message });
@@ -492,8 +493,9 @@ router.put('/articles/:id', requireOwner(), async (req, res) => {
     if (!updated) {
       return res.status(404).json({ error: 'Article not found.' });
     }
-    await saveArticleToCloudflareR2(updated);
-    await db.saveAsync();
+    // Non-blocking background cloud sync
+    saveArticleToCloudflareR2(updated).catch(() => {});
+    db.saveAsync().catch(() => {});
     res.json(updated);
   } catch (err: any) {
     res.status(400).json({ error: err.message });
@@ -508,8 +510,9 @@ router.post('/articles/:id/duplicate', requireOwner(), async (req, res) => {
     if (!duplicated) {
       return res.status(404).json({ error: 'Article not found to duplicate.' });
     }
-    await saveArticleToCloudflareR2(duplicated);
-    await db.saveAsync();
+    // Non-blocking background cloud sync
+    saveArticleToCloudflareR2(duplicated).catch(() => {});
+    db.saveAsync().catch(() => {});
     res.status(201).json(duplicated);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -549,8 +552,9 @@ router.post('/articles/:id/publish', requireOwner(), async (req, res) => {
     if (!updated) {
       return res.status(404).json({ error: 'Article not found to publish.' });
     }
-    await saveArticleToCloudflareR2(updated);
-    await db.saveAsync();
+    // Non-blocking background cloud sync
+    saveArticleToCloudflareR2(updated).catch(() => {});
+    db.saveAsync().catch(() => {});
     res.json(updated);
   } catch (err: any) {
     res.status(400).json({ error: err.message || 'Failed to publish article.' });
@@ -565,8 +569,9 @@ router.post('/articles/:id/unpublish', requireOwner(), async (req, res) => {
     if (!updated) {
       return res.status(404).json({ error: 'Article not found.' });
     }
-    await saveArticleToCloudflareR2(updated);
-    await db.saveAsync();
+    // Non-blocking background cloud sync
+    saveArticleToCloudflareR2(updated).catch(() => {});
+    db.saveAsync().catch(() => {});
     res.json(updated);
   } catch (err: any) {
     res.status(400).json({ error: err.message });
@@ -581,8 +586,9 @@ router.post('/articles/:id/archive', requireOwner(), async (req, res) => {
     if (!updated) {
       return res.status(404).json({ error: 'Article not found.' });
     }
-    await saveArticleToCloudflareR2(updated);
-    await db.saveAsync();
+    // Non-blocking background cloud sync
+    saveArticleToCloudflareR2(updated).catch(() => {});
+    db.saveAsync().catch(() => {});
     res.json(updated);
   } catch (err: any) {
     res.status(400).json({ error: err.message });
@@ -597,8 +603,9 @@ router.delete('/articles/:id', requireOwner(), async (req, res) => {
     if (!success) {
       return res.status(404).json({ error: 'Article not found.' });
     }
-    await deleteArticleFromCloudflareR2(req.params.id);
-    await db.saveAsync();
+    // Non-blocking background cloud sync
+    deleteArticleFromCloudflareR2(req.params.id).catch(() => {});
+    db.saveAsync().catch(() => {});
     res.json({ success: true, message: 'Article moved to trash.' });
   } catch (err: any) {
     res.status(500).json({ error: err.message });

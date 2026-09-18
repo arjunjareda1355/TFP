@@ -9,6 +9,15 @@ export interface Author {
   twitter?: string;
   website?: string;
   slug?: string;
+  youtube?: string;
+  instagram?: string;
+  spotify?: string;
+  linkedin?: string;
+  aliases?: string[];
+  birthDate?: string;
+  birthPlace?: string;
+  education?: string;
+  quote?: string;
 }
 
 export type ContentBlockType =

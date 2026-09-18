@@ -1,0 +1,165 @@
+{
+  "id": "story-1789664005369-3oc1",
+  "slug": "test-creation-article",
+  "title": "Test Creation Article",
+  "subtitle": "A test deck",
+  "deck": "A test deck",
+  "category": "Culture",
+  "subcategory": "",
+  "tags": [
+    "Editorial"
+  ],
+  "author": {
+    "id": "editorial-team",
+    "name": "The Folded Page Editorial Board",
+    "role": "Editorial Staff",
+    "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240&auto=format&fit=crop&q=80",
+    "bio": "A collective of writers, visual researchers, and cultural anthropologists seeking out what is truly worth knowing.",
+    "location": "London & Kyoto",
+    "twitter": "@thefoldedpage"
+  },
+  "authorId": "editorial-team",
+  "status": "PUBLISHED",
+  "publishedDate": "September 17, 2026",
+  "updatedDate": "September 17, 2026",
+  "readTime": "1 min read",
+  "readTimeMinutes": 1,
+  "audioMinutes": 2,
+  "heroImage": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1600&auto=format&fit=crop&q=85",
+  "heroImageType": "EXTERNAL_URL",
+  "heroImageAlt": "Test Creation Article",
+  "heroImageCaption": "",
+  "heroImageCredit": "",
+  "heroImageSourceUrl": "",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "Start crafting your inquiry here. The Folded Page values clarity, depth, and tangible prose."
+    }
+  ],
+  "isCoverStory": false,
+  "isTrending": false,
+  "isPopular": false,
+  "isUnique": false,
+  "isSpecial": false,
+  "isEditorsPick": false,
+  "isFeatured": false,
+  "popularityRank": 27,
+  "featuredQuote": "",
+  "relatedSlugs": [],
+  "seoTitle": "Test Creation Article",
+  "seoDescription": "A test deck",
+  "canonicalUrl": "https://thefoldedpage.press/story/test-creation-article",
+  "socialTitle": "Test Creation Article",
+  "socialDescription": "A test deck",
+  "views": 0,
+  "saves": 0,
+  "shares": 0,
+  "createdAt": "2026-09-17T16:53:25.369Z",
+  "updatedAt": "2026-09-17T16:53:46.288Z",
+  "publishedAt": "2026-09-17T16:53:46.287Z",
+  "revisions": [
+    {
+      "id": "rev-story-1789664005369-3oc1-1789664026288",
+      "savedAt": "2026-09-17T16:53:46.288Z",
+      "authorName": "Arjun Jareda",
+      "title": "Test Creation Article",
+      "deck": "A test deck",
+      "blocksCount": 1,
+      "wordCount": 14,
+      "data": {
+        "id": "story-1789664005369-3oc1",
+        "slug": "test-creation-article",
+        "title": "Test Creation Article",
+        "subtitle": "A test deck",
+        "deck": "A test deck",
+        "category": "Culture",
+        "subcategory": "",
+        "tags": [
+          "Editorial"
+        ],
+        "author": {
+          "id": "editorial-team",
+          "name": "The Folded Page Editorial Board",
+          "role": "Editorial Staff",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240&auto=format&fit=crop&q=80",
+          "bio": "A collective of writers, visual researchers, and cultural anthropologists seeking out what is truly worth knowing.",
+          "location": "London & Kyoto",
+          "twitter": "@thefoldedpage"
+        },
+        "authorId": "editorial-team",
+        "status": "DRAFT",
+        "publishedDate": "September 17, 2026",
+        "updatedDate": "September 17, 2026",
+        "readTime": "1 min read",
+        "readTimeMinutes": 1,
+        "audioMinutes": 2,
+        "heroImage": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1600&auto=format&fit=crop&q=85",
+        "heroImageType": "EXTERNAL_URL",
+        "heroImageAlt": "Test Creation Article",
+        "heroImageCaption": "",
+        "heroImageCredit": "",
+        "heroImageSourceUrl": "",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Start crafting your inquiry here. The Folded Page values clarity, depth, and tangible prose."
+          }
+        ],
+        "isCoverStory": false,
+        "isTrending": false,
+        "isPopular": false,
+        "isUnique": false,
+        "isSpecial": false,
+        "isEditorsPick": false,
+        "isFeatured": false,
+        "popularityRank": 27,
+        "featuredQuote": "",
+        "relatedSlugs": [],
+        "seoTitle": "Test Creation Article",
+        "seoDescription": "A test deck",
+        "canonicalUrl": "https://thefoldedpage.press/story/test-creation-article",
+        "socialTitle": "Test Creation Article",
+        "socialDescription": "A test deck",
+        "views": 0,
+        "saves": 0,
+        "shares": 0,
+        "createdAt": "2026-09-17T16:53:25.369Z",
+        "updatedAt": "2026-09-17T16:53:25.369Z",
+        "revisions": [
+          {
+            "id": "rev-story-1789664005369-3oc1-1",
+            "savedAt": "2026-09-17T16:53:25.369Z",
+            "authorName": "Arjun Jareda",
+            "title": "Test Creation Article",
+            "deck": "A test deck",
+            "blocksCount": 0,
+            "wordCount": 0,
+            "data": {
+              "title": "Test Creation Article",
+              "deck": "A test deck",
+              "category": "Culture"
+            },
+            "note": "Initial Draft Created"
+          }
+        ]
+      },
+      "note": "Status changed to PUBLISHED"
+    },
+    {
+      "id": "rev-story-1789664005369-3oc1-1",
+      "savedAt": "2026-09-17T16:53:25.369Z",
+      "authorName": "Arjun Jareda",
+      "title": "Test Creation Article",
+      "deck": "A test deck",
+      "blocksCount": 0,
+      "wordCount": 0,
+      "data": {
+        "title": "Test Creation Article",
+        "deck": "A test deck",
+        "category": "Culture"
+      },
+      "note": "Initial Draft Created"
+    }
+  ]
+}

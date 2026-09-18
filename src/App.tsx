@@ -49,6 +49,7 @@ import { AdminTrash } from './components/admin/AdminTrash';
 import { AdminAuditLogs } from './components/admin/AdminAuditLogs';
 import { AdminNavigationManager } from './components/admin/AdminNavigationManager';
 import { AdminApiKeys } from './components/admin/AdminApiKeys';
+import { AuthorPage } from './pages/AuthorPage';
 
 type ViewType =
   | { type: 'home' }
@@ -59,6 +60,7 @@ type ViewType =
   | { type: 'issues'; issueId?: string }
   | { type: 'series'; seriesId?: string }
   | { type: 'about' }
+  | { type: 'author'; slug: string }
   | { type: 'newsletter' }
   | { type: 'verify' }
   | { type: 'unsubscribe' }
@@ -107,6 +109,19 @@ function MainMagazineApp() {
       } else if (cleanHash.startsWith('story/')) {
         const slug = cleanHash.replace('story/', '');
         setCurrentView({ type: 'article', slug });
+      } else if (cleanHash.startsWith('article/')) {
+        const slug = cleanHash.replace('article/', '');
+        setCurrentView({ type: 'article', slug });
+      } else if (cleanHash.startsWith('author/')) {
+        const slug = cleanHash.replace('author/', '');
+        setCurrentView({ type: 'author', slug });
+      } else if (
+        cleanHash === 'arjun' ||
+        cleanHash === 'arjun-mina' ||
+        cleanHash === 'arjun-jareda' ||
+        cleanHash === 'arjun-bharti-mina'
+      ) {
+        setCurrentView({ type: 'author', slug: 'arjun-bharti-mina' });
       } else if (cleanHash.startsWith('category/')) {
         const cat = cleanHash.replace('category/', '');
         setCurrentView({ type: 'category', categorySlug: cat });
@@ -196,6 +211,12 @@ function MainMagazineApp() {
   const navigateToAbout = () => {
     window.location.hash = '/about';
     setCurrentView({ type: 'about' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const navigateToAuthor = (slug: string) => {
+    window.location.hash = `/author/${slug}`;
+    setCurrentView({ type: 'author', slug });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -375,6 +396,15 @@ function MainMagazineApp() {
           <AboutPage
             onBack={navigateToHome}
             onNavigateNewsletter={navigateToNewsletter}
+            onSelectStory={navigateToStory}
+          />
+        )}
+
+        {currentView.type === 'author' && (
+          <AuthorPage
+            authorSlugOrId={currentView.slug}
+            onSelectStory={navigateToStory}
+            onBack={navigateToHome}
           />
         )}
 

@@ -1,0 +1,87 @@
+{
+  "id": "story-1789664938275-lebx",
+  "slug": "test-dispatch-for-creation",
+  "title": "Test Dispatch For Creation",
+  "subtitle": "Testing deck creation",
+  "deck": "Testing deck creation",
+  "category": "Culture",
+  "subcategory": "",
+  "tags": [
+    "Art"
+  ],
+  "author": {
+    "id": "editorial-team",
+    "name": "The Folded Page Editorial Board",
+    "role": "Editorial Staff",
+    "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240&auto=format&fit=crop&q=80",
+    "bio": "A collective of writers, visual researchers, and cultural anthropologists seeking out what is truly worth knowing.",
+    "location": "London & Kyoto",
+    "twitter": "@thefoldedpage"
+  },
+  "authorId": "editorial-team",
+  "status": "DRAFT",
+  "publishedDate": "September 17, 2026",
+  "updatedDate": "September 17, 2026",
+  "readTime": "1 min read",
+  "readTimeMinutes": 1,
+  "audioMinutes": 2,
+  "heroImage": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1600&auto=format&fit=crop&q=85",
+  "heroImageType": "EXTERNAL_URL",
+  "heroImageAlt": "Test Dispatch For Creation",
+  "heroImageCaption": "",
+  "heroImageCredit": "",
+  "heroImageSourceUrl": "",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "This is test body."
+    }
+  ],
+  "isCoverStory": false,
+  "isTrending": false,
+  "isPopular": false,
+  "isUnique": false,
+  "isSpecial": false,
+  "isEditorsPick": false,
+  "isFeatured": false,
+  "popularityRank": 30,
+  "featuredQuote": "",
+  "relatedSlugs": [],
+  "seoTitle": "Test Dispatch For Creation",
+  "seoDescription": "Testing deck creation",
+  "canonicalUrl": "https://thefoldedpage.press/story/test-dispatch-for-creation",
+  "socialTitle": "Test Dispatch For Creation",
+  "socialDescription": "Testing deck creation",
+  "views": 0,
+  "saves": 0,
+  "shares": 0,
+  "createdAt": "2026-09-17T17:08:58.276Z",
+  "updatedAt": "2026-09-17T17:08:58.276Z",
+  "revisions": [
+    {
+      "id": "rev-story-1789664938275-lebx-1",
+      "savedAt": "2026-09-17T17:08:58.276Z",
+      "authorName": "Arjun Jareda",
+      "title": "Test Dispatch For Creation",
+      "deck": "Testing deck creation",
+      "blocksCount": 1,
+      "wordCount": 4,
+      "data": {
+        "title": "Test Dispatch For Creation",
+        "deck": "Testing deck creation",
+        "category": "Culture",
+        "tags": [
+          "Art"
+        ],
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "This is test body."
+          }
+        ],
+        "status": "DRAFT"
+      },
+      "note": "Initial Draft Created"
+    }
+  ]
+}
