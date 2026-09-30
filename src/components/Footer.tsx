@@ -457,36 +457,15 @@ export const Footer: React.FC<FooterProps> = ({
                   Membership & Audio
                 </button>
               </li>
-              {!isAuthenticated ? (
-                <>
-                  <li>
-                    <button
-                      onClick={() => openAuthModal('login')}
-                      className="hover:text-[#EA580C] text-[#55524B] transition-colors text-left"
-                    >
-                      Sign In to Account
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => openAuthModal('signup')}
-                      className="hover:text-[#EA580C] text-[#EA580C] font-semibold transition-colors text-left"
-                    >
-                      Create Reader Account
-                    </button>
-                  </li>
-                </>
-              ) : (
-                isOwner && (
-                  <li>
-                    <button
-                      onClick={() => handleNav({ type: 'admin', subview: 'overview' })}
-                      className="hover:text-[#EA580C] text-[#8E8A81] hover:underline transition-colors text-left font-mono-editorial text-[11px] pt-1 block"
-                    >
-                      Publisher CMS Desk &rarr;
-                    </button>
-                  </li>
-                )
+              {isAuthenticated && isOwner && (
+                <li>
+                  <button
+                    onClick={() => handleNav({ type: 'admin', subview: 'overview' })}
+                    className="hover:text-[#EA580C] text-[#8E8A81] hover:underline transition-colors text-left font-mono-editorial text-[11px] pt-1 block"
+                  >
+                    Publisher CMS Desk &rarr;
+                  </button>
+                </li>
               )}
             </ul>
           </div>
@@ -502,7 +481,14 @@ export const Footer: React.FC<FooterProps> = ({
 
           <div className="flex items-center gap-6">
             <span>PRINT & DIGITAL REGISTRY</span>
-            <span>ISSN 2981-9041</span>
+            <button
+              type="button"
+              onClick={() => handleNav({ type: 'admin', subview: 'overview' })}
+              className="text-[#8E8A81] hover:text-[#111110] transition-colors cursor-default text-inherit font-inherit"
+              title="Editorial System Registry"
+            >
+              ISSN 2981-9041
+            </button>
           </div>
         </div>
       </div>

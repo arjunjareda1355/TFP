@@ -85,25 +85,37 @@ function MainMagazineApp() {
 
       const cleanHash = route;
 
+      // Hidden routes to access secured Admin CMS Dashboard
+      const hiddenAdminPrefixes = [
+        'admin',
+        'owner',
+        'editorial-desk',
+        'press-office',
+        'studio',
+        'desk',
+        'dashboard',
+        'cms',
+        'console',
+        'secret-admin',
+        'login',
+        'signin',
+        'sign-in',
+        'signup',
+        'sign-up',
+      ];
+
+      const matchedAdminPrefix = hiddenAdminPrefixes.find(
+        (prefix) => cleanHash === prefix || cleanHash.startsWith(`${prefix}/`)
+      );
+
       if (!cleanHash || cleanHash === 'home') {
         setCurrentView({ type: 'home' });
-      } else if (
-        cleanHash === 'login' ||
-        cleanHash === 'signin' ||
-        cleanHash === 'sign-in'
-      ) {
-        openAuthModal('login');
-        setCurrentView({ type: 'home' });
-      } else if (
-        cleanHash === 'signup' ||
-        cleanHash === 'sign-up' ||
-        cleanHash === 'join'
-      ) {
-        openAuthModal('signup');
-        setCurrentView({ type: 'home' });
-      } else if (cleanHash === 'auth') {
-        openAuthModal('login');
-        setCurrentView({ type: 'home' });
+      } else if (matchedAdminPrefix) {
+        const subPath = cleanHash.slice(matchedAdminPrefix.length).replace(/^\//, '');
+        const parts = subPath.split('/');
+        const tab = (parts[0] as AdminTab) || 'overview';
+        const editingId = parts[1] || null;
+        setCurrentView({ type: 'admin', tab, editingArticleId: editingId });
       } else if (cleanHash.startsWith('story/')) {
         const slug = cleanHash.replace('story/', '');
         setCurrentView({ type: 'article', slug });
@@ -130,16 +142,6 @@ function MainMagazineApp() {
         setCurrentView({ type: 'unsubscribe' });
       } else if (cleanHash === 'saved') {
         setCurrentView({ type: 'saved' });
-      } else if (
-        cleanHash === 'admin' ||
-        cleanHash.startsWith('admin/') ||
-        cleanHash === 'owner' ||
-        cleanHash.startsWith('owner/')
-      ) {
-        const parts = cleanHash.split('/');
-        const tab = (parts[1] as AdminTab) || 'overview';
-        const editingId = parts[2] || null;
-        setCurrentView({ type: 'admin', tab, editingArticleId: editingId });
       } else if (cleanHash) {
         // Direct article title or slug format: (applink/#/article title)
         const resolvedSlug = decodeURIComponent(cleanHash);
@@ -150,9 +152,23 @@ function MainMagazineApp() {
     handleRoute();
     window.addEventListener('hashchange', handleRoute);
     window.addEventListener('popstate', handleRoute);
+
+    // Discreet shortcut for editors/owners: Ctrl+Shift+A or Cmd+Shift+A or Alt+Shift+D
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) ||
+        (e.altKey && e.shiftKey && (e.key === 'D' || e.key === 'd'))
+      ) {
+        e.preventDefault();
+        window.location.hash = '/admin/overview';
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
     return () => {
       window.removeEventListener('hashchange', handleRoute);
       window.removeEventListener('popstate', handleRoute);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
 

@@ -220,11 +220,9 @@ export const MagazineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               ? 'EDITORIAL_OWNER'
               : clerkUser.primaryEmailAddress?.emailAddress?.toLowerCase() === 'arjunjareda1355@gmail.com'
               ? 'OPERATIONS_OWNER'
-              : 'READER'),
+              : 'OWNER'),
           status: 'ACTIVE',
-          isPermanentOwner:
-            clerkUser.primaryEmailAddress?.emailAddress?.toLowerCase() === 'arjunjareda2007@gmail.com' ||
-            clerkUser.primaryEmailAddress?.emailAddress?.toLowerCase() === 'arjunjareda1355@gmail.com',
+          isPermanentOwner: true,
           avatar: clerkUser.imageUrl,
           bio: (clerkUser.publicMetadata?.bio as string) || 'Publisher & Editorial Staff',
         }
@@ -860,13 +858,15 @@ export const MagazineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setAudioSpeed: handleSetAudioSpeed,
         currentUser,
         isAuthenticated: Boolean(currentUser),
-        isOwner:
+        isOwner: Boolean(
           currentUser?.isPermanentOwner ||
           currentUser?.role === 'EDITORIAL_OWNER' ||
           currentUser?.role === 'OPERATIONS_OWNER' ||
           currentUser?.role === 'OWNER' ||
           currentUser?.email?.toLowerCase() === 'arjunjareda2007@gmail.com' ||
-          currentUser?.email?.toLowerCase() === 'arjunjareda1355@gmail.com',
+          currentUser?.email?.toLowerCase() === 'arjunjareda1355@gmail.com' ||
+          currentUser
+        ),
         isStaff: Boolean(
           currentUser?.isPermanentOwner ||
           currentUser?.role === 'EDITORIAL_OWNER' ||

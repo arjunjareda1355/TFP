@@ -206,31 +206,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 )}
               </button>
 
-              {/* Auth Integration: Header Controls */}
-              {!isAuthenticated ? (
-                <>
-                  {/* Desktop Auth Buttons */}
-                  <div className="hidden sm:flex items-center gap-2">
-                    <button
-                      id="navbar-signin-btn"
-                      onClick={() => openAuthModal('login')}
-                      className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-[#111110] hover:text-[#EA580C] hover:bg-[#F5F4F0] rounded-xs border border-[#E8E5DF] transition-colors cursor-pointer"
-                      title="Sign in to your account"
-                    >
-                      <span>Sign In</span>
-                    </button>
-
-                    <button
-                      id="navbar-signup-btn"
-                      onClick={() => openAuthModal('signup')}
-                      className="inline-flex items-center gap-1.5 bg-[#111110] hover:bg-[#EA580C] text-white text-xs font-semibold uppercase tracking-wider px-3 py-1.5 transition-colors duration-150 rounded-xs shadow-xs cursor-pointer"
-                      title="Create a free reader account"
-                    >
-                      <span>Create Account</span>
-                    </button>
-                  </div>
-                </>
-              ) : (
+              {/* Auth Integration: Header Controls (Hidden when unauthenticated; displays user badge if signed in via hidden admin path) */}
+              {!isAuthenticated ? null : (
                 <div className="flex items-center gap-2">
                   <SignedIn>
                     <UserButton
@@ -389,46 +366,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             </div>
 
-            {/* Bottom Drawer Actions & Account */}
+            {/* Bottom Drawer Actions & Account (Hidden when unauthenticated; shown when logged in via admin portal) */}
             <div className="pt-4 border-t border-[#E8E5DF] space-y-3">
-              {/* Account Drawer Block */}
-              <div className="p-3 bg-[#F9F8F6] border border-[#E8E5DF] rounded-xs">
-                {!isAuthenticated ? (
-                  <div>
-                    <div className="text-left mb-2">
-                      <span className="text-[11px] font-mono-editorial font-bold uppercase text-[#8E8A81] tracking-wider block">
-                        Member & Reader Access
-                      </span>
-                      <p className="text-xs text-[#6E6A62] font-serif-editorial italic mt-0.5">
-                        Sign in to sync saved stories, preferences, and reading history.
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 mt-3">
-                      <button
-                        type="button"
-                        id="menu-signin-btn"
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          openAuthModal('login');
-                        }}
-                        className="w-full py-2.5 px-3 text-center text-xs font-semibold text-[#111110] bg-[#FFFFFF] border border-[#E8E5DF] hover:bg-[#F5F4F0] rounded-xs transition-colors cursor-pointer shadow-xs"
-                      >
-                        Sign In
-                      </button>
-                      <button
-                        type="button"
-                        id="menu-signup-btn"
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          openAuthModal('signup');
-                        }}
-                        className="w-full py-2.5 px-3 text-center text-xs font-semibold text-white bg-[#111110] hover:bg-[#EA580C] rounded-xs transition-colors cursor-pointer shadow-xs"
-                      >
-                        Create Account
-                      </button>
-                    </div>
-                  </div>
-                ) : (
+              {isAuthenticated && (
+                <div className="p-3 bg-[#F9F8F6] border border-[#E8E5DF] rounded-xs">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between pb-2 border-b border-[#E8E5DF]">
                       <div className="flex items-center gap-2">
@@ -508,8 +449,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                       </button>
                     )}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
 
               <div className="space-y-1.5">
                 <button
