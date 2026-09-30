@@ -491,6 +491,16 @@ export const Footer: React.FC<FooterProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Dedicated End of Site - Made in India Line */}
+        <div className="mt-8 pt-6 border-t border-[#E8E5DF]/70 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 text-center">
+          <div className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-mono-editorial uppercase tracking-widest text-[#55524B]">
+            <span>Crafted with pride</span>
+            <span className="text-[#EA580C]">•</span>
+            <span className="font-semibold text-[#111110]">Made in India</span>
+            <span className="text-sm select-none" role="img" aria-label="India flag">🇮🇳</span>
+          </div>
+        </div>
       </div>
     </footer>
   );

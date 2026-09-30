@@ -183,3 +183,67 @@ button *,
   user-select: none !important;
 }
 
+/* Clerk Authentication Layout & Responsive Alignment Fixes */
+.cl-rootBox,
+.cl-cardBox,
+.cl-card,
+.cl-main {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.cl-rootBox {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 0 auto !important;
+}
+
+.cl-cardBox {
+  box-shadow: none !important;
+  margin: 0 auto !important;
+}
+
+.cl-card {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+}
+
+.cl-socialButtonsBlockButton {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  border-radius: 2px !important;
+  border-color: #E8E5DF !important;
+}
+
+.cl-formFieldInput {
+  border-radius: 2px !important;
+  border-color: #E8E5DF !important;
+  font-size: 0.8125rem !important;
+}
+
+.cl-formButtonPrimary {
+  background-color: #111110 !important;
+  border-radius: 2px !important;
+  font-size: 0.75rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  font-weight: 600 !important;
+}
+
+.cl-formButtonPrimary:hover {
+  background-color: #EA580C !important;
+}
+
+.cl-footerActionLink {
+  color: #EA580C !important;
+}
+
+.cl-footerActionLink:hover {
+  color: #C2410C !important;
+}
+

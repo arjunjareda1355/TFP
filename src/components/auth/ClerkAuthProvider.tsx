@@ -168,8 +168,8 @@ class ClerkErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBounda
   public override render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[#F9F8F6] flex flex-col justify-center items-center px-4 py-12 select-none">
-          <div className="w-full max-w-md bg-white border border-[#E8E5DF] rounded-xs shadow-md p-6 sm:p-8 text-center">
+        <div className="min-h-[100dvh] w-full bg-[#F9F8F6] flex flex-col justify-center items-center p-4 sm:p-6 py-8 select-none overflow-y-auto">
+          <div className="w-full max-w-[440px] my-auto bg-white border border-[#E8E5DF] rounded-xs shadow-md p-6 sm:p-8 text-center">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#FFF7ED] border border-[#FED7AA] text-[#EA580C] mb-3">
               <AlertCircle className="w-6 h-6" />
             </div>
@@ -315,8 +315,8 @@ export const ClerkAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
   // If user requested to explicitly update the Clerk key
   if (isUpdatingKey) {
     return (
-      <div className="min-h-screen bg-[#F9F8F6] flex flex-col justify-center items-center px-4 py-12 select-none">
-        <div className="w-full max-w-md bg-white border border-[#E8E5DF] rounded-xs shadow-md p-6 sm:p-8">
+      <div className="min-h-[100dvh] w-full bg-[#F9F8F6] flex flex-col justify-center items-center p-4 sm:p-6 py-8 select-none overflow-y-auto">
+        <div className="w-full max-w-[440px] my-auto bg-white border border-[#E8E5DF] rounded-xs shadow-md p-6 sm:p-8">
           <div className="text-center mb-6 pb-5 border-b border-[#E8E5DF]">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#FFF7ED] border border-[#FED7AA] text-[#EA580C] mb-3">
               <Key className="w-6 h-6" />

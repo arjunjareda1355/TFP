@@ -15,9 +15,9 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel, onB
   const handleExit = onBackToSite || onCancel || (() => (window.location.hash = ''));
 
   return (
-    <div className="min-h-screen bg-[#F9F8F6] flex flex-col justify-center items-center px-4 py-12 select-none">
+    <div className="min-h-[100dvh] w-full bg-[#F9F8F6] flex flex-col justify-center items-center p-4 sm:p-6 py-8 sm:py-12 select-none overflow-y-auto">
       {/* Container with clean editorial aesthetic */}
-      <div className="w-full max-w-md bg-[#FFFFFF] border border-[#E8E5DF] rounded-xs shadow-md p-6 sm:p-8">
+      <div className="w-full max-w-[440px] my-auto bg-[#FFFFFF] border border-[#E8E5DF] rounded-xs shadow-md p-5 sm:p-8">
         {/* Header */}
         <div className="text-center mb-6 pb-5 border-b border-[#E8E5DF]">
           <div className="flex justify-center mb-4">
@@ -68,12 +68,14 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel, onB
                 fallbackRedirectUrl="/admin"
                 appearance={{
                   elements: {
-                    rootBox: 'w-full',
-                    card: 'border-0 shadow-none p-0 w-full',
+                    rootBox: 'w-full max-w-full flex justify-center mx-auto',
+                    cardBox: 'w-full max-w-full shadow-none flex justify-center mx-auto',
+                    card: 'border-0 shadow-none p-0 w-full max-w-full bg-transparent mx-auto',
+                    header: 'hidden',
                     socialButtonsBlockButton:
-                      'rounded-xs border border-[#E8E5DF] hover:bg-[#F5F4F0] text-xs transition-colors',
+                      'w-full rounded-xs border border-[#E8E5DF] hover:bg-[#F5F4F0] text-xs transition-colors',
                     formButtonPrimary:
-                      'bg-[#111110] hover:bg-[#EA580C] text-xs font-semibold rounded-xs shadow-xs transition-colors',
+                      'w-full bg-[#111110] hover:bg-[#EA580C] text-xs font-semibold rounded-xs shadow-xs transition-colors py-2.5',
                     footerActionLink: 'text-[#EA580C] hover:text-[#C2410C]',
                   },
                 }}
@@ -86,12 +88,14 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel, onB
                 fallbackRedirectUrl="/admin"
                 appearance={{
                   elements: {
-                    rootBox: 'w-full',
-                    card: 'border-0 shadow-none p-0 w-full',
+                    rootBox: 'w-full max-w-full flex justify-center mx-auto',
+                    cardBox: 'w-full max-w-full shadow-none flex justify-center mx-auto',
+                    card: 'border-0 shadow-none p-0 w-full max-w-full bg-transparent mx-auto',
+                    header: 'hidden',
                     socialButtonsBlockButton:
-                      'rounded-xs border border-[#E8E5DF] hover:bg-[#F5F4F0] text-xs transition-colors',
+                      'w-full rounded-xs border border-[#E8E5DF] hover:bg-[#F5F4F0] text-xs transition-colors',
                     formButtonPrimary:
-                      'bg-[#111110] hover:bg-[#EA580C] text-xs font-semibold rounded-xs shadow-xs transition-colors',
+                      'w-full bg-[#111110] hover:bg-[#EA580C] text-xs font-semibold rounded-xs shadow-xs transition-colors py-2.5',
                     footerActionLink: 'text-[#EA580C] hover:text-[#C2410C]',
                   },
                 }}
