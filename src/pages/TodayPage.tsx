@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ARTICLES } from '../data/articles';
 import { ArrowLeft, Sun, Sunset, Moon, Sparkles } from 'lucide-react';
 import { ArticleCard } from '../components/ArticleCard';
+import { updatePageSeo, resetToDefaultSeo } from '../utils/seo';
 
 interface TodayPageProps {
   onSelectStory: (slug: string) => void;
@@ -10,6 +11,19 @@ interface TodayPageProps {
 
 export const TodayPage: React.FC<TodayPageProps> = ({ onSelectStory, onBack }) => {
   const [activeEdition, setActiveEdition] = useState<'morning' | 'midday' | 'evening'>('morning');
+
+  useEffect(() => {
+    updatePageSeo({
+      title: "Today's Edition — Morning, Midday & Evening",
+      description:
+        "A curated three-part daily briefing of what's worth knowing today from The Folded Page editorial desk.",
+      canonicalPath: '/today',
+      ogType: 'website',
+    });
+    return () => {
+      resetToDefaultSeo();
+    };
+  }, []);
 
   const todayDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',

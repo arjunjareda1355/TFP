@@ -3,6 +3,7 @@ import { useMagazine } from '../context/MagazineContext';
 import { EDITORIAL_SERIES } from '../data/series';
 import { ArticleCard } from '../components/ArticleCard';
 import { ArrowLeft, Layers } from 'lucide-react';
+import { updatePageSeo, resetToDefaultSeo } from '../utils/seo';
 
 interface SeriesPageProps {
   initialSeriesId?: string;
@@ -29,6 +30,20 @@ export const SeriesPage: React.FC<SeriesPageProps> = ({
   }, [initialSeriesId]);
 
   const currentSeries = allSeries.find((s) => s.id === selectedSeriesId) || allSeries[0] || EDITORIAL_SERIES[0];
+
+  useEffect(() => {
+    updatePageSeo({
+      title: `${currentSeries?.name || 'Editorial Series'} — Themed Dispatches`,
+      description:
+        currentSeries?.description ||
+        'Explore episodic editorial investigations, serial columns, and thematic dispatches on The Folded Page.',
+      canonicalPath: selectedSeriesId ? `/series/${selectedSeriesId}` : '/series',
+      ogType: 'website',
+    });
+    return () => {
+      resetToDefaultSeo();
+    };
+  }, [selectedSeriesId, currentSeries]);
 
   // Articles in this series
   const seriesArticles = (articles || []).filter(

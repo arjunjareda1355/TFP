@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useMagazine } from '../context/MagazineContext';
 import { HeroCoverStory } from '../components/HeroCoverStory';
 import { TrendingGrid } from '../components/TrendingGrid';
@@ -9,6 +9,7 @@ import { SpecialCinematic } from '../components/SpecialCinematic';
 import { EditorialSeriesStrip } from '../components/EditorialSeriesStrip';
 import { IssuesTeaser } from '../components/IssuesTeaser';
 import { NewsletterBox } from '../components/NewsletterBox';
+import { resetToDefaultSeo } from '../utils/seo';
 
 interface HomePageProps {
   onSelectStory: (slug: string) => void;
@@ -33,6 +34,10 @@ export const HomePage: React.FC<HomePageProps> = ({
     uniqueStories,
     specialStories,
   } = useMagazine();
+
+  useEffect(() => {
+    resetToDefaultSeo();
+  }, []);
 
   if (!coverStory) {
     return (

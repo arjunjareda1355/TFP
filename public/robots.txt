@@ -1,0 +1,13 @@
+# robots.txt for The Folded Page (https://foldedpage.in)
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/admin
+Disallow: /api/keys
+Disallow: /api/trash
+Disallow: /api/audit-logs
+
+# Sitemaps
+Sitemap: https://foldedpage.in/sitemap.xml
+Sitemap: https://foldedpage.in/api/sitemap.xml

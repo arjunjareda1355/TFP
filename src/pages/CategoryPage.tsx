@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMagazine } from '../context/MagazineContext';
 import { ArticleCard } from '../components/ArticleCard';
 import { ArrowLeft, Sparkles, Filter, Grid, List } from 'lucide-react';
 import { Article } from '../types';
+import { updatePageSeo, resetToDefaultSeo } from '../utils/seo';
 
 interface CategoryPageProps {
   categorySlug: string;
@@ -34,6 +35,22 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({
     accentColor: '#EA580C',
     iconName: 'Compass',
   };
+
+  useEffect(() => {
+    updatePageSeo({
+      title: `${currentCategory.name} Dispatches`,
+      description:
+        currentCategory.description ||
+        currentCategory.tagline ||
+        `Explore all stories and dispatches curated under ${currentCategory.name} on The Folded Page.`,
+      canonicalPath: `/category/${currentCategory.slug}`,
+      ogType: 'website',
+    });
+
+    return () => {
+      resetToDefaultSeo();
+    };
+  }, [categorySlug, currentCategory]);
 
   // Filter articles for this category
   let categoryArticles: Article[] = [];

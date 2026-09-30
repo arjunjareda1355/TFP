@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { AUTHORS } from '../data/authors';
 import { ArrowLeft, Sparkles, Compass, ShieldCheck, Feather, Heart, Mail } from 'lucide-react';
 import { BrandLogo } from '../components/BrandLogo';
 import { EditorialPrinciplesBanner } from '../components/EditorialPrinciplesBanner';
+import { updatePageSeo, resetToDefaultSeo } from '../utils/seo';
 
 interface AboutPageProps {
   onBack: () => void;
@@ -10,6 +11,19 @@ interface AboutPageProps {
 }
 
 export const AboutPage: React.FC<AboutPageProps> = ({ onBack, onNavigateNewsletter }) => {
+  useEffect(() => {
+    updatePageSeo({
+      title: 'Editorial Manifesto & Masthead',
+      description:
+        'The philosophy and editorial conviction behind The Folded Page: discovering noteworthy ideas, cultural perspectives, and human curiosity beyond algorithmic noise.',
+      canonicalPath: '/about',
+      ogType: 'website',
+    });
+    return () => {
+      resetToDefaultSeo();
+    };
+  }, []);
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 bg-[#FFFFFF] text-[#111110]">
       {/* Back button */}
@@ -32,7 +46,10 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack, onNavigateNewslett
         <div className="mb-6">
           <BrandLogo variant="masthead" theme="light" className="max-w-xl" />
         </div>
-        <p className="font-serif-editorial italic text-2xl sm:text-3xl text-[#55524B]">
+        <h1 className="font-serif-editorial text-3xl sm:text-5xl font-medium tracking-tight text-[#111110] mb-3">
+          Editorial Manifesto & Publication Identity
+        </h1>
+        <p className="font-serif-editorial italic text-xl sm:text-2xl text-[#55524B]">
           "What's worth knowing."
         </p>
       </header>

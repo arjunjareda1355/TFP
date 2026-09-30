@@ -3,6 +3,7 @@ import { useMagazine } from '../context/MagazineContext';
 import { MAGAZINE_ISSUES } from '../data/issues';
 import { ArticleCard } from '../components/ArticleCard';
 import { ArrowLeft, BookOpen, Feather } from 'lucide-react';
+import { updatePageSeo, resetToDefaultSeo } from '../utils/seo';
 
 interface IssuesPageProps {
   initialIssueId?: string;
@@ -27,6 +28,19 @@ export const IssuesPage: React.FC<IssuesPageProps> = ({
       setSelectedIssueId(initialIssueId);
     }
   }, [initialIssueId]);
+
+  useEffect(() => {
+    updatePageSeo({
+      title: 'Editorial Archives & Volume Editions',
+      description:
+        'Browse all published issues and curated archive editions of The Folded Page magazine.',
+      canonicalPath: selectedIssueId ? `/issues/${selectedIssueId}` : '/issues',
+      ogType: 'website',
+    });
+    return () => {
+      resetToDefaultSeo();
+    };
+  }, [selectedIssueId]);
 
   const currentIssue = allIssues.find((i) => i.id === selectedIssueId) || allIssues[0] || MAGAZINE_ISSUES[0];
 

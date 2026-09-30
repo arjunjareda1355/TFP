@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Mail, CheckCircle2, ArrowRight, Clock, Calendar, Loader2, AlertCircle } from 'lucide-react';
 import { BrandLogo } from '../components/BrandLogo';
 import { api } from '../services/api';
 import { useToast } from '../context/ToastContext';
 import { useMagazine } from '../context/MagazineContext';
+import { updatePageSeo, resetToDefaultSeo } from '../utils/seo';
 
 interface NewsletterPageProps {
   onBack: () => void;
@@ -19,6 +20,19 @@ export const NewsletterPage: React.FC<NewsletterPageProps> = ({ onBack }) => {
   const [successMessage, setSuccessMessage] = useState('');
   const [verifyUrl, setVerifyUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    updatePageSeo({
+      title: 'The Folded Letter Dispatch — Weekly Editorial Newsletter',
+      description:
+        'Subscribe to The Folded Letter, a weekly dispatch delivering 5 unexpected discoveries, thoughtful essays, and audio editions directly to your inbox.',
+      canonicalPath: '/newsletter',
+      ogType: 'website',
+    });
+    return () => {
+      resetToDefaultSeo();
+    };
+  }, []);
 
   const pastEditions = [
     {

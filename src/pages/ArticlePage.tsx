@@ -25,6 +25,7 @@ import { BrandedImage } from '../components/BrandedImage';
 import { api } from '../services/api';
 import { useToast } from '../context/ToastContext';
 import { normalizeImageUrl, parseVideoUrl } from '../utils/mediaUtils';
+import { updatePageSeo, resetToDefaultSeo } from '../utils/seo';
 
 interface ArticlePageProps {
   slug: string;
@@ -200,7 +201,54 @@ export const ArticlePage: React.FC<ArticlePageProps> = ({
     window.scrollTo({ top: 0, behavior: 'instant' as any });
     if (article?.id) {
       addToHistory(article.id, 100);
-      document.title = `${article.title} — The Folded Page`;
+      const articleSummary =
+        article.seoDescription ||
+        article.metaDescription ||
+        article.deck ||
+        article.subtitle ||
+        `Read "${article.title}" on The Folded Page.`;
+
+      updatePageSeo({
+        title: article.title,
+        description: articleSummary,
+        canonicalPath: `/story/${article.slug}`,
+        ogType: 'article',
+        ogImage: article.heroImage,
+        ogImageAlt: article.heroImageAlt || article.title,
+        authorName: article.author?.name,
+        publishedTime: article.publishedDate,
+        modifiedTime: article.updatedDate || article.publishedDate,
+        section: article.category,
+        tags: article.tags,
+        structuredData: {
+          '@context': 'https://schema.org',
+          '@type': 'NewsArticle',
+          headline: article.title,
+          description: articleSummary,
+          image: article.heroImage
+            ? [article.heroImage.startsWith('http') ? article.heroImage : `https://foldedpage.in${article.heroImage}`]
+            : ['https://foldedpage.in/logo.svg'],
+          datePublished: article.publishedDate,
+          dateModified: article.updatedDate || article.publishedDate,
+          author: {
+            '@type': 'Person',
+            name: article.author?.name || 'The Folded Page Staff',
+          },
+          publisher: {
+            '@type': 'NewsMediaOrganization',
+            name: 'The Folded Page',
+            url: 'https://foldedpage.in/',
+            logo: {
+              '@type': 'ImageObject',
+              url: 'https://foldedpage.in/logo.svg',
+            },
+          },
+          mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': `https://foldedpage.in/story/${article.slug}`,
+          },
+        },
+      });
     }
 
     const handleScroll = () => {
@@ -214,9 +262,9 @@ export const ArticlePage: React.FC<ArticlePageProps> = ({
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      document.title = 'The Folded Page';
+      resetToDefaultSeo();
     };
-  }, [slug, article?.id]);
+  }, [slug, article]);
 
   const getFontSizeClass = () => {
     switch (fontSize) {

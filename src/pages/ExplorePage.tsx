@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMagazine } from '../context/MagazineContext';
 import { ArticleCard } from '../components/ArticleCard';
 import { ArrowLeft, Search, Compass, Volume2, Clock, BookOpen, Grid, List } from 'lucide-react';
+import { updatePageSeo, resetToDefaultSeo } from '../utils/seo';
 
 interface ExplorePageProps {
   onSelectStory: (slug: string) => void;
@@ -19,6 +20,19 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
   const [topicFilter, setTopicFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [layoutView, setLayoutView] = useState<'grid' | 'list'>('grid');
+
+  useEffect(() => {
+    updatePageSeo({
+      title: 'Explore All Stories & Reading Tempos',
+      description:
+        'Discover curated stories, investigative features, audio editions, and short reads across world culture and ideas on The Folded Page.',
+      canonicalPath: '/explore',
+      ogType: 'website',
+    });
+    return () => {
+      resetToDefaultSeo();
+    };
+  }, []);
 
   const publishedArticles = articles.filter((a) => a.status === 'PUBLISHED' || !a.status);
 

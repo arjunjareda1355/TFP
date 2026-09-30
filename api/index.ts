@@ -10,10 +10,27 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key, X-API-KEY, x-auth-token, Accept');
+  
+  if (req.path.startsWith('/admin') || req.path.startsWith('/api/admin')) {
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+  } else {
+    res.setHeader('X-Robots-Tag', 'all, index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1');
+  }
+
   if (req.method === 'OPTIONS') {
     return res.sendStatus(204);
   }
   next();
+});
+
+// Robots.txt
+app.get(['/robots.txt', '/api/robots.txt'], (req, res) => {
+  res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  res.setHeader('X-Robots-Tag', 'all, index, follow');
+  res.send(
+    `# robots.txt for The Folded Page\nUser-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /admin/\nDisallow: /api/admin\nDisallow: /api/keys\nDisallow: /api/trash\nDisallow: /api/audit-logs\n\n# Sitemaps\nSitemap: https://foldedpage.in/sitemap.xml\nSitemap: https://foldedpage.in/api/sitemap.xml\n`
+  );
 });
 
 const clerkChunkCache = new Map<string, { code: string; timestamp: number }>();

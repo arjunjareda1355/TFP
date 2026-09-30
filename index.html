@@ -3,24 +3,92 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>The Folded Page</title>
-    <meta name="description" content="A modern digital editorial magazine covering trending, popular, unique, unusual, fascinating, and noteworthy discoveries from around the world." />
+    <title>The Folded Page – What's Worth Knowing | Digital Editorial Magazine</title>
+    <meta name="description" content="A modern digital editorial magazine discovering noteworthy stories, cultural perspectives, human curiosities, and timeless insights from around the world. What's worth knowing." />
+    <link rel="canonical" href="https://foldedpage.in/" />
+    
+    <!-- Indexing & Search Engine Directives -->
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="author" content="The Folded Page" />
+    
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/logo.svg" />
     <meta name="application-name" content="The Folded Page" />
+    
+    <!-- Open Graph Social Metadata -->
     <meta property="og:site_name" content="The Folded Page" />
-    <meta property="og:title" content="The Folded Page" />
-    <meta property="og:description" content="A modern digital editorial magazine covering trending, popular, unique, unusual, fascinating, and noteworthy discoveries from around the world." />
-    <meta property="og:image" content="/logo.svg" />
     <meta property="og:type" content="website" />
+    <meta property="og:title" content="The Folded Page – What's Worth Knowing | Digital Editorial Magazine" />
+    <meta property="og:description" content="A modern digital editorial magazine discovering noteworthy stories, cultural perspectives, human curiosities, and timeless insights from around the world." />
+    <meta property="og:url" content="https://foldedpage.in/" />
+    <meta property="og:image" content="https://foldedpage.in/logo.svg" />
+    <meta property="og:image:alt" content="The Folded Page Editorial Masthead" />
+    <meta property="og:locale" content="en_US" />
+    
+    <!-- Twitter / X Card Metadata -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="The Folded Page" />
+    <meta name="twitter:site" content="@thefoldedpage" />
+    <meta name="twitter:creator" content="@thefoldedpage" />
+    <meta name="twitter:title" content="The Folded Page – What's Worth Knowing" />
+    <meta name="twitter:description" content="A modern digital editorial magazine discovering noteworthy stories, cultural perspectives, human curiosities, and timeless insights from around the world." />
+    <meta name="twitter:image" content="https://foldedpage.in/logo.svg" />
+    <meta name="twitter:image:alt" content="The Folded Page Editorial Masthead" />
+    
+    <!-- Schema.org Structured Data (JSON-LD) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "The Folded Page",
-      "alternateName": "The Folded Page"
+      "@graph": [
+        {
+          "@type": "NewsMediaOrganization",
+          "@id": "https://foldedpage.in/#organization",
+          "name": "The Folded Page",
+          "url": "https://foldedpage.in/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://foldedpage.in/logo.svg",
+            "caption": "The Folded Page"
+          },
+          "description": "A modern digital editorial magazine discovering noteworthy stories, cultural perspectives, human curiosities, and timeless insights from around the world. What's worth knowing.",
+          "slogan": "What's Worth Knowing.",
+          "foundingDate": "2026",
+          "sameAs": [
+            "https://twitter.com/thefoldedpage",
+            "https://instagram.com/thefoldedpage",
+            "https://foldedpage.in"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://foldedpage.in/#website",
+          "url": "https://foldedpage.in/",
+          "name": "The Folded Page",
+          "description": "What's worth knowing. Discover curated dispatches, longform journalism, cultural discoveries, and editorial perspectives.",
+          "publisher": {
+            "@id": "https://foldedpage.in/#organization"
+          },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://foldedpage.in/?q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          },
+          "inLanguage": "en-US"
+        },
+        {
+          "@type": "Periodical",
+          "@id": "https://foldedpage.in/#periodical",
+          "name": "The Folded Page",
+          "issn": "2981-9041",
+          "publisher": {
+            "@id": "https://foldedpage.in/#organization"
+          }
+        }
+      ]
     }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />

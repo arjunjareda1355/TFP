@@ -2019,65 +2019,88 @@ router.put('/about-config', requireOwner(), (req, res) => {
 });
 
 // ====================== SITEMAP & ROBOTS ======================
-router.get('/sitemap.xml', (req, res) => {
+router.get(['/sitemap.xml', '/sitemap'], (req, res) => {
   const articles = db.getArticles({ status: 'PUBLISHED' }).articles;
   const categories = db.getCategories();
-  const domain = 'https://thefoldedpage.press';
+  
+  const host = req.get('host') || 'foldedpage.in';
+  const proto = req.get('x-forwarded-proto') || (req.secure ? 'https' : 'http');
+  const domain = host.includes('localhost') || host.includes('run.app')
+    ? `${proto}://${host}`
+    : 'https://foldedpage.in';
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>${domain}/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>${domain}/#explore</loc>
+    <loc>${domain}/explore</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>${domain}/#today</loc>
+    <loc>${domain}/today</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>${domain}/#issues</loc>
+    <loc>${domain}/issues</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${domain}/#series</loc>
+    <loc>${domain}/series</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${domain}/#about</loc>
+    <loc>${domain}/about</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${domain}/newsletter</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   ${categories
     .map(
       (c) => `  <url>
-    <loc>${domain}/#category/${c.slug}</loc>
+    <loc>${domain}/category/${c.slug}</loc>
     <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
   </url>`
     )
     .join('\n')}
   ${articles
     .map(
       (a) => `  <url>
-    <loc>${domain}/#story/${a.slug}</loc>
-    <lastmod>${new Date(a.updatedDate || a.publishedDate).toISOString()}</lastmod>
+    <loc>${domain}/story/${a.slug}</loc>
+    <lastmod>${new Date(a.updatedDate || a.publishedDate || Date.now()).toISOString().split('T')[0]}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.9</priority>${
+      a.heroImage
+        ? `\n    <image:image>\n      <image:loc>${
+            a.heroImage.startsWith('http') ? a.heroImage : `${domain}${a.heroImage}`
+          }</image:loc>\n      <image:title>${(a.title || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')}</image:title>\n    </image:image>`
+        : ''
+    }
   </url>`
     )
     .join('\n')}
 </urlset>`;
 
-  res.header('Content-Type', 'application/xml');
+  res.setHeader('Content-Type', 'application/xml; charset=UTF-8');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.setHeader('X-Robots-Tag', 'all, index, follow');
   res.send(xml);
 });
 
