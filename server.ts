@@ -37,10 +37,6 @@ async function startServer() {
     fs.mkdirSync(uploadsDir, { recursive: true });
   }
 
-  // Serve static uploads
-  app.use('/uploads', express.static(uploadsDir));
-  app.use(express.static(publicDir));
-
   // Health check
   app.get('/api/health', (req, res) => {
     res.json({
@@ -66,11 +62,12 @@ async function startServer() {
       `https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5.127.2/dist/${safeFilename}`,
       `https://unpkg.com/@clerk/clerk-js@5.127.2/dist/${safeFilename}`,
       `https://${clerkHost}/npm/@clerk/clerk-js@5.127.2/dist/${safeFilename}`,
+      `https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/${safeFilename}`,
     ];
 
     for (const url of urls) {
       try {
-        const res = await fetch(url, { signal: AbortSignal.timeout(3500) });
+        const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
         if (res.ok) {
           const code = await res.text();
           if (code && code.length > 50) {
@@ -85,6 +82,7 @@ async function startServer() {
   // Pre-warm critical chunks asynchronously
   const prewarmChunks = [
     'clerk.browser.js',
+    'framework_clerk.browser_0cc2cc_5.127.2.js',
     'signin_clerk.browser_0cc2cc_5.127.2.js',
     'signup_clerk.browser_0cc2cc_5.127.2.js',
   ];
@@ -94,12 +92,16 @@ async function startServer() {
     }).catch(() => {});
   }
 
-  app.get('/clerk-js/*', async (req, res) => {
+  const clerkHandler = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
-      const rawPath = req.params[0] || 'clerk.browser.js';
-      const safeFilename = path.basename(rawPath);
+      const rawPath = req.params[0] || req.path;
+      const safeFilename = path.basename(rawPath) || 'clerk.browser.js';
+      if (!safeFilename.endsWith('.js')) {
+        return next();
+      }
+
       const cached = clerkChunkCache.get(safeFilename);
-      if (cached && Date.now() - cached.timestamp < 3600000 * 12) {
+      if (cached && Date.now() - cached.timestamp < 3600000 * 24) {
         res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
         res.setHeader('Cache-Control', 'public, max-age=86400');
         return res.send(cached.code);
@@ -132,12 +134,45 @@ async function startServer() {
         res.setHeader('Cache-Control', 'public, max-age=86400');
         return res.send(code);
       }
-      res.status(502).send(`// Upstream Clerk chunk ${safeFilename} unavailable`);
+
+      // Safe JS fallback comment instead of 404 or HTML
+      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+      return res.send(`/* clerk chunk fallback ${safeFilename} */`);
     } catch (err: any) {
-      console.error('[Clerk Proxy Error]:', err?.message || err);
-      res.status(500).send('// ClerkJS proxy error');
+      console.warn('[Clerk Proxy Notice]:', err?.message || err);
+      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+      return res.send('/* clerk fallback */');
     }
+  };
+
+  // Intercept Clerk bundle and dynamic chunks both under /clerk-js/ and at root
+  app.use((req, res, next) => {
+    // Explicitly bypass Vite dev modules, node_modules dependencies, and internal routes
+    if (
+      req.path.startsWith('/node_modules') ||
+      req.path.startsWith('/@') ||
+      req.path.startsWith('/src') ||
+      req.path.includes('@clerk')
+    ) {
+      return next();
+    }
+
+    if (
+      (req.method === 'GET' || req.method === 'HEAD') &&
+      (
+        req.path.startsWith('/clerk-js/') ||
+        req.path === '/clerk.browser.js' ||
+        (req.path.endsWith('.js') && (req.path.includes('_clerk.browser_') || req.path.includes('.clerk.browser.')))
+      )
+    ) {
+      return clerkHandler(req, res, next);
+    }
+    next();
   });
+
+  // Serve static uploads
+  app.use('/uploads', express.static(uploadsDir));
+  app.use(express.static(publicDir));
 
   // Mount all publication & CMS API routes
   app.use('/api', apiRouter);

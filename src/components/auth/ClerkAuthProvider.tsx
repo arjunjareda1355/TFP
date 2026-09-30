@@ -265,7 +265,10 @@ export const ClerkAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
         code === 'failed_to_load_clerk_js_timeout' ||
         message.includes('failed_to_load_clerk_js') ||
         message.includes('Failed to load Clerk') ||
-        message.includes('clerk.browser.js') ||
+        message.includes('clerk.browser') ||
+        message.includes('clerk-js') ||
+        message.includes('framework_clerk') ||
+        message.includes('Loading chunk') ||
         message.includes('clerk.accounts.dev') ||
         message.includes('Production Keys are only allowed for domain') ||
         message.includes('HTTP Origin header') ||
@@ -415,12 +418,12 @@ export const ClerkAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
     );
   }
 
-  // Official ClerkProvider instance wrapped in ErrorBoundary (loads local bundle first for zero latency and iframe immunity)
+  // Official ClerkProvider instance wrapped in ErrorBoundary (loads same-origin proxy for zero latency and iframe immunity)
   return (
     <ClerkErrorBoundary onResetKey={handleReset} onFallbackToDevKey={handleFallbackToDevKey}>
       <ClerkProvider
         publishableKey={resolvedKey}
-        clerkJSUrl="/clerk.browser.js"
+        clerkJSUrl="/clerk-js/clerk.browser.js"
         appearance={{
           variables: {
             colorPrimary: '#EA580C',

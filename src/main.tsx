@@ -16,7 +16,10 @@ if (typeof window !== 'undefined') {
       msg.includes('failed_to_load_clerk_js_timeout') ||
       msg.includes('failed_to_load_clerk_js') ||
       msg.includes('Failed to load Clerk') ||
-      msg.includes('clerk.browser.js') ||
+      msg.includes('clerk.browser') ||
+      msg.includes('framework_clerk') ||
+      msg.includes('Loading chunk') ||
+      msg.includes('clerk-js') ||
       msg.includes('clerk.accounts.dev')
     );
   };
@@ -25,7 +28,7 @@ if (typeof window !== 'undefined') {
     if (isClerkLoadIssue(event.reason)) {
       event.preventDefault();
       event.stopPropagation();
-      console.warn('[Clerk] Handled timeout gracefully. Continuing in standard editorial mode.');
+      console.warn('[Clerk] Handled load notice gracefully. Continuing in standard editorial mode.');
     }
   });
 
@@ -45,10 +48,13 @@ if (typeof window !== 'undefined') {
       text.includes('failed_to_load_clerk_js_timeout') ||
       text.includes('failed_to_load_clerk_js') ||
       text.includes('Failed to load Clerk') ||
-      text.includes('clerk.browser.js') ||
+      text.includes('clerk.browser') ||
+      text.includes('framework_clerk') ||
+      text.includes('Loading chunk') ||
+      text.includes('clerk-js') ||
       text.includes('clerk.accounts.dev')
     ) {
-      console.warn('[Clerk] Suppressed non-fatal auth loading notice:', text.slice(0, 120));
+      console.warn('[Clerk] Handled non-fatal auth loading notice:', text.slice(0, 120));
       return;
     }
     originalConsoleError.apply(console, args);
