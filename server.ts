@@ -54,6 +54,13 @@ async function startServer() {
     );
   });
 
+  // Ads.txt for Google AdSense & authorized digital sellers verification
+  app.get('/ads.txt', (req, res) => {
+    res.type('text/plain');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.send(`google.com, pub-9840710184594635, DIRECT, f08c47fec0942fa0\n`);
+  });
+
   // Fast, same-origin caching proxy for Clerk JS bundle and dynamic chunks
   const clerkChunkCache = new Map<string, { code: string; timestamp: number }>();
 
