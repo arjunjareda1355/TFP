@@ -63,13 +63,27 @@ async function startServer() {
 
   // Fast, same-origin caching proxy for Clerk JS bundle and dynamic chunks
   const clerkChunkCache = new Map<string, { code: string; timestamp: number }>();
+  const publicClerkDir = path.join(publicDir, 'clerk-js');
+  const nodeClerkDist = path.join(process.cwd(), 'node_modules', '@clerk', 'clerk-js', 'dist');
 
   async function fetchClerkChunk(safeFilename: string, clerkHost: string): Promise<string> {
+    // 1. Instant local disk resolution (zero latency, zero network dependency)
+    try {
+      const p1 = path.join(publicClerkDir, safeFilename);
+      if (fs.existsSync(p1)) {
+        return fs.readFileSync(p1, 'utf-8');
+      }
+      const p2 = path.join(nodeClerkDist, safeFilename);
+      if (fs.existsSync(p2)) {
+        return fs.readFileSync(p2, 'utf-8');
+      }
+    } catch {}
+
+    // 2. Outbound fallback to Clerk frontend and CDNs
     const urls = [
-      `https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5.127.2/dist/${safeFilename}`,
-      `https://unpkg.com/@clerk/clerk-js@5.127.2/dist/${safeFilename}`,
-      `https://${clerkHost}/npm/@clerk/clerk-js@5.127.2/dist/${safeFilename}`,
+      `https://${clerkHost}/npm/@clerk/clerk-js@5/dist/${safeFilename}`,
       `https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/${safeFilename}`,
+      `https://unpkg.com/@clerk/clerk-js@5/dist/${safeFilename}`,
     ];
 
     for (const url of urls) {

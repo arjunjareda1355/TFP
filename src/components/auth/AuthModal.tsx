@@ -153,7 +153,7 @@ export const AuthModal: React.FC = () => {
             {authModalMode === 'login' ? (
               <SignIn
                 routing="virtual"
-                fallbackRedirectUrl="/#home"
+                fallbackRedirectUrl="/"
                 appearance={{
                   elements: {
                     rootBox: 'w-full',
@@ -169,7 +169,7 @@ export const AuthModal: React.FC = () => {
             ) : (
               <SignUp
                 routing="virtual"
-                fallbackRedirectUrl="/#home"
+                fallbackRedirectUrl="/"
                 appearance={{
                   elements: {
                     rootBox: 'w-full',

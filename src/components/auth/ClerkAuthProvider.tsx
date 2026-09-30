@@ -68,13 +68,10 @@ export function resolveInitialKey(): string {
   // 1. Check local storage
   try {
     const stored = localStorage.getItem('clerk_publishable_key');
-    if (stored) {
-      if (isKeyAllowedForHost(stored)) {
-        return stored.trim();
-      } else {
-        // Clear stored key if it is not valid for this hostname (e.g. live key on dev domain)
-        localStorage.removeItem('clerk_publishable_key');
-      }
+    if (stored && isKeyAllowedForHost(stored)) {
+      return stored.trim();
+    } else if (stored) {
+      localStorage.removeItem('clerk_publishable_key');
     }
   } catch {}
 
@@ -112,12 +109,17 @@ export function resolveInitialKey(): string {
       (import.meta as any).env.CLERK_PUBLISHABLE_KEY) ||
     '';
 
-  if (envNextPublic && isKeyAllowedForHost(envNextPublic)) return envNextPublic.trim();
-  if (envVite && isKeyAllowedForHost(envVite)) return envVite.trim();
-  if (envClerk && isKeyAllowedForHost(envClerk)) return envClerk.trim();
+  const envKey = (envNextPublic || envVite || envClerk || '').trim();
+  if (envKey && isValidClerkPublishableKey(envKey) && isKeyAllowedForHost(envKey)) {
+    return envKey;
+  }
 
-  // 4. Default: Use the fully configured key (Google OAuth, Email/Password, Public Sign Up enabled)
-  // which works universally on both preview/vercel links and custom domains (foldedpage.in).
+  // 4. Automatically use the live key when running on the production custom domain
+  if (isProductionDomain()) {
+    return LIVE_PRODUCTION_KEY;
+  }
+
+  // 5. Default: Development/Preview key that works across all cloud environments (localhost, run.app, etc.)
   return DEV_TEST_KEY;
 }
 
@@ -167,64 +169,32 @@ class ClerkErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBounda
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-[#F9F8F6] flex flex-col justify-center items-center px-4 py-12 select-none">
-          <div className="w-full max-w-md bg-white border border-[#E8E5DF] rounded-xs shadow-md p-6 sm:p-8">
-            <div className="text-center mb-6 pb-5 border-b border-[#E8E5DF]">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#FFF7ED] border border-[#FED7AA] text-[#EA580C] mb-3">
-                <AlertCircle className="w-6 h-6" />
-              </div>
-              <div className="text-[10px] font-mono-editorial uppercase text-[#8E8A81] tracking-widest mb-1">
-                Authentication System Notice
-              </div>
-              <h1 className="font-serif-editorial text-2xl font-bold text-[#111110]">
-                Clerk Authentication Notice
-              </h1>
-              <p className="font-serif-editorial italic text-xs text-[#DC2626] mt-2">
-                {this.state.errorMessage}
-              </p>
+          <div className="w-full max-w-md bg-white border border-[#E8E5DF] rounded-xs shadow-md p-6 sm:p-8 text-center">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#FFF7ED] border border-[#FED7AA] text-[#EA580C] mb-3">
+              <AlertCircle className="w-6 h-6" />
             </div>
-
+            <h1 className="font-serif-editorial text-2xl font-bold text-[#111110] mb-2">
+              Authentication Reconnecting
+            </h1>
             <p className="text-xs text-[#55524B] leading-relaxed mb-6">
-              {this.state.isDomainError
-                ? 'Production keys are domain-restricted by Clerk to foldedpage.in. In preview or development environments, click below to use the development key.'
-                : 'The publication authentication service encountered a connection notice. You can retry the connection, update the Clerk publishable key, or continue reading the live publication.'}
+              The editorial authentication service is reconnecting. Click below to refresh your session.
             </p>
 
             <div className="space-y-2.5">
-              {this.state.isDomainError ? (
-                <button
-                  onClick={() => {
-                    this.setState({ hasError: false, errorMessage: '', isDomainError: false });
-                    this.props.onFallbackToDevKey();
-                  }}
-                  className="w-full py-2.5 bg-[#EA580C] hover:bg-[#C2410C] text-white text-xs font-mono-editorial uppercase tracking-wider font-semibold rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  <span>Switch to Development Key</span>
-                </button>
-              ) : (
-                <button
-                  onClick={() => {
-                    this.setState({ hasError: false, errorMessage: '', isDomainError: false });
-                  }}
-                  className="w-full py-2.5 bg-[#111110] hover:bg-[#EA580C] text-white text-xs font-mono-editorial uppercase tracking-wider font-semibold rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  <span>Retry Connection</span>
-                </button>
-              )}
-
               <button
+                type="button"
                 onClick={() => {
                   this.setState({ hasError: false, errorMessage: '', isDomainError: false });
-                  this.props.onResetKey();
+                  this.props.onFallbackToDevKey();
                 }}
-                className="w-full py-2 bg-transparent hover:bg-[#F5F4F0] text-[#111110] border border-[#E8E5DF] text-xs font-mono-editorial uppercase tracking-wider font-medium rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-2.5 bg-[#111110] hover:bg-[#EA580C] text-white text-xs font-mono-editorial uppercase tracking-wider font-semibold rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
               >
-                <Key className="w-3.5 h-3.5" />
-                <span>Update Clerk Key</span>
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Retry Connection</span>
               </button>
 
               <button
+                type="button"
                 onClick={() => {
                   window.location.hash = '/';
                   this.setState({ hasError: false, errorMessage: '', isDomainError: false });
@@ -398,21 +368,6 @@ export const ClerkAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
               </button>
             </div>
           </form>
-
-          <div className="mt-6 pt-4 border-t border-[#E8E5DF] text-center space-y-2">
-            <p className="text-[11px] text-[#6E6A62]">
-              Copy your Publishable key from your Clerk Dashboard:
-            </p>
-            <a
-              href="https://dashboard.clerk.com"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-[#EA580C] hover:underline font-mono-editorial font-semibold"
-            >
-              <span>dashboard.clerk.com</span>
-              <ExternalLink className="w-3 h-3" />
-            </a>
-          </div>
         </div>
       </div>
     );
