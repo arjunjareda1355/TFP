@@ -164,6 +164,41 @@ function getAuthUser(req: express.Request): User | null {
     };
   }
 
+  // 1.5 Clerk JWT Session Token Support (decodes sub & email claims from Clerk tokens)
+  if (rawToken && rawToken.includes('.')) {
+    const parts = rawToken.split('.');
+    if (parts.length === 3) {
+      try {
+        const payloadJson = Buffer.from(parts[1], 'base64url').toString('utf8');
+        const payload = JSON.parse(payloadJson);
+        const email = (payload.email || payload.sub_email || payload.primary_email || '').toLowerCase();
+        const userId = payload.sub || payload.id;
+        if (email) {
+          const userByEmail = db.getUserByEmail(email);
+          if (userByEmail) return userByEmail;
+          if (OWNER_EMAILS.includes(email)) {
+            return {
+              id: userId || (email === 'arjunjareda2007@gmail.com' ? 'user-owner-editorial-2007' : 'user-owner-operations-1355'),
+              email,
+              name: payload.name || 'Arjun Jareda',
+              role: email === 'arjunjareda2007@gmail.com' ? 'EDITORIAL_OWNER' : 'OPERATIONS_OWNER',
+              isPermanentOwner: true,
+              status: 'ACTIVE',
+              avatar: payload.picture || (email === 'arjunjareda2007@gmail.com'
+                ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240&auto=format&fit=crop&q=80'
+                : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=240&auto=format&fit=crop&q=80'),
+              bio: email === 'arjunjareda2007@gmail.com' ? 'Editorial Owner & Editor-in-Chief' : 'Operations Owner & Publication Director',
+            };
+          }
+        }
+        if (userId) {
+          const userById = db.getUserById(userId);
+          if (userById) return userById;
+        }
+      } catch {}
+    }
+  }
+
   const tokenLower = rawToken.toLowerCase();
 
     // Check if token matches a registered user's email
