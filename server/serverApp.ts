@@ -1,9 +1,17 @@
+import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import apiRouter from './routes';
 import { db } from './db';
+
+export const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY || '';
+export const CLERK_PUBLISHABLE_KEY =
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+  process.env.CLERK_PUBLISHABLE_KEY ||
+  process.env.VITE_CLERK_PUBLISHABLE_KEY ||
+  'pk_live_Y2xlcmsuZm9sZGVkcGFnZS5pbiQ';
 
 // Catch unhandled errors globally to prevent unexpected process exit in production
 process.on('uncaughtException', (err) => {
@@ -262,10 +270,7 @@ export async function startServer() {
       const host = req.headers.host || '';
       const isProdHost = host.includes('foldedpage.in');
       const clerkKey = isProdHost
-        ? (process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
-           process.env.CLERK_PUBLISHABLE_KEY ||
-           process.env.VITE_CLERK_PUBLISHABLE_KEY ||
-           'pk_live_Y2xlcmsuZm9sZGVkcGFnZS5pbiQ')
+        ? CLERK_PUBLISHABLE_KEY
         : (process.env.VITE_CLERK_PUBLISHABLE_KEY ||
            process.env.CLERK_PUBLISHABLE_KEY ||
            'pk_test_c21vb3RoLXdhaG9vLTExNTEuY2xlcmsuYWNjb3VudHMuZGV2JA');

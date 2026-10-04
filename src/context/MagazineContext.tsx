@@ -178,13 +178,23 @@ export const MagazineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const { user: clerkUser, isSignedIn } = useUser();
   const clerk = useClerk();
 
-  // Keep admin token synced with Clerk user when signed in
+  // Keep admin token and server profile synced with Clerk user when signed in
   useEffect(() => {
     if (isSignedIn && clerkUser) {
       const email = clerkUser.primaryEmailAddress?.emailAddress;
       if (email) {
         localStorage.setItem('tfp_admin_token', email);
       }
+      fetch('/api/auth/clerk-sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: clerkUser.id,
+          email: email || '',
+          name: clerkUser.fullName || clerkUser.firstName || clerkUser.username || '',
+          avatar: clerkUser.imageUrl || '',
+        }),
+      }).catch(() => {});
     }
   }, [isSignedIn, clerkUser]);
 

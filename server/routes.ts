@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
 import { db } from './db';
-import { User } from '../src/types';
+import { User, UserRole } from '../src/types';
 import { sendVerificationEmail, sendWelcomeEmail, sendStoryNewsletter } from './email';
 import { geminiService } from './gemini';
 import {
@@ -24,6 +24,15 @@ import {
   generateD1SqlDump,
   StoredFileRecord,
 } from './cloudflareD1';
+
+const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY || '';
+const CLERK_PUBLISHABLE_KEY =
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+  process.env.CLERK_PUBLISHABLE_KEY ||
+  process.env.VITE_CLERK_PUBLISHABLE_KEY ||
+  'pk_live_Y2xlcmsuZm9sZGVkcGFnZS5pbiQ';
+
+const clerkUserCache = new Map<string, User>();
 
 const router = express.Router();
 
@@ -320,6 +329,100 @@ router.use(async (req, res, next) => {
 });
 
 // ====================== AUTH ROUTES ======================
+router.get('/auth/clerk-config', (req, res) => {
+  res.json({
+    publishableKey: CLERK_PUBLISHABLE_KEY,
+    configured: Boolean(CLERK_PUBLISHABLE_KEY),
+    isLive: CLERK_PUBLISHABLE_KEY.startsWith('pk_live_'),
+  });
+});
+
+router.post('/auth/clerk-sync', async (req, res) => {
+  try {
+    const { userId, email, name, avatar } = req.body || {};
+    if (!userId && !email) {
+      return res.status(400).json({ error: 'Missing userId or email' });
+    }
+
+    let resolvedEmail = (email || '').toLowerCase().trim();
+    let resolvedName = name || '';
+    let resolvedAvatar = avatar || '';
+
+    // If userId provided and secret key available, attempt verification/fetch with Clerk API
+    if (userId && CLERK_SECRET_KEY) {
+      try {
+        const clerkRes = await fetch(`https://api.clerk.com/v1/users/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${CLERK_SECRET_KEY}`,
+          },
+        });
+        if (clerkRes.ok) {
+          const clerkData: any = await clerkRes.json();
+          if (clerkData.email_addresses && clerkData.email_addresses.length > 0) {
+            resolvedEmail = (clerkData.email_addresses[0].email_address || resolvedEmail).toLowerCase();
+          }
+          if (clerkData.first_name || clerkData.last_name) {
+            resolvedName = `${clerkData.first_name || ''} ${clerkData.last_name || ''}`.trim() || resolvedName;
+          }
+          if (clerkData.image_url) {
+            resolvedAvatar = clerkData.image_url;
+          }
+        }
+      } catch (err: any) {
+        console.warn('[Clerk API Sync Notice]:', err?.message || err);
+      }
+    }
+
+    const cleanEmail = resolvedEmail;
+    const isOwner = OWNER_EMAILS.includes(cleanEmail);
+    const targetRole: UserRole = isOwner
+      ? (cleanEmail === 'arjunjareda2007@gmail.com' ? 'EDITORIAL_OWNER' : 'OPERATIONS_OWNER')
+      : 'READER';
+
+    let user = cleanEmail ? db.getUserByEmail(cleanEmail) : null;
+    if (!user && userId) {
+      user = db.getUserById(userId);
+    }
+
+    if (user) {
+      user.status = 'ACTIVE';
+      if (resolvedName) user.name = resolvedName;
+      if (resolvedAvatar) user.avatar = resolvedAvatar;
+      if (isOwner) {
+        user.role = targetRole;
+        user.isPermanentOwner = true;
+      }
+      db.save();
+    } else {
+      user = {
+        id: userId || `user-clerk-${Date.now()}`,
+        email: cleanEmail || `${userId}@user.clerk.accounts`,
+        name: resolvedName || (cleanEmail ? cleanEmail.split('@')[0] : 'Clerk Member'),
+        role: targetRole,
+        isPermanentOwner: isOwner,
+        status: 'ACTIVE',
+        avatar: resolvedAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240&auto=format&fit=crop&q=80',
+        bio: isOwner ? 'Editorial & Publication Owner' : 'Verified Reader & Subscriber',
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString(),
+      };
+      db.addUser(user);
+    }
+
+    if (userId) {
+      clerkUserCache.set(userId, user);
+    }
+
+    return res.json({
+      success: true,
+      user,
+      token: user.email || userId,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || 'Failed to sync Clerk user' });
+  }
+});
+
 router.post('/auth/login', (req, res) => {
   const { email, password, passcode } = req.body;
   if (!email) {

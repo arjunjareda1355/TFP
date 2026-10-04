@@ -2,6 +2,7 @@
  * The Folded Page - Universal Server Entrypoint
  * Handles both local development (Vite middlewares) and production Cloud Run deployments.
  */
+import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
 

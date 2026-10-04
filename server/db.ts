@@ -1132,7 +1132,8 @@ class DatabaseService {
       ? nowStr
       : (updates.publishedDate || existing.publishedDate || nowStr);
 
-    // Snapshot revision
+    // Snapshot revision (omit nested revisions to prevent recursive expansion)
+    const { revisions: _prevRevs, ...cleanSnapshotData } = existing;
     const revisions = existing.revisions || [];
     const revSnapshot: ArticleRevision = {
       id: `rev-${existing.id}-${Date.now()}`,
@@ -1142,7 +1143,7 @@ class DatabaseService {
       deck: updates.deck || existing.deck,
       blocksCount: blocks.length,
       wordCount: blocks.reduce((acc, b) => acc + (b.text?.split(/\s+/).length || 0), 0),
-      data: { ...existing },
+      data: cleanSnapshotData as any,
       note: updates.status && updates.status !== existing.status ? `Status changed to ${updates.status}` : 'Saved update',
     };
 
