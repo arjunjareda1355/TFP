@@ -28,8 +28,8 @@ export function isValidClerkPublishableKey(key?: string | null): boolean {
   }
 }
 
-export const LIVE_PRODUCTION_KEY = 'pk_live_Y2xlcmsuZm9sZGVkcGFnZS5pbiQ';
-export const DEV_TEST_KEY = 'pk_test_c21vb3RoLXdhaG9vLTExNTEuY2xlcmsuYWNjb3VudHMuZGV2JA';
+export const CLERK_PUBLISHABLE_KEY = 'pk_live_Y2xlcmsuZm9sZGVkcGFnZS5pbiQ';
+export const LIVE_PRODUCTION_KEY = CLERK_PUBLISHABLE_KEY;
 
 export function isProductionDomain(): boolean {
   if (typeof window === 'undefined' || !window.location) return false;
@@ -39,29 +39,7 @@ export function isProductionDomain(): boolean {
 
 export function isKeyAllowedForHost(key?: string | null): boolean {
   if (!key || typeof key !== 'string') return false;
-  const trimmed = key.trim();
-  if (!isValidClerkPublishableKey(trimmed)) return false;
-
-  // Development keys (pk_test_...) are universally permitted on all hosts (localhost, run.app, preview, etc.)
-  if (trimmed.startsWith('pk_test_')) {
-    return true;
-  }
-
-  // Production keys (pk_live_...) are strictly locked by Clerk to foldedpage.in
-  if (trimmed.startsWith('pk_live_')) {
-    if (typeof window === 'undefined' || !window.location) return true;
-    const hostname = window.location.hostname.toLowerCase();
-    try {
-      const raw = trimmed.replace(/^pk_live_/, '').replace(/\$$/, '');
-      const decoded = atob(raw).replace(/\$$/, '').toLowerCase();
-      const baseDomain = decoded.replace(/^clerk\./, '');
-      return hostname === baseDomain || hostname.endsWith(`.${baseDomain}`);
-    } catch {
-      return false;
-    }
-  }
-
-  return false;
+  return isValidClerkPublishableKey(key.trim());
 }
 
 export function resolveInitialKey(): string {
@@ -75,18 +53,15 @@ export function resolveInitialKey(): string {
     }
   } catch {}
 
-  // 2. Check query string override (?clerk=live or ?clerk=test)
+  // 2. Check query string override (?clerk=live or custom key)
   if (typeof window !== 'undefined' && window.location) {
     try {
       const params = new URLSearchParams(window.location.search);
       const paramKey = params.get('clerk') || params.get('clerk_key');
-      if (paramKey === 'live' && isKeyAllowedForHost(LIVE_PRODUCTION_KEY)) {
-        return LIVE_PRODUCTION_KEY;
+      if (paramKey === 'live') {
+        return CLERK_PUBLISHABLE_KEY;
       }
-      if (paramKey === 'test') {
-        return DEV_TEST_KEY;
-      }
-      if (paramKey && isValidClerkPublishableKey(paramKey) && isKeyAllowedForHost(paramKey)) {
+      if (paramKey && isValidClerkPublishableKey(paramKey)) {
         return paramKey;
       }
     } catch {}
@@ -110,23 +85,18 @@ export function resolveInitialKey(): string {
     '';
 
   const envKey = (envNextPublic || envVite || envClerk || '').trim();
-  if (envKey && isValidClerkPublishableKey(envKey) && isKeyAllowedForHost(envKey)) {
+  if (envKey && isValidClerkPublishableKey(envKey)) {
     return envKey;
   }
 
-  // 4. Automatically use the live key when running on the production custom domain
-  if (isProductionDomain()) {
-    return LIVE_PRODUCTION_KEY;
-  }
-
-  // 5. Default: Development/Preview key that works across all cloud environments (localhost, run.app, etc.)
-  return DEV_TEST_KEY;
+  // 4. Default: Live production key
+  return CLERK_PUBLISHABLE_KEY;
 }
 
 interface ErrorBoundaryProps {
   children: ReactNode;
   onResetKey: () => void;
-  onFallbackToDevKey: () => void;
+  onRetry: () => void;
 }
 
 interface ErrorBoundaryState {
@@ -159,8 +129,8 @@ class ClerkErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBounda
       msg.includes('HTTP Origin header') ||
       msg.includes('origin_invalid')
     ) {
-      console.warn('[Clerk] Domain restriction detected; switching to dev key.');
-      this.props.onFallbackToDevKey();
+      console.warn('[Clerk] Domain restriction detected; retrying connection.');
+      this.props.onRetry();
       this.setState({ hasError: false, errorMessage: '', isDomainError: false });
     }
   }
@@ -185,7 +155,7 @@ class ClerkErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBounda
                 type="button"
                 onClick={() => {
                   this.setState({ hasError: false, errorMessage: '', isDomainError: false });
-                  this.props.onFallbackToDevKey();
+                  this.props.onRetry();
                 }}
                 className="w-full py-2.5 bg-[#111110] hover:bg-[#EA580C] text-white text-xs font-mono-editorial uppercase tracking-wider font-semibold rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
               >
@@ -249,7 +219,6 @@ export const ClerkAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
         }
         console.warn('[Clerk] Notice handled gracefully:', message);
 
-        // If domain error happened, automatically fallback to test key
         if (
           message.includes('Production Keys are only allowed for domain') ||
           message.includes('HTTP Origin header') ||
@@ -258,7 +227,7 @@ export const ClerkAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
           try {
             localStorage.removeItem('clerk_publishable_key');
           } catch {}
-          setActiveKey(DEV_TEST_KEY);
+          setActiveKey(CLERK_PUBLISHABLE_KEY);
         }
       }
     };
@@ -279,14 +248,7 @@ export const ClerkAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
       return;
     }
     if (!isValidClerkPublishableKey(cleanKey)) {
-      setErrorMsg('Publishable key must be a valid Clerk key from your dashboard (e.g. pk_live_... or pk_test_...)');
-      return;
-    }
-
-    if (!isKeyAllowedForHost(cleanKey)) {
-      setErrorMsg(
-        'Notice: Production keys (pk_live_...) can only be used on domain "foldedpage.in". For this development/preview URL, please use your test key (pk_test_...).'
-      );
+      setErrorMsg('Publishable key must be a valid Clerk key from your dashboard (e.g. pk_live_...)');
       return;
     }
 
@@ -302,11 +264,11 @@ export const ClerkAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
     setIsUpdatingKey(true);
   };
 
-  const handleFallbackToDevKey = () => {
+  const handleRetry = () => {
     try {
       localStorage.removeItem('clerk_publishable_key');
     } catch {}
-    setActiveKey(DEV_TEST_KEY);
+    setActiveKey(CLERK_PUBLISHABLE_KEY);
   };
 
   // The publishable key used to initialize ClerkProvider
@@ -344,7 +306,7 @@ export const ClerkAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
                   setInputKey(e.target.value);
                   setErrorMsg('');
                 }}
-                placeholder="pk_live_... or pk_test_..."
+                placeholder="pk_live_..."
                 className="w-full text-xs font-mono px-3 py-2 border border-[#E8E5DF] rounded-xs bg-[#F9F8F6] focus:bg-white focus:border-[#EA580C] outline-none"
                 required
               />
@@ -375,7 +337,7 @@ export const ClerkAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
 
   // Official ClerkProvider instance wrapped in ErrorBoundary (loads same-origin proxy for zero latency and iframe immunity)
   return (
-    <ClerkErrorBoundary onResetKey={handleReset} onFallbackToDevKey={handleFallbackToDevKey}>
+    <ClerkErrorBoundary onResetKey={handleReset} onRetry={handleRetry}>
       <ClerkProvider
         publishableKey={resolvedKey}
         clerkJSUrl="/clerk-js/clerk.browser.js"
